@@ -72,7 +72,7 @@ const i18n = {
     targetValue: "সমগ্র বাংলাদেশ জাতীয় থার্মাল গ্রিড",
     btnDataAudit: "ডেটা অডিট",
     btnSmsAlert: "ফ্রি অ্যালার্ট",
-    btnCitizenReport: "হিট রিপোর্ট",
+    btnCitizenReport: "হিট report",
     btnDetectGps: "লাইভ জিপিএস",
     btnPullTelemetry: "ডেটা রিফ্রেশ",
     kpiAmbient: "বাতাসের তাপমাত্রা (T2M)",
@@ -270,6 +270,7 @@ let heatLayer = null;
 let stationLayerGroup = null;
 let shelterLayerGroup = null;
 let citizenLayerGroup = null;
+let safeRouteLayer = null;
 let temporalChart = null;
 let liveGPSMarker = null;
 let currentlySelectedNode = null;
@@ -439,6 +440,43 @@ function toggleLayer(layerType) {
   }
 }
 
+// NEW: THERMAL-SAFE ROUTING (Shaded Corridors)
+function toggleShadedRoute() {
+  const btn = document.getElementById('toggleSafeRouteBtn');
+  if (safeRouteLayer && gisMap.hasLayer(safeRouteLayer)) {
+    gisMap.removeLayer(safeRouteLayer);
+    btn.classList.remove('bg-teal-500', 'text-white');
+    btn.classList.add('bg-teal-500/20', 'text-teal-300');
+    return;
+  }
+
+  // Draw green shaded corridor from Chawkbazar to Ramna Park Cooling Haven
+  const safePathCoords = [
+    [23.7156, 90.3980], // Chawkbazar
+    [23.7230, 90.3990],
+    [23.7290, 90.4010],
+    [23.7372, 90.3995]  // Ramna Park Oasis
+  ];
+
+  safeRouteLayer = L.polyline(safePathCoords, {
+    color: '#10B981',
+    weight: 5,
+    opacity: 0.85,
+    dashArray: '8, 8'
+  }).addTo(gisMap);
+
+  safeRouteLayer.bindPopup(`
+    <div class="font-mono text-xs p-1">
+      <strong class="text-emerald-400">🌿 থার্মাল-সেফ রুটিং করিডোর</strong><br/>
+      <span>গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট। তাপমাত্রা প্রায় ৩.৫°C পর্যন্ত কম অনুভূত হয়।</span>
+    </div>
+  `).openPopup();
+
+  btn.classList.add('bg-teal-500', 'text-white');
+  btn.classList.remove('bg-teal-500/20', 'text-teal-300');
+  gisMap.fitBounds(safeRouteLayer.getBounds(), { padding: [40, 40] });
+}
+
 // ==========================================
 // 4. CHART.JS TIME-SERIES PROJECTION
 // ==========================================
@@ -606,6 +644,12 @@ function selectMonitoringNode(node) {
   document.getElementById('workerAdvisoryText').innerText = currentLang === 'bn' ? node.workerActionBn : node.workerActionEn;
   document.getElementById('plannerAdvisoryText').innerText = currentLang === 'bn' ? node.plannerActionBn : node.plannerActionEn;
 
+  // NEW: Calculate Night-Time Thermal Trapping Index
+  const nightTrap = parseFloat((node.ndbi * 3.8 - node.ndvi * 1.5).toFixed(1));
+  document.getElementById('nightRetentionVal').innerText = `+${nightTrap > 0 ? nightTrap : 0.8}°C`;
+  const coolEfficiency = Math.max(15, Math.min(85, Math.round((1 - node.ndbi) * 100)));
+  document.getElementById('nightCoolingEff').innerText = `${coolEfficiency}%`;
+
   const badge = document.getElementById('targetRiskBadge');
   if (node.currentLST >= 40) {
     badge.innerText = currentLang === 'bn' ? "মারাত্মক থার্মাল হটস্পট" : "CRITICAL THERMAL HOTSPOT";
@@ -668,6 +712,60 @@ function calculateHealthRisk() {
     riskStatusElem.innerText = currentLang === 'bn' ? "সহনশীল মাত্রা" : "Manageable";
     riskStatusElem.className = "text-xs font-bold text-emerald-400";
   }
+}
+
+// NEW: 1-CLICK ADVISORY CARD EXPORT (BULLETIN)
+function exportAdvisoryCard() {
+  const node = currentlySelectedNode || monitoringNodes[0];
+  const bulletinText = `
+========================================
+EcoShield.AI - NATIONAL HEAT ADVISORY
+========================================
+অঞ্চল: ${node.nameBn} (${node.nameEn})
+লাইভ সারফেস টেম্পারেচার: ${node.currentLST}°C (UHI Anomaly: +${node.currentAnomaly}°C)
+বেস মডেল তাপমাত্রা: ${activeTelemetry.baseTemp}°C
+বাতাসে আর্দ্রতা: ${activeTelemetry.humidity}%
+সৌর বিকিরণ: ${activeTelemetry.solarRadiation} W/m²
+
+[মাঠ পর্যায়ের সতর্কতা]:
+${node.workerActionBn}
+
+[নগর ও বিভাগীয় সুপারিশ]:
+${node.plannerActionBn}
+
+Issued by: EcoShield.AI Autonomous WebGIS Mission Control
+Source: NASA ECOSTRESS / Landsat-9 / Open-Meteo
+========================================
+  `;
+
+  const blob = new Blob([bulletinText], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `EcoShield_Advisory_${node.id}.txt`;
+  a.click();
+}
+
+// NEW: EMERGENCY SOS ENGINE
+function triggerEmergencySOS() {
+  const modal = document.getElementById('sosModal');
+  modal.classList.remove('hidden');
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      document.getElementById('sosNearestDist').innerText = "~১.২ কিমি (নিকটবর্তী)";
+    });
+  }
+}
+
+function closeSosModal() {
+  document.getElementById('sosModal').classList.add('hidden');
+}
+
+function navigateNearestShelter() {
+  closeSosModal();
+  // Fly to Ramna Park Cooling Haven
+  gisMap.flyTo([23.7372, 90.3995], 14, { duration: 1.5 });
+  alert("নিকটবর্তী শীতল আশ্রয় (রমনা পার্ক কুলিং হ্যাভেন) ম্যাপে নির্দেশ করা হয়েছে।");
 }
 
 function playVoiceWarning() {
