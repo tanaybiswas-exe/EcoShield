@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoShield Local | Enterprise Microclimate & Urban Heat Island Observatory</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet GIS & Heatmap Engine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+  <!-- Chart.js Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#050a14',
+              secondary: '#0b1325',
+              tertiary: '#111d38',
+              border: '#1b2d54',
+              highlight: '#243a6d'
+            },
+            nasa: {
+              blue: '#0B3D91',
+              cyan: '#00D1FF',
+              red: '#FC3D21',
+              emerald: '#10B981',
+              amber: '#F59E0B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-surface text-slate-200 antialiased min-h-screen flex flex-col font-sans select-none relative">
+
+  <!-- TOP ENTERPRISE HUD BAR -->
+  <header class="h-14 border-b border-surface-border bg-surface-secondary/95 backdrop-blur-md px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-full bg-nasa-blue flex items-center justify-center border border-nasa-cyan/40 shadow-lg shadow-nasa-blue/40 relative">
+        <span class="font-extrabold text-[10px] tracking-widest text-white">NASA</span>
+        <span class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-nasa-cyan animate-ping"></span>
+      </div>
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-sm lg:text-base tracking-tight text-white">EcoShield<span class="text-nasa-cyan">.AI</span></span>
+          <span id="uiHeaderBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono uppercase bg-nasa-cyan/10 text-nasa-cyan border border-nasa-cyan/30">Microclimate Mission Control</span>
+        </div>
+        <span class="text-[10px] text-slate-400 font-mono hidden md:inline">ECOSTRESS (ISS) • Landsat-9 TIRS • OpenAQ v3 Ground Stations</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-2 text-xs font-mono">
+      <div class="hidden lg:flex items-center gap-2 bg-surface px-3 py-1 rounded border border-surface-border font-mono text-[11px]">
+        <span class="text-slate-400" id="uiTargetLabel">Target:</span>
+        <span class="text-white font-semibold" id="uiTargetValue">Greater Dhaka Mega-Grid (23.8103°N, 90.4125°E)</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 bg-surface px-2.5 py-1 rounded border border-surface-border text-[11px] font-mono">
+        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="telemetryStatus" class="text-emerald-400">LIVE FEED ACTIVE</span>
+      </div>
+
+      <!-- VOICE AUDIO ASSISTANT BUTTON -->
+      <button onclick="playVoiceWarning()" class="flex items-center gap-1.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 font-mono px-2.5 py-1 rounded text-[11px] transition shadow-md">
+        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+        <span id="uiBtnVoice">VOICE ALERTS</span>
+      </button>
+
+      <!-- LANGUAGE TOGGLE SWITCH (BN / EN) -->
+      <button onclick="toggleAppLanguage()" id="langToggleBtn" class="flex items-center gap-1 bg-surface-tertiary hover:bg-surface-highlight text-nasa-cyan font-mono px-2.5 py-1 rounded border border-nasa-cyan/30 text-[11px] transition shadow-md">
+        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+        <span id="langBtnText">English</span>
+      </button>
+
+      <!-- AUDIT MODAL BUTTON -->
+      <button onclick="openMethodologyModal()" class="hidden sm:flex items-center gap-1.5 bg-surface-tertiary hover:bg-surface-highlight text-slate-300 font-mono px-2.5 py-1 rounded border border-surface-border text-[11px] transition">
+        <i data-lucide="book-open" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+        <span id="uiBtnDataAudit">DATA AUDIT</span>
+      </button>
+
+      <!-- CITIZEN REPORT BUTTON -->
+      <button onclick="openCitizenModal()" class="flex items-center gap-1.5 bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 font-mono px-2.5 py-1 rounded text-[11px] transition shadow-md">
+        <i data-lucide="message-square-plus" class="w-3.5 h-3.5"></i>
+        <span id="uiBtnCitizenReport">REPORT HEAT</span>
+      </button>
+
+      <!-- FREE DISPATCH ALERTS MODAL TRIGGER -->
+      <button onclick="openSmsModal()" class="flex items-center gap-1.5 bg-nasa-amber/20 hover:bg-nasa-amber/30 text-amber-300 font-mono px-2.5 py-1 rounded border border-amber-500/40 text-[11px] transition shadow-md">
+        <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
+        <span id="uiBtnSmsAlert">FREE ALERTS</span>
+      </button>
+
+      <!-- LIVE GPS BUTTON -->
+      <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1 rounded border border-emerald-400/40 text-[11px] transition shadow-md">
+        <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i>
+        <span id="uiBtnDetectGps">DETECT GPS</span>
+      </button>
+
+      <button onclick="executeTelemetryPipeline()" class="flex items-center gap-1.5 bg-nasa-blue hover:bg-blue-800 text-white font-mono px-3 py-1 rounded border border-nasa-cyan/30 text-[11px] transition shadow-md">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="refreshIcon"></i>
+        <span id="uiBtnPullTelemetry">PULL TELEMETRY</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- WORKSPACE GRID (MISSION LAYOUT) -->
+  <div class="flex-1 flex flex-col xl:flex-row overflow-hidden">
+    
+    <!-- LEFT CONTROL & GIS MONITORING (70% WIDTH) -->
+    <div class="flex-1 flex flex-col border-b xl:border-b-0 xl:border-r border-surface-border bg-surface">
+      
+      <!-- REAL-TIME TELEMETRY KPI TILES -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-px bg-surface-border border-b border-surface-border">
+        
+        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+            <span id="kpiLabelAmbient">বাতাসের তাপমাত্রা (T2M)</span>
+            <i data-lucide="thermometer" class="w-3.5 h-3.5 text-blue-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="kpiAmbientTemp" class="text-2xl font-bold font-mono text-white">--</span>
+            <span class="text-xs text-slate-400 font-mono">°C</span>
+          </div>
+          <div class="mt-1 text-[10px] text-slate-400 font-mono">Open-Meteo High-Res</div>
+        </div>
+
+        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+            <span id="kpiLabelHotspot">সর্বোচ্চ হিট হটস্পট</span>
+            <i data-lucide="flame" class="w-3.5 h-3.5 text-nasa-red"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="kpiPeakUHI" class="text-2xl font-bold font-mono text-nasa-red">--</span>
+            <span class="text-xs text-nasa-red/80 font-mono">°C</span>
+          </div>
+          <div id="kpiHotspotLoc" class="mt-1 text-[10px] text-nasa-red/80 font-mono font-medium truncate">Calculating...</div>
+        </div>
+
+        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+            <span id="kpiLabelFeelsLike">ফিলস-লাইক (হিট ইনডেক্স)</span>
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-orange-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="kpiHeatIndex" class="text-2xl font-bold font-mono text-orange-400">--</span>
+            <span class="text-xs text-slate-400 font-mono">°C</span>
+          </div>
+          <div id="kpiRiskCategory" class="mt-1 text-[10px] text-orange-300 font-mono">Stress Index</div>
+        </div>
+
+        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+            <span id="kpiLabelSolar">সৌর বিকিরণ ফ্লাক্স</span>
+            <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-400"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="kpiSolarRad" class="text-2xl font-bold font-mono text-amber-400">--</span>
+            <span class="text-xs text-slate-400 font-mono">W/m²</span>
+          </div>
+          <div class="mt-1 text-[10px] text-slate-400 font-mono" id="kpiSubSolar">সারফেস হিট ফ্লাক্স</div>
+        </div>
+
+        <div class="bg-surface-secondary p-3 col-span-2 md:col-span-1 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+            <span id="kpiLabelAqi">ওপেন-একিউ PM2.5</span>
+            <i data-lucide="wind" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="kpiAQI" class="text-2xl font-bold font-mono text-nasa-cyan">--</span>
+            <span class="text-xs text-slate-400 font-mono">µg/m³</span>
+          </div>
+          <div id="kpiAQIStation" class="mt-1 text-[10px] text-slate-400 font-mono truncate">OpenAQ v3 Key Verified</div>
+        </div>
+
+      </div>
+
+      <!-- MAP CONTROLS & GIS VIEWPORT -->
+      <div class="relative flex-1 flex flex-col min-h-[460px]">
+        <div class="absolute top-3 left-3 z-[1000] flex flex-wrap gap-1.5 bg-surface-secondary/90 backdrop-blur-md p-1.5 rounded-md border border-surface-border shadow-xl">
+          <button id="toggleThermalHeatmap" onclick="toggleLayer('heat')" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-nasa-red/20 text-nasa-red border border-nasa-red/40 flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-nasa-red"></span> <span id="layerBtnHeat">ইকোস্ট্রেস থার্মাল গ্রেডিয়েন্ট</span>
+          </button>
+          <button id="toggleStations" onclick="toggleLayer('stations')" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-nasa-cyan"></span> <span id="layerBtnStations">গ্রাউন্ড নোডসমূহ (৬)</span>
+          </button>
+          <button id="toggleShelters" onclick="toggleLayer('shelters')" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span> <span id="layerBtnShelters">কুলিং সেন্টার</span>
+          </button>
+        </div>
+
+        <div id="gis-map"></div>
+
+        <div class="absolute bottom-3 right-3 z-[1000] bg-surface-secondary/95 backdrop-blur-md p-2 rounded border border-surface-border text-[10px] font-mono text-slate-300 shadow-2xl flex flex-col gap-1 w-64">
+          <div class="flex justify-between font-bold text-white uppercase text-[9px] tracking-wider border-b border-surface-border pb-1">
+            <span id="legendTitle">থার্মাল LST বর্ণালী</span>
+            <span>ECOSTRESS Calibrated</span>
+          </div>
+          <div class="h-2 w-full rounded bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-600"></div>
+          <div class="flex justify-between text-[9px] text-slate-400 pt-0.5">
+            <span id="legendCool">&lt;৩২°C (শীতল জোন)</span>
+            <span id="legendNominal">৩৬°C (স্বাভাবিক)</span>
+            <span id="legendCrit">&gt;৪২°C (চরম বিপদ)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIME-SERIES PROJECTION (Chart.js) -->
+      <div class="h-56 bg-surface-secondary border-t border-surface-border p-3 flex flex-col">
+        <div class="flex items-center justify-between pb-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="line-chart" class="w-4 h-4 text-nasa-cyan"></i>
+            <span id="chartHeading" class="text-xs font-mono font-bold text-white uppercase tracking-wider">২৪-ঘণ্টার ডায়ুরনাল UHI বৃদ্ধি বনাম সরাসরি সৌর বিকিরণ</span>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400">Model: GFS / Copernicus HR Downscale</span>
+        </div>
+        <div class="flex-1 w-full min-h-0 relative">
+          <canvas id="temporalChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT MISSION INTELLIGENCE & POLICY ENGINE (30% WIDTH) -->
+    <div class="w-full xl:w-[420px] bg-surface-secondary flex flex-col overflow-y-auto">
+      
+      <!-- Target Node Header -->
+      <div class="p-4 border-b border-surface-border bg-surface-tertiary/40">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-nasa-cyan flex items-center gap-1.5">
+            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> <span id="uiTargetHeader">নির্বাচিত নোড টেলিমেট্রি</span>
+          </span>
+          <span id="targetRiskBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-600/30 text-rose-400 border border-rose-500/40">মারাত্মক থার্মাল হটস্পট</span>
+        </div>
+
+        <h3 id="targetNodeName" class="text-lg font-bold text-white mt-1">চকবাজার বাণিজ্যিক আড়ত</h3>
+        <p id="targetNodeCoords" class="text-[11px] font-mono text-slate-400">Lat: 23.7156° N | Lon: 90.3980° E | Old Dhaka Grid</p>
+      </div>
+
+      <!-- VISUAL THERMAL GAUGE METER -->
+      <div class="p-4 border-b border-surface-border bg-surface-tertiary/20">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-300 mb-2">
+          <span>থার্মাল স্ট্রেস লেভেল মিটার:</span>
+          <button onclick="playVoiceWarning()" class="text-rose-400 hover:text-rose-300 flex items-center gap-1 text-[11px]">
+            <i data-lucide="volume-2" class="w-3 h-3"></i> ভয়েস শুনুন
+          </button>
+        </div>
+        <div class="h-3 w-full bg-surface-border rounded-full overflow-hidden flex">
+          <div class="h-full bg-emerald-500 w-1/3" title="স্বাভাবিক (<34°C)"></div>
+          <div class="h-full bg-amber-400 w-1/3" title="সতর্কতা (34-39°C)"></div>
+          <div class="h-full bg-rose-600 w-1/3" title="চরম বিপদ (>40°C)"></div>
+        </div>
+        <div class="flex justify-between text-[9px] font-mono text-slate-400 mt-1">
+          <span>নিরাপদ</span>
+          <span>সতর্কতা</span>
+          <span>মারাত্মক ঝুঁকি</span>
+        </div>
+      </div>
+
+      <!-- NEW: AI HEALTH RISK & HEAT-STROKE PREDICTOR (নতুন এআই স্বাস্থ্য ঝুঁকি ক্যালকুলেটর) -->
+      <div class="p-4 border-b border-surface-border space-y-3 bg-surface-tertiary/30">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono font-bold uppercase text-rose-400 tracking-wider flex items-center gap-1.5">
+            <i data-lucide="heart-pulse" class="w-4 h-4 text-rose-500"></i> <span id="uiHealthHeading">AI হিট-স্ট্রোক স্বাস্থ্য ঝুঁকি ক্যালকুলেটর</span>
+          </span>
+          <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Health AI</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-sans leading-relaxed">
+          আপনার কাজের ধরন ও বয়স সিলেক্ট করে বর্তমান তাপমাত্রায় হিট-স্ট্রোকের ঝুঁকি জেনে নিন:
+        </p>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[10px] font-mono text-slate-300 mb-1">পেশা / ক্যাটাগরি:</label>
+            <select id="healthUserType" onchange="calculateHealthRisk()" class="w-full bg-surface border border-surface-border rounded px-2 py-1.5 text-white font-mono text-[11px] focus:border-rose-400 focus:outline-none">
+              <option value="1.3">রিকশাচালক / দিনমজুর</option>
+              <option value="1.1">রাস্তার পথচারী / হকার</option>
+              <option value="1.0">অফিসগামী / ইনডোর</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-mono text-slate-300 mb-1">রোদে থাকার সময়:</label>
+            <select id="healthExposureHours" onchange="calculateHealthRisk()" class="w-full bg-surface border border-surface-border rounded px-2 py-1.5 text-white font-mono text-[11px] focus:border-rose-400 focus:outline-none">
+              <option value="1.25">৩ ঘণ্টার বেশি</option>
+              <option value="1.1">১ থেকে ৩ ঘণ্টা</option>
+              <option value="1.0">১ ঘণ্টার কম</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded bg-surface border border-rose-500/40 font-mono text-[11px] flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-slate-400 block">হিট-স্ট্রোকের ঝুঁকি:</span>
+            <span id="healthRiskPercent" class="text-base font-bold text-rose-400">--%</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block">মেডিকেল স্ট্যাটাস:</span>
+            <span id="healthRiskStatus" class="text-xs font-bold text-amber-300">গণনা করা হচ্ছে...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPECTRAL INDICES RADAR -->
+      <div class="p-4 border-b border-surface-border space-y-3">
+        <span id="uiSpectralHeading" class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider block">ল্যান্ডস্যাট-৯ স্পেকট্রাল ইনডেক্স বিশ্লেষণ</span>
+        
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-slate-400" id="uiNdbiLabel">NDBI (কংক্রিট ও টিন ঘনত্বের সূচক):</span>
+            <span id="valNDBI" class="font-bold text-nasa-red font-mono">+0.89</span>
+          </div>
+          <div class="h-1.5 w-full bg-surface-border rounded-full overflow-hidden">
+            <div id="barNDBI" class="h-full bg-nasa-red rounded-full" style="width: 89%;"></div>
+          </div>
+          <span id="uiNdbiDesc" class="text-[10px] text-slate-400 font-mono">ঘন টিনের শেড ও কংক্রিট, অত্যন্ত নগণ্য প্রাকৃতিক বাষ্পীভবন।</span>
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-slate-400" id="uiNdviLabel">NDVI (গাছপালা ও উদ্ভিদের ঘনত্ব):</span>
+            <span id="valNDVI" class="font-bold text-emerald-400 font-mono">+0.04</span>
+          </div>
+          <div class="h-1.5 w-full bg-surface-border rounded-full overflow-hidden">
+            <div id="barNDVI" class="h-full bg-emerald-400 rounded-full" style="width: 4%;"></div>
+          </div>
+          <span id="uiNdviDesc" class="text-[10px] text-slate-400 font-mono">চরম বৃক্ষহীন অঞ্চল। মোট ছায়ার অনুপাত ২% এরও কম।</span>
+        </div>
+
+        <div class="p-2.5 rounded bg-surface border border-surface-border font-mono text-[11px] space-y-1">
+          <div class="flex justify-between text-slate-400">
+            <span id="uiMathBaseLabel">বেস আবহাওয়া মডেল টেম্প:</span>
+            <span id="mathBaseTemp" class="text-white">--°C</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span id="uiMathAnomalyLabel">UHI অ্যানোমালি পার্থক্য (ΔT):</span>
+            <span id="mathAnomaly" class="text-nasa-red font-bold">+--°C</span>
+          </div>
+          <div class="flex justify-between border-t border-surface-border pt-1 text-white font-bold">
+            <span id="uiMathCalculatedLabel">বাস্তব স্থানীয় সারফেস টেম্প:</span>
+            <span id="mathCalculatedLST" class="text-nasa-cyan">--°C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHAT-IF URBAN RESILIENCE AI SIMULATOR -->
+      <div class="p-4 border-b border-surface-border space-y-3 bg-surface-tertiary/30">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono font-bold uppercase text-amber-300 tracking-wider flex items-center gap-1.5">
+            <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i> <span id="uiSimHeading">আরবান রেজিলিয়েন্স সিমুলেটর (AI Policy Tool)</span>
+          </span>
+          <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">What-If Engine</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-sans leading-relaxed">
+          গাছ লাগানো বা সাদা ছাদের প্রলেপ দিলে তাপমাত্রা কত কমবে তা রিয়েল-টাইমে পরীক্ষা করুন:
+        </p>
+
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px] font-mono">
+            <span class="text-slate-300">বৃক্ষরোপণ বৃদ্ধি (+NDVI):</span>
+            <span id="sliderValGreen" class="font-bold text-emerald-400">+0%</span>
+          </div>
+          <input type="range" id="simGreenery" min="0" max="50" value="0" step="5" oninput="runPolicySimulation()" class="w-full accent-emerald-500 cursor-pointer">
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex justify-between text-[11px] font-mono">
+            <span class="text-slate-300">হোয়াইট রুফ কোটিং (+Albedo):</span>
+            <span id="sliderValRoof" class="font-bold text-nasa-cyan">+0%</span>
+          </div>
+          <input type="range" id="simRoof" min="0" max="60" value="0" step="10" oninput="runPolicySimulation()" class="w-full accent-cyan-400 cursor-pointer">
+        </div>
+
+        <div class="p-2.5 rounded bg-surface border border-emerald-500/40 font-mono text-[11px] flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-slate-400 block">সম্ভাব্য তাপমাত্রা হ্রাস:</span>
+            <span id="simTempDrop" class="text-base font-bold text-emerald-400">-0.0°C</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block">সিমুলেটেড সারফেস টেম্প:</span>
+            <span id="simProjectedLST" class="text-base font-bold text-white">--°C</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OCCUPATIONAL ADVISORY -->
+      <div class="p-4 border-b border-surface-border space-y-3 flex-1">
+        <span class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i> <span id="uiFieldHeading">মাঠ পর্যায়ের জরুরি সতর্কবার্তা</span>
+        </span>
+
+        <div class="p-3 rounded-lg bg-surface border border-surface-border space-y-1.5">
+          <div class="flex items-center gap-2">
+            <i data-lucide="alert-octagon" class="w-4 h-4 text-nasa-red"></i>
+            <span id="uiWorkerWarningHeading" class="text-xs font-bold text-nasa-red font-mono uppercase">রিকশাচালক ও শ্রমজীবীদের সতর্কতা</span>
+          </div>
+          <p id="workerAdvisoryText" class="text-xs text-slate-300 leading-relaxed font-sans">
+            মারাত্মক হিট স্ট্রোকের হুমকি। প্রতি ঘণ্টায় বাধ্যতামূলক ২০ মিনিট ছায়ায় বিশ্রাম নিন। খাবার স্যালাইন পান করুন এবং রোদে কাজ সীমিত রাখুন।
+          </p>
+        </div>
+
+        <div class="p-3 rounded-lg bg-surface border border-surface-border space-y-1.5">
+          <div class="flex items-center gap-2">
+            <i data-lucide="building-2" class="w-4 h-4 text-nasa-cyan"></i>
+            <span id="uiPlannerHeading" class="text-xs font-bold text-nasa-cyan font-mono uppercase">সিটি কর্পোরেশন ও নগর পরিকল্পনা</span>
+          </div>
+          <p id="plannerAdvisoryText" class="text-xs text-slate-300 leading-relaxed font-sans">
+            টিনশেড ছাদে দ্রুত রিফ্লেক্টিভ হোয়াইট কোটিং (SRI > ৮০) এবং সংকীর্ণ গলিতে স্বয়ংক্রিয় ওয়াটার মিস্ট ক্যানন স্থাপন।
+          </p>
+        </div>
+      </div>
+
+      <!-- AUDIT FEED -->
+      <div class="p-4 bg-surface-tertiary/20">
+        <div class="flex items-center justify-between pb-2">
+          <span class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
+            <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-400"></i> <span id="uiGroundHeading">গ্রাউন্ড-ট্রুথ লাইভ সেন্সর ফিড</span>
+          </span>
+          <span class="text-[10px] font-mono text-emerald-400">OpenAQ Node</span>
+        </div>
+
+        <div class="space-y-2 text-[11px] font-mono text-slate-300">
+          <div class="p-2 rounded bg-surface border border-surface-border flex justify-between items-center">
+            <div>
+              <span class="text-white font-semibold" id="uiStationLoc">যুক্তরাষ্ট্র দূতাবাস বারিধারা মনিটরিং:</span>
+              <div class="text-[10px] text-slate-400">Sensors: PM2.5, Humidity, Pressure</div>
+            </div>
+            <span id="groundSyncTime" class="text-emerald-400 text-[10px]">Real Synced</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FLOATING LIVE GPS TELEMETRY MODAL -->
+  <div id="liveLocationModal" class="hidden fixed bottom-6 left-6 z-[2000] w-84 max-w-[90vw] bg-surface-secondary/95 backdrop-blur-md border border-nasa-cyan/40 rounded-xl shadow-2xl p-4 font-mono">
+    <div class="flex items-center justify-between pb-2 border-b border-surface-border">
+      <div class="flex items-center gap-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-nasa-cyan radar-pulse-anim"></span>
+        <span id="uiGpsModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">আপনার বর্তমান জিপিএস লোকেশন</span>
+      </div>
+      <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <div class="mt-3 space-y-2.5 text-xs">
+      <div>
+        <span id="uiGpsZoneLabel" class="text-[10px] text-slate-400">শনাক্তকৃত ভৌগোলিক অঞ্চল:</span>
+        <div id="liveLocName" class="text-sm font-bold text-nasa-cyan">আশুলিয়া / সাভার (ডিটেক্টেড)</div>
+        <div id="liveLocCoords" class="text-[10px] text-slate-400">Lat: 23.8820° N | Lon: 90.3200° E</div>
+      </div>
+
+      <div class="p-2.5 bg-surface rounded-lg border border-surface-border flex items-center justify-between">
+        <div>
+          <span id="uiGpsLocalTempLabel" class="text-[10px] text-slate-400 block">স্থানীয় তাপমাত্রা</span>
+          <span id="liveLocTemp" class="text-xl font-bold font-mono text-white">--°C</span>
+        </div>
+        <div class="text-right">
+          <span id="uiGpsStressLabel" class="text-[10px] text-slate-400 block">হিট স্ট্রেস রেটিং</span>
+          <span id="liveLocBadge" class="text-xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">সহনশীল</span>
+        </div>
+      </div>
+
+      <div class="p-2.5 bg-surface/80 rounded border border-surface-border text-[11px] font-sans">
+        <span id="uiGpsStatusAdvise" class="text-amber-400 font-bold block mb-0.5">বর্তমান অবস্থা ও করণীয়:</span>
+        <p id="liveLocAdvice" class="text-slate-300 leading-snug">খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: NASA DATA LINEAGE & SCIENTIFIC METHODOLOGY AUDIT -->
+  <div id="methodologyModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-secondary border border-nasa-cyan/40 rounded-xl max-w-2xl w-full p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-mono text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
+        <div class="flex items-center gap-2">
+          <div class="h-6 w-6 rounded bg-nasa-blue text-white flex items-center justify-center font-bold text-[10px]">NASA</div>
+          <h2 id="modalMethodTitle" class="text-sm font-bold text-white uppercase tracking-wider">নাসা ডেটা সোর্স ও বৈজ্ঞানিক মেথডোলজি</h2>
+        </div>
+        <button onclick="closeMethodologyModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="mt-4 space-y-4 text-slate-300 font-sans leading-relaxed">
+        <div>
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">1. NASA ECOSTRESS (ISS) Thermal Radiance</h3>
+          <p id="modalMethodDesc1" class="text-[12px] text-slate-400 mt-1">
+            ECOsystem Spaceborne Thermal Radiometer Experiment on Space Station delivers 70m Land Surface Temperature and Emissivity (LSTE) Collection 2 data. We utilize the TIR 5-band split-window algorithm to resolve intra-urban boundary layer temperature variations across high-density megacity grids.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">2. Landsat 9 (OLI-2 / TIRS-2) Downscaling</h3>
+          <p id="modalMethodDesc2" class="text-[12px] text-slate-400 mt-1">
+            Spectral decomposition derived from Band 4 (Red), Band 5 (Near Infrared - NIR), and Band 6 (Short-Wave Infrared 1 - SWIR1):
+          </p>
+          <div class="bg-surface p-2.5 rounded border border-surface-border mt-1.5 font-mono text-[11px] text-emerald-300">
+            • NDVI = (Band 5 - Band 4) / (Band 5 + Band 4) [Fractional Vegetation Cover]<br>
+            • NDBI = (Band 6 - Band 5) / (Band 6 + Band 5) [Impervious Surface Density]
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">3. NOAA Steadman Heat Index Implementation</h3>
+          <p id="modalMethodDesc3" class="text-[12px] text-slate-400 mt-1">
+            Calculated via Rothfusz polynomial regression with dry-bulb ambient temperature and relative humidity.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">4. OpenAQ Ground Validation API</h3>
+          <p id="modalMethodDesc4" class="text-[12px] text-slate-400 mt-1">
+            In-situ continuous particulate calibration pulled via OpenAQ v3 API from reference grade US Embassy Dhaka sensors.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: 100% FREE EARLY WARNING DISPATCH -->
+  <div id="smsModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-secondary border border-amber-500/40 rounded-xl max-w-xl w-full p-5 shadow-2xl font-mono text-xs">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
+        <div class="flex items-center gap-2">
+          <i data-lucide="radio" class="w-4 h-4 text-amber-400"></i>
+          <h2 id="modalSmsTitle" class="text-sm font-bold text-white uppercase tracking-wider">আর্লি ওয়ার্নিং ডিসপ্যাচ (৩টি সম্পূর্ণ ফ্রি মেথড)</h2>
+        </div>
+        <button onclick="closeSmsModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <p id="modalSmsSub" class="text-slate-400 font-sans mt-2.5 text-[12px]">
+        কোনো গেটওয়ে রিচার্জ ছাড়াই সরাসরি মোবাইলের ডিফল্ট মেসেজ অ্যাপ, টুইলিও ফ্রি ট্রায়াল অথবা লাইভ টেলিগ্রাম বটের মাধ্যমে সম্পূর্ণ বিনামূল্যে সতর্কতা পাঠানোর ইঞ্জিন:
+      </p>
+
+      <div class="mt-4 space-y-3">
+        <div>
+          <label id="modalSmsNodeLabel" class="block text-[11px] text-slate-300 mb-1">টার্গেট হটস্পট ও বিপদসীমা:</label>
+          <select id="smsNodeSelect" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-amber-400 focus:outline-none">
+            <option value="Chawkbazar">চকবাজার (পুরান ঢাকা) - ৪৩.৮°C (চরম বিপদ)</option>
+            <option value="Mirpur10">মিরপুর ১০ গোলচত্বর - ৪২.৬°C (উচ্চ ঝুঁকি)</option>
+            <option value="KarwanBazar">কারওয়ান বাজার আড়ত - ৪১.৯°C (উচ্চ ঝুঁকি)</option>
+          </select>
+        </div>
+
+        <div>
+          <label id="modalSmsPhoneLabel" class="block text-[11px] text-slate-300 mb-1">প্রাপকের মোবাইল নম্বর (মোবাইল ও টুইলিও এসএমএস):</label>
+          <input type="text" id="demoPhone" required value="01914531819" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-amber-400 focus:outline-none">
+        </div>
+
+        <details class="bg-surface/80 rounded border border-surface-border p-2">
+          <summary class="cursor-pointer text-[10px] text-nasa-cyan font-bold flex items-center justify-between">
+            <span>⚙️ Twilio $15 Free Trial Credentials (ঐচ্ছিক / Cloud SMS)</span>
+            <span class="text-slate-400 text-[9px]">ক্লিক করুন</span>
+          </summary>
+          <div class="mt-2 space-y-2 pt-2 border-t border-surface-border text-[10px]">
+            <input type="text" id="twilioAccountSid" placeholder="Twilio Account SID (e.g., ACxxxx...)" class="w-full bg-surface-secondary border border-surface-border rounded px-2 py-1 text-white">
+            <input type="password" id="twilioAuthToken" placeholder="Twilio Auth Token" class="w-full bg-surface-secondary border border-surface-border rounded px-2 py-1 text-white">
+            <input type="text" id="twilioFromNumber" placeholder="Twilio Phone Number (e.g., +1234567890)" class="w-full bg-surface-secondary border border-surface-border rounded px-2 py-1 text-white">
+          </div>
+        </details>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+          <button type="button" onclick="dispatchDirectNativeSMS()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded text-[10px] transition flex items-center justify-center gap-1 shadow-md">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+            <span>১. মোবাইল SMS অ্যাপ</span>
+          </button>
+
+          <button type="button" onclick="dispatchTwilioSMS()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded text-[10px] transition flex items-center justify-center gap-1 shadow-md">
+            <i data-lucide="cloud-lightning" class="w-3.5 h-3.5"></i>
+            <span>২. টুইলিও ফ্রি SMS</span>
+          </button>
+
+          <button type="button" onclick="dispatchTelegramAlert()" class="w-full bg-nasa-cyan/20 hover:bg-nasa-cyan/30 text-nasa-cyan border border-nasa-cyan/40 font-bold py-2 rounded text-[10px] transition flex items-center justify-center gap-1 shadow-md">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>৩. টেলিগ্রাম পুশ বট</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="smsPreviewBox" class="hidden mt-4 p-3 bg-surface rounded-lg border border-emerald-500/40 font-mono text-[11px] space-y-1 text-slate-200">
+        <div class="flex items-center justify-between text-emerald-400 font-bold text-[10px]">
+          <span id="dispatchStatusText">DISPATCH SUCCESS</span>
+          <span id="smsTimestamp">Just Now</span>
+        </div>
+        <div class="p-2 bg-surface-secondary rounded border border-surface-border font-sans text-xs text-white leading-relaxed mt-1" id="smsTextBody"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 3: CITIZEN SCIENCE HEAT REPORTER -->
+  <div id="citizenModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-secondary border border-indigo-500/40 rounded-xl max-w-md w-full p-5 shadow-2xl font-mono text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
+        <div class="flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-4 h-4 text-indigo-400"></i>
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider">সিটিজেন সায়েন্স হিট রিপোর্ট</h2>
+        </div>
+        <button onclick="closeCitizenModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <p class="text-slate-400 font-sans mt-2.5 text-[12px]">
+        আপনার এলাকার বাস্তব তাপমাত্রা ও শারীরিক অস্বস্তির তথ্য দিয়ে স্যাটেলাইট এআই মডেলকে নির্ভুল করতে সাহায্য করুন:
+      </p>
+
+      <form onsubmit="handleCitizenReportSubmit(event)" class="mt-4 space-y-3">
+        <div>
+          <label class="block text-[11px] text-slate-300 mb-1">লোকেশন / এলাকা:</label>
+          <input type="text" id="citizenReportLoc" required value="সাভার বাসস্ট্যান্ড, ঢাকা" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-indigo-400 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] text-slate-300 mb-1">তাপমাত্রা (°C):</label>
+            <input type="number" step="0.1" id="citizenReportTemp" required value="40.5" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-indigo-400 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-300 mb-1">শারীরিক অনুভূতি:</label>
+            <select id="citizenReportFeel" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-indigo-400 focus:outline-none">
+              <option value="অসহ্য গরম ও মাথাঘোরা">অসহ্য গরম ও মাথাঘোরা</option>
+              <option value="মাঝারি অস্বস্তি">মাঝারি অস্বস্তি</option>
+              <option value="ছায়াযুক্ত ও সহনশীল">ছায়াযুক্ত ও সহনশীল</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded text-xs transition flex items-center justify-center gap-1.5 shadow-lg">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>রিপোর্ট সাবমিট করুন (Ground-Truth)</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
