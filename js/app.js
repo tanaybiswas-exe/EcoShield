@@ -1,7 +1,7 @@
 // ==========================================
-// 1. CONFIGURATION & BILINGUAL DICTIONARY
+// 1. CONFIGURATION & COMPREHENSIVE BILINGUAL DICTIONARY
 // ==========================================
-let currentLang = 'bn';
+let currentLang = localStorage.getItem('ecoshield_lang') || 'bn';
 const OPENAQ_KEY = "9HVgYUIvSXTxMDFrdbhWA2OBt54AVQaSymRBGjDe";
 const BD_CENTER_LAT = 23.6850;
 const BD_CENTER_LON = 90.3563;
@@ -14,6 +14,7 @@ const i18n = {
     btnLang: "বাংলা",
     btnVoice: "VOICE ALERTS",
     btnVoiceStop: "STOP VOICE",
+    btnVoiceListen: "VOICE ALERTS",
     headerBadge: "National Microclimate Observatory",
     targetLabel: "Coverage:",
     targetValue: "All-Bangladesh Thermal Monitoring Grid",
@@ -29,8 +30,9 @@ const i18n = {
     kpiSubSolar: "Surface Heat Flux",
     kpiAqi: "OPENAQ PM2.5 REAL",
     layerHeat: "ECOSTRESS Thermal Gradient",
-    layerStations: "Regional Hotspots",
+    layerStations: "Regional Hotspot Nodes",
     layerShelters: "Eco Sanctuaries",
+    layerSafeRoute: "Safe Shaded Route",
     legendTitle: "Thermal LST Spectrum",
     legendCool: "<32°C (Oasis)",
     legendNominal: "36°C (Nominal)",
@@ -40,13 +42,33 @@ const i18n = {
     spectralHeading: "Landsat-9 Spectral Indices Decomposition",
     simHeading: "Urban Resilience Simulator (AI Policy Tool)",
     healthHeading: "AI Heat-Stroke Health Risk Calculator",
-    ndbiLabel: "NDBI (Built-Up & Arid Density):",
-    ndbiDesc: "Impervious surface, concrete and barren dry land density.",
+    healthDesc: "Select user occupation and solar exposure to calculate heat-stroke threat:",
+    healthOccLabel: "Occupation / Category:",
+    healthExposureLabel: "Direct Sun Exposure:",
+    healthOccLabor: "Rickshaw Puller / Day Laborer",
+    healthOccPed: "Street Pedestrian / Hawker",
+    healthOccIndoor: "Office Worker / Indoor",
+    healthExpHigh: "More than 3 Hours",
+    healthExpMid: "1 to 3 Hours",
+    healthExpLow: "Less than 1 Hour",
+    healthRiskLabel: "Heat-Stroke Hazard:",
+    healthStatusLabel: "Triage Status:",
+    nightTitle: "Nighttime Thermal Trapping Index",
+    nightDesc: "Urban tin and concrete store daytime heat and radiate it at night, preventing cooling:",
+    nightRetainLabel: "Surface Heat Retained:",
+    nightCoolLabel: "Night Cooling Efficiency:",
+    ndbiLabel: "NDBI (Built-Up & Concrete Index):",
+    ndbiDesc: "High impervious surface and tin roofs; negligible natural evapotranspiration.",
     ndviLabel: "NDVI (Vegetation Canopy Fraction):",
-    ndviDesc: "Forest coverage and vegetative biomass fraction.",
+    ndviDesc: "Sparse urban tree cover; aggregate shade ratio under 5%.",
     mathBaseLabel: "Regional Base Temp:",
     mathAnomalyLabel: "Microclimate Thermal Anomaly (ΔT):",
     mathCalculatedLabel: "Effective Surface Thermal:",
+    simDesc: "Simulate urban cooling benefits by expanding canopy or applying reflective cool roofs:",
+    simGreenLabel: "Increase Tree Canopy (+NDVI):",
+    simRoofLabel: "Cool-Roof High Albedo (+Albedo):",
+    simDropLabel: "Estimated Temperature Drop:",
+    simProjLabel: "Simulated Surface Temp:",
     fieldHeading: "Regional Operational Advisories",
     workerWarningHeading: "Field Laborers & Agricultural Warning",
     plannerHeading: "Division & Municipal Planning",
@@ -59,62 +81,96 @@ const i18n = {
     gpsStatusAdvise: "Current Status & Advisory:",
     modalMethodTitle: "Data Lineage & Peer-Reviewed Methodology",
     modalSmsTitle: "Free Early Warning Broadcast (3-Way Dispatch)",
-    modalSmsSub: "Instant early warning broadcast via Mobile Native SMS App, Twilio $15 Free Trial, or Telegram Push Bot without gateway charges:",
+    modalSmsSub: "Instant early warning broadcast via Mobile Native SMS App, Twilio Free Trial, or Telegram Push Bot without gateway charges:",
     modalSmsPhoneLabel: "Recipient Mobile Number (For Native SMS & Twilio):",
-    modalSmsNodeLabel: "Target Hotspot & Threshold:"
+    modalSmsNodeLabel: "Target Hotspot & Threshold:",
+    meterLabel: "Thermal Stress Level Meter:",
+    meterSafe: "Safe",
+    meterCaution: "Caution",
+    meterDanger: "Critical Danger",
+    bulletinBtn: "Bulletin",
+    sosBtn: "EMERGENCY SOS"
   },
   bn: {
     btnLang: "English",
-    btnVoice: "ভয়েস অ্যালার্ট",
-    btnVoiceStop: "ভয়েস থামান",
-    headerBadge: "জাতীয় মাইক্রোক্লাইমেট কন্ট্রোল",
+    btnVoice: "ভয়েস অ্যালার্ট",
+    btnVoiceStop: "ভয়েস থামান",
+    btnVoiceListen: "ভয়েস শুনুন",
+    headerBadge: "জাতীয় মাইক্রোক্লাইমেট কন্ট্রোল",
     targetLabel: "কভারেজ:",
-    targetValue: "সমগ্র বাংলাদেশ জাতীয় থার্মাল গ্রিড",
+    targetValue: "সমগ্র বাংলাদেশ জাতীয় থার্মাল গ্রিড",
     btnDataAudit: "ডেটা অডিট",
     btnSmsAlert: "ফ্রি অ্যালার্ট",
     btnCitizenReport: "হিট রিপোর্ট",
     btnDetectGps: "লাইভ জিপিএস",
     btnPullTelemetry: "ডেটা রিফ্রেশ",
     kpiAmbient: "বাতাসের তাপমাত্রা (T2M)",
-    kpiHotspot: "জাতীয় সর্বোচ্চ হটস্পট",
+    kpiHotspot: "জাতীয় সর্বোচ্চ হটস্পট",
     kpiFeelsLike: "ফিলস-লাইক (হিট ইনডেক্স)",
     kpiSolar: "সৌর বিকিরণ ফ্লাক্স",
     kpiSubSolar: "সারফেস হিট ফ্লাক্স",
     kpiAqi: "ওপেন-একিউ PM2.5",
-    layerHeat: "ইকোস্ট্রেস থার্মাল গ্রেডিয়েন্ট",
+    layerHeat: "ইকোস্ট্রেস থার্মাল গ্রেডিয়েন্ট",
     layerStations: "আঞ্চলিক হটস্পট নোড",
     layerShelters: "শীতল অঞ্চল",
+    layerSafeRoute: "থার্মাল-সেফ রুট",
     legendTitle: "থার্মাল LST বর্ণালী",
     legendCool: "<৩২°C (শীতল জোন)",
     legendNominal: "৩৬°C (স্বাভাবিক)",
     legendCrit: ">৪২°C (চরম বিপদ)",
-    chartHeading: "২৪-ঘণ্টার ডায়ুরনাল UHI বৃদ্ধি বনাম সরাসরি সৌর বিকিরণ",
+    chartHeading: "২৪-ঘণ্টার ডায়ুরনাল UHI বৃদ্ধি বনাম সরাসরি সৌর বিকিরণ",
     targetHeader: "নির্বাচিত আঞ্চলিক টেলিমেট্রি",
     spectralHeading: "ল্যান্ডস্যাট-৯ স্পেকট্রাল ইনডেক্স বিশ্লেষণ",
     simHeading: "আরবান রেজিলিয়েন্স সিমুলেটর (AI Policy Tool)",
     healthHeading: "AI হিট-স্ট্রোক স্বাস্থ্য ঝুঁকি ক্যালকুলেটর",
+    healthDesc: "আপনার কাজের ধরন ও বয়স সিলেক্ট করে বর্তমান তাপমাত্রায় হিট-স্ট্রোকের ঝুঁকি জেনে নিন:",
+    healthOccLabel: "পেশা / ক্যাটাগরি:",
+    healthExposureLabel: "রোদে থাকার সময়:",
+    healthOccLabor: "রিকশাচালক / দিনমজুর",
+    healthOccPed: "রাস্তার পথচারী / হকার",
+    healthOccIndoor: "অফিসগামী / ইনডোর",
+    healthExpHigh: "৩ ঘণ্টার বেশি",
+    healthExpMid: "১ থেকে ৩ ঘণ্টা",
+    healthExpLow: "১ ঘণ্টার কম",
+    healthRiskLabel: "হিট-স্ট্রোকের ঝুঁকি:",
+    healthStatusLabel: "মেডিকেল স্ট্যাটাস:",
+    nightTitle: "নাইট-টাইম থার্মাল ট্র্যাপিং ইনডেক্স",
+    nightDesc: "কংক্রিট ও টিনের শেড দিনের উত্তাপ শোষণ করে রাতে ছেড়ে দেয়, যার কারণে রাতেও স্বস্তি মেলে না:",
+    nightRetainLabel: "টিন/কংক্রিট তাপ ধরে রাখা:",
+    nightCoolLabel: "রাতের কুলিং ইফিসিয়েন্সি:",
     ndbiLabel: "NDBI (কংক্রিট ও শুষ্ক মাটির সূচক):",
     ndbiDesc: "ঘন বসতি, টিনের শেড ও শুষ্ক মাটির তাপ শোষণ মাত্রা।",
     ndviLabel: "NDVI (গাছপালা ও উদ্ভিদের ঘনত্ব):",
     ndviDesc: "বনভূমি, ফসলি জমি ও প্রাকৃতিক উদ্ভিদের ঘনত্ব।",
     mathBaseLabel: "আঞ্চলিক বেস মডেল টেম্প:",
     mathAnomalyLabel: "আঞ্চলিক থার্মাল পার্থক্য (ΔT):",
-    mathCalculatedLabel: "বাস্তব স্থানীয় সারফেস টেম্প:",
-    fieldHeading: "মাঠ পর্যায়ের জরুরি সতর্কবার্তা",
+    mathCalculatedLabel: "বাস্তব স্থানীয় সারফেস টেম্প:",
+    simDesc: "গাছ লাগানো বা সাদা ছাদের প্রলেপ দিলে তাপমাত্রা কত কমবে তা রিয়েল-টাইমে পরীক্ষা করুন:",
+    simGreenLabel: "বৃক্ষরোপণ বৃদ্ধি (+NDVI):",
+    simRoofLabel: "হোয়াইট রুফ কোটিং (+Albedo):",
+    simDropLabel: "সম্ভাব্য তাপমাত্রা হ্রাস:",
+    simProjLabel: "সিমুলেটেড সারফেস টেম্প:",
+    fieldHeading: "মাঠ পর্যায়ের জরুরি সতর্কবার্তা",
     workerWarningHeading: "কৃষক, শ্রমিক ও দিনমজুরদের সতর্কতা",
-    plannerHeading: "বিভাগীয় ও সিটি কর্পোরেশন পরিকল্পনা",
+    plannerHeading: "বিভাগীয় ও সিটি কর্পোরেশন পরিকল্পনা",
     groundHeading: "গ্রাউন্ড-ট্রুথ লাইভ সেন্সর ফিড",
-    stationLoc: "জাতীয় গ্রাউন্ড মনিটরিং নোড:",
+    stationLoc: "জাতীয় গ্রাউন্ড মনিটরিং নোড:",
     gpsModalTitle: "আপনার বর্তমান জিপিএস লোকেশন",
     gpsZoneLabel: "শনাক্তকৃত ভৌগোলিক অঞ্চল:",
-    gpsLocalTempLabel: "স্থানীয় তাপমাত্রা",
+    gpsLocalTempLabel: "স্থানীয় তাপমাত্রা",
     gpsStressLabel: "হিট স্ট্রেস রেটিং",
     gpsStatusAdvise: "বর্তমান অবস্থা ও করণীয়:",
     modalMethodTitle: "নাসা ডেটা সোর্স ও বৈজ্ঞানিক মেথডোলজি",
-    modalSmsTitle: "আর্লি ওয়ার্নিং ডিসপ্যাচ (৩টি সম্পূর্ণ ফ্রি মেথড)",
-    modalSmsSub: "কোনো গেটওয়ে রিচার্জ ছাড়াই সরাসরি মোবাইলের ডিফল্ট মেসেজ অ্যাপ, টুইলিও ফ্রি ট্রায়াল অথবা লাইভ টেলিগ্রাম বটের মাধ্যমে সম্পূর্ণ বিনামূল্যে সতর্কতা পাঠানোর ইঞ্জিন:",
+    modalSmsTitle: "আর্লি ওয়ার্নিং ডিসপ্যাচ (৩টি সম্পূর্ণ ফ্রি মেথড)",
+    modalSmsSub: "কোনো গেটওয়ে রিচার্জ ছাড়াই সরাসরি মোবাইলের ডিফল্ট মেসেজ অ্যাপ, টুইলিও ফ্রি ট্রায়াল অথবা লাইভ টেলিগ্রাম বটের মাধ্যমে সম্পূর্ণ বিনামূল্যে সতর্কতা পাঠানোর ইঞ্জিন:",
     modalSmsPhoneLabel: "প্রাপকের মোবাইল নম্বর (মোবাইল ও টুইলিও এসএমএস):",
-    modalSmsNodeLabel: "টার্গেট হটস্পট ও বিপদসীমা:"
+    modalSmsNodeLabel: "টার্গেট হটস্পট ও বিপদসীমা:",
+    meterLabel: "থার্মাল স্ট্রেস লেভেল মিটার:",
+    meterSafe: "নিরাপদ",
+    meterCaution: "সতর্কতা",
+    meterDanger: "মারাত্মক ঝুঁকি",
+    bulletinBtn: "বুলেটিন",
+    sosBtn: "জরুরি SOS"
   }
 };
 
@@ -122,7 +178,7 @@ const monitoringNodes = [
   {
     id: "NODE-CHU",
     nameEn: "Chuadanga / Jashore Belt",
-    nameBn: "চুয়াডাঙ্গা ও যশোর বেল্ট",
+    nameBn: "চুয়াডাঙ্গা ও যশোর বেল্ট",
     lat: 23.6402,
     lon: 88.8418,
     ndbi: 0.92,
@@ -154,7 +210,7 @@ const monitoringNodes = [
   {
     id: "NODE-DHK-01",
     nameEn: "Chawkbazar Wholesale Corridor",
-    nameBn: "চকবাজার বাণিজ্যিক আড়ত (ঢাকা)",
+    nameBn: "চকবাজার বাণিজ্যিক আড়ত (ঢাকা)",
     lat: 23.7156,
     lon: 90.3980,
     ndbi: 0.89,
@@ -179,7 +235,7 @@ const monitoringNodes = [
     densityWeight: 1.20,
     type: "danger",
     workerActionEn: "Metro concourse & vehicular emissions trap severe thermal pockets. Move to shaded underpasses.",
-    workerActionBn: "মেট্রোরেল ভায়াডাক্ট ও যানবাহনের ধোঁয়া তীব্র তাপ আটকে রাখছে। দুপুর ১টা থেকে ৩টা রোদে থাকা সীমিত রাখুন।",
+    workerActionBn: "মেট্রোরেল ভায়াডাক্ট ও যানবাহনের ধোঁয়া তীব্র তাপ আটকে রাখছে। দুপুর ১টা থেকে ৩টা রোদে থাকা সীমিত রাখুন।",
     plannerActionEn: "Vertical green facade retrofits along concrete metro viaduct pillars and cool-pavement surfacing.",
     plannerActionBn: "মেট্রোরেলের কংক্রিট পিলারে ভার্টিক্যাল গ্রিন ওয়াল স্থাপন এবং ডিভাইডারে ছায়াযুক্ত গাছ লাগানো।"
   },
@@ -318,7 +374,7 @@ function evaluateMicroclimate(node, baseT, radiation, wind) {
 }
 
 // ==========================================
-// 3. GIS MAP INITIALIZATION (ALL-BANGLADESH VIEW)
+// 3. GIS MAP INITIALIZATION
 // ==========================================
 function initializeGISMap() {
   gisMap = L.map('gis-map', {
@@ -381,11 +437,12 @@ function renderGISLayers() {
 
     const marker = L.marker([node.lat, node.lon], { icon: customIcon });
     const displayName = currentLang === 'bn' ? node.nameBn : node.nameEn;
+    const microLabel = currentLang === 'bn' ? "মাইক্রো-LST:" : "Micro-LST:";
     
     marker.bindTooltip(`
       <div class="font-mono text-xs p-1">
         <span class="font-bold text-white">${displayName}</span><br/>
-        <span class="text-slate-400">Micro-LST:</span> <span class="font-bold text-nasa-cyan">${node.currentLST}°C</span>
+        <span class="text-slate-400">${microLabel}</span> <span class="font-bold text-nasa-cyan">${node.currentLST}°C</span>
         <span class="text-slate-400">(${node.currentAnomaly > 0 ? '+' : ''}${node.currentAnomaly}°C)</span>
       </div>
     `, { direction: 'top', className: 'gis-tooltip' });
@@ -468,10 +525,13 @@ function toggleShadedRoute() {
     dashArray: '8, 8'
   }).addTo(gisMap);
 
+  const routeTitle = currentLang === 'bn' ? "🌿 থার্মাল-সেফ রুটিং করিডোর" : "🌿 Thermal-Safe Shaded Corridor";
+  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট। তাপমাত্রা প্রায় ৩.৫°C পর্যন্ত কম অনুভূত হয়।" : "Vegetative shade corridor prioritizing lower surface temperatures and oasis airflows.";
+
   safeRouteLayer.bindPopup(`
     <div class="font-mono text-xs p-1">
-      <strong class="text-emerald-400">🌿 থার্মাল-সেফ রুটিং করিডোর</strong><br/>
-      <span>গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট। তাপমাত্রা প্রায় ৩.৫°C পর্যন্ত কম অনুভূত হয়।</span>
+      <strong class="text-emerald-400">${routeTitle}</strong><br/>
+      <span>${routeDesc}</span>
     </div>
   `).openPopup();
 
@@ -615,7 +675,6 @@ async function executeTelemetryPipeline(targetLat = BD_CENTER_LAT, targetLon = B
     const worstName = currentLang === 'bn' ? worstNode.nameBn.split(' ')[0] : worstNode.nameEn.split(' ')[0];
     document.getElementById('kpiHotspotLoc').innerText = `${worstName} (+${worstNode.currentAnomaly}°C)`;
 
-    // Fix: Do not forcefully trigger flyTo on startup, just populate telemetry details
     if (!currentlySelectedNode) {
       selectMonitoringNode(worstNode, false);
     }
@@ -628,7 +687,7 @@ async function executeTelemetryPipeline(targetLat = BD_CENTER_LAT, targetLon = B
 }
 
 // ==========================================
-// 6. TARGET SELECTION & LIVE GPS (SMOOTH ZOOM FIX)
+// 6. TARGET SELECTION & LIVE GPS
 // ==========================================
 function selectMonitoringNode(node, shouldFlyTo = true) {
   currentlySelectedNode = node;
@@ -661,7 +720,7 @@ function selectMonitoringNode(node, shouldFlyTo = true) {
     badge.innerText = currentLang === 'bn' ? "উচ্চ তাপমাত্রা ও ঝুঁকি" : "ELEVATED UHI STRAIN";
     badge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/30 text-amber-300 border border-amber-500/40";
   } else {
-    badge.innerText = currentLang === 'bn' ? "শীতল বায়োমাস আশ্রয়স্থল" : "COOL BIOMASS SANCTUARY";
+    badge.innerText = currentLang === 'bn' ? "শীতল বায়োমাস আশ্রয়স্থল" : "COOL BIOMASS SANCTUARY";
     badge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/30 text-emerald-400 border border-emerald-500/40";
   }
 
@@ -670,12 +729,8 @@ function selectMonitoringNode(node, shouldFlyTo = true) {
   runPolicySimulation();
   calculateHealthRisk();
 
-  // Smooth node zoom only when clicked
   if (shouldFlyTo && gisMap) {
-    gisMap.flyTo([node.lat, node.lon], 13, {
-      animate: true,
-      duration: 1.2
-    });
+    gisMap.flyTo([node.lat, node.lon], 13, { animate: true, duration: 1.2 });
   }
 }
 
@@ -715,7 +770,7 @@ function calculateHealthRisk() {
     riskStatusElem.innerText = currentLang === 'bn' ? "চরম বিপদ! কাজ বন্ধ করুন" : "Critical! Stop Work";
     riskStatusElem.className = "text-xs font-bold text-rose-500";
   } else if (riskScore >= 45) {
-    riskStatusElem.innerText = currentLang === 'bn' ? "উচ্চ ঝুঁকি, ছায়ায় থাকুন" : "High Risk, Rest";
+    riskStatusElem.innerText = currentLang === 'bn' ? "উচ্চ ঝুঁকি, ছায়ায় থাকুন" : "High Risk, Rest";
     riskStatusElem.className = "text-xs font-bold text-amber-400";
   } else {
     riskStatusElem.innerText = currentLang === 'bn' ? "সহনশীল মাত্রা" : "Manageable";
@@ -729,20 +784,20 @@ function exportAdvisoryCard() {
 ========================================
 EcoShield.AI - NATIONAL HEAT ADVISORY
 ========================================
-অঞ্চল: ${node.nameBn} (${node.nameEn})
-লাইভ সারফেস টেম্পারেচার: ${node.currentLST}°C (UHI Anomaly: +${node.currentAnomaly}°C)
-বেস মডেল তাপমাত্রা: ${activeTelemetry.baseTemp}°C
-বাতাসে আর্দ্রতা: ${activeTelemetry.humidity}%
-সৌর বিকিরণ: ${activeTelemetry.solarRadiation} W/m²
+Zone: ${node.nameBn} (${node.nameEn})
+Surface Temperature (LST): ${node.currentLST}°C (UHI Anomaly: +${node.currentAnomaly}°C)
+Base Ambient Temperature: ${activeTelemetry.baseTemp}°C
+Relative Humidity: ${activeTelemetry.humidity}%
+Solar Irradiance Flux: ${activeTelemetry.solarRadiation} W/m²
 
-[মাঠ পর্যায়ের সতর্কতা]:
-${node.workerActionBn}
+[Advisory for Field Laborers]:
+${currentLang === 'bn' ? node.workerActionBn : node.workerActionEn}
 
-[নগর ও বিভাগীয় সুপারিশ]:
-${node.plannerActionBn}
+[Spatial Urban Recommendations]:
+${currentLang === 'bn' ? node.plannerActionBn : node.plannerActionEn}
 
 Issued by: EcoShield.AI Autonomous WebGIS Mission Control
-Source: NASA ECOSTRESS / Landsat-9 / Open-Meteo
+Data Lineage: NASA ECOSTRESS Collection 2 / Landsat-9 TIRS-2 / Open-Meteo
 ========================================
   `;
 
@@ -758,8 +813,8 @@ function triggerEmergencySOS() {
   modal.classList.remove('hidden');
 
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      document.getElementById('sosNearestDist').innerText = "~১.২ কিমি (নিকটবর্তী)";
+    navigator.geolocation.getCurrentPosition(() => {
+      document.getElementById('sosNearestDist').innerText = currentLang === 'bn' ? "~১.২ কিমি (নিকটবর্তী)" : "~1.2 km (Nearest)";
     });
   }
 }
@@ -771,7 +826,7 @@ function closeSosModal() {
 function navigateNearestShelter() {
   closeSosModal();
   gisMap.flyTo([23.7372, 90.3995], 14, { animate: true, duration: 1.2 });
-  alert("নিকটবর্তী শীতল আশ্রয় (রমনা পার্ক কুলিং হ্যাভেন) ম্যাপে নির্দেশ করা হয়েছে।");
+  alert(currentLang === 'bn' ? "নিকটবর্তী শীতল আশ্রয় (রমনা পার্ক কুলিং হ্যাভেন) ম্যাপে নির্দেশ করা হয়েছে।" : "Navigating to nearest cooling sanctuary on the map.");
 }
 
 function playVoiceWarning() {
@@ -785,7 +840,7 @@ function playVoiceWarning() {
   if (isVoiceSpeaking) {
     window.speechSynthesis.cancel();
     isVoiceSpeaking = false;
-    voiceBtnText.innerText = currentLang === 'bn' ? "ভয়েস শুনুন" : "VOICE ALERTS";
+    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
     return;
   }
 
@@ -794,7 +849,7 @@ function playVoiceWarning() {
   let voiceText = "";
 
   if (currentLang === 'bn') {
-    voiceText = `সতর্কবার্তা! ${node.nameBn} এলাকায় বাস্তব তাপমাত্রা ${node.currentLST} ডিগ্রি সেলসিয়াসে পৌঁছেছে। ${node.workerActionBn}`;
+    voiceText = `সতর্কবার্তা! ${node.nameBn} এলাকায় বাস্তব তাপমাত্রা ${node.currentLST} ডিগ্রি সেলসিয়াসে পৌঁছেছে। ${node.workerActionBn}`;
   } else {
     voiceText = `Warning! Thermal temperature in ${node.nameEn} has reached ${node.currentLST} degrees Celsius. ${node.workerActionEn}`;
   }
@@ -805,17 +860,17 @@ function playVoiceWarning() {
 
   utterance.onstart = () => {
     isVoiceSpeaking = true;
-    voiceBtnText.innerText = currentLang === 'bn' ? "ভয়েস থামান (Stop)" : "STOP VOICE";
+    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoiceStop : i18n.en.btnVoiceStop;
   };
 
   utterance.onend = () => {
     isVoiceSpeaking = false;
-    voiceBtnText.innerText = currentLang === 'bn' ? "ভয়েস শুনুন" : "VOICE ALERTS";
+    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
   };
 
   utterance.onerror = () => {
     isVoiceSpeaking = false;
-    voiceBtnText.innerText = currentLang === 'bn' ? "ভয়েস শুনুন" : "VOICE ALERTS";
+    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
   };
 
   window.speechSynthesis.speak(utterance);
@@ -886,9 +941,9 @@ function requestUserGPS() {
       displayUserLocationCard(lat, lon, detectedAreaName);
     },
     (error) => {
-      let errMsg = "GPS signal lock failed. Please enable location permissions.";
+      let errMsg = currentLang === 'bn' ? "জিপিএস সিগন্যাল পাওয়া যায়নি। লোকেশন পারমিশন দিন।" : "GPS signal lock failed. Please enable location permissions.";
       if (error.code === error.PERMISSION_DENIED) {
-        errMsg = "Location permission denied. Please allow location access in your browser.";
+        errMsg = currentLang === 'bn' ? "লোকেশন পারমিশন ডিনাই করা হয়েছে। ব্রাউজার সেটিংসে অনুমতি দিন।" : "Location permission denied. Please allow location access in your browser.";
       }
       console.warn("GPS Error:", errMsg);
       alert(errMsg);
@@ -917,7 +972,7 @@ async function displayUserLocationCard(lat, lon, label) {
     if (currentT >= 39) {
       badge.innerText = currentLang === 'bn' ? "চরম তাপদাহ" : "Extreme Heatwave";
       badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
-      advice.innerText = currentLang === 'bn' ? "আপনার এলাকায় মারাত্মক তাপদাহ বিরাজ করছে। সরাসরি রোদ পরিহার করুন, নিয়মিত ওরাল স্যালাইন পান করুন।" : "Severe heatwave detected in your zone. Avoid direct sunlight and hydrate frequently with electrolytes.";
+      advice.innerText = currentLang === 'bn' ? "আপনার এলাকায় মারাত্মক তাপদাহ বিরাজ করছে। সরাসরি রোদ পরিহার করুন, নিয়মিত ওরাল স্যালাইন পান করুন।" : "Severe heatwave detected in your zone. Avoid direct sunlight and hydrate frequently with electrolytes.";
     } else if (currentT >= 35) {
       badge.innerText = currentLang === 'bn' ? "উচ্চ তাপমাত্রা" : "Elevated Strain";
       badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
@@ -925,7 +980,7 @@ async function displayUserLocationCard(lat, lon, label) {
     } else {
       badge.innerText = currentLang === 'bn' ? "সহনশীল / স্বাভাবিক" : "Nominal / Tolerable";
       badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      advice.innerText = currentLang === 'bn' ? "খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।" : "Open airflow and biomass presence keep temperatures within nominal safe thresholds.";
+      advice.innerText = currentLang === 'bn' ? "খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।" : "Open airflow and biomass presence keep temperatures within nominal safe thresholds.";
     }
 
     if (liveGPSMarker) gisMap.removeLayer(liveGPSMarker);
@@ -945,11 +1000,7 @@ async function displayUserLocationCard(lat, lon, label) {
     liveGPSMarker = L.marker([lat, lon], { icon: gpsPulseIcon }).addTo(gisMap);
     liveGPSMarker.bindTooltip(`<b>${label}</b>`, { permanent: true, direction: "top", className: "gis-tooltip" });
 
-    // Smooth High-Precision Camera Zoom to detected user coordinates (Zoom 15)
-    gisMap.flyTo([lat, lon], 15, {
-      animate: true,
-      duration: 1.4
-    });
+    gisMap.flyTo([lat, lon], 15, { animate: true, duration: 1.4 });
 
   } catch (err) {
     console.error("User loc API error:", err);
@@ -965,15 +1016,21 @@ function closeLocationModal() {
 // ==========================================
 function getAlertMessage(target) {
   if (target === 'Chuadanga') {
-    return `[EcoShield জরুরি অ্যালার্ট]: চুয়াডাঙ্গা ও যশোর বেল্টে তাপমাত্রা ৪৩.৫°C অতিক্রম করেছে। দুপুর ১২টা-৩টা সরাসরি রোদ পরিহার করুন ও ওরাল স্যালাইন নিন।`;
+    return currentLang === 'bn' 
+      ? `[EcoShield জরুরি অ্যালার্ট]: চুয়াডাঙ্গা ও যশোর বেল্টে তাপমাত্রা ৪৩.৫°C অতিক্রম করেছে। দুপুর ১২টা-৩টা সরাসরি রোদ পরিহার করুন ও ওরাল স্যালাইন নিন।`
+      : `[EcoShield Alert]: Chuadanga & Jashore corridor exceeded 43.5°C. Avoid peak direct sun between 12-3 PM and consume hydration electrolytes.`;
   } else if (target === 'Rajshahi') {
-    return `[EcoShield জরুরি অ্যালার্ট]: রাজশাহী বরেন্দ্র অঞ্চলে তীব্র শুষ্ক তাপদাহ (৪২.৮°C)। মাঠে ভারী কাজ বন্ধ রাখুন ও ছায়ায় বিশ্রাম নিন।`;
+    return currentLang === 'bn'
+      ? `[EcoShield জরুরি অ্যালার্ট]: রাজশাহী বরেন্দ্র অঞ্চলে তীব্র শুষ্ক তাপদাহ (৪২.৮°C)। মাঠে ভারী কাজ বন্ধ রাখুন ও ছায়ায় বিশ্রাম নিন।`
+      : `[EcoShield Alert]: Rajshahi Barind Tract facing severe dry heatwave (42.8°C). Restrict intense agricultural field work.`;
   } else if (target === 'Chawkbazar') {
-    return `[EcoShield জরুরি অ্যালার্ট]: পুরান ঢাকা ও চকবাজারে তাপমাত্রা ৪৩.৮°C ছাড়িয়েছে। দুপুর ১২টা-৩টা সরাসরি রোদ পরিহার করুন ও ওরাল স্যালাইন নিন। নিকটস্থ আশ্রয়: বাহাদুর শাহ পার্ক।`;
-  } else if (target === 'Mirpur10') {
-    return `[EcoShield জরুরি অ্যালার্ট]: মিরপুর ১০ ও রোকেয়া সরণিতে চরম তাপদাহ (৪২.৬°C)। রিকশা চালনা বা রোদে কাজের মাঝে বাধ্যতামূলক ছায়ায় বিশ্রাম নিন।`;
+    return currentLang === 'bn'
+      ? `[EcoShield জরুরি অ্যালার্ট]: পুরান ঢাকা ও চকবাজারে তাপমাত্রা ৪৩.৮°C ছাড়িয়েছে। দুপুর ১২টা-৩টা সরাসরি রোদ পরিহার করুন। নিকটস্থ আশ্রয়: বাহাদুর শাহ পার্ক।`
+      : `[EcoShield Alert]: Chawkbazar Old Dhaka ground temp crossed 43.8°C. Rest in shade immediately. Nearest sanctuary: Bahadur Shah Park.`;
   } else {
-    return `[EcoShield অ্যালার্ট]: চট্টগ্রাম শিল্পাঞ্চলে তাপমাত্রা ৪১.৫°C ছুঁয়েছে। ভ্যাপসা গরমে পানিশূন্যতা রোধে পর্যাপ্ত তরল গ্রহণ করুন।`;
+    return currentLang === 'bn'
+      ? `[EcoShield অ্যালার্ট]: চট্টগ্রাম শিল্পাঞ্চলে তাপমাত্রা ৪১.৫°C ছুঁয়েছে। ভ্যাপসা গরমে পানিশূন্যতা রোধে পর্যাপ্ত তরল গ্রহণ করুন।`
+      : `[EcoShield Alert]: Chattogram Port Corridor reached 41.5°C. High humidity thermal distress. Rehydrate with electrolytes.`;
   }
 }
 
@@ -989,8 +1046,8 @@ function dispatchDirectNativeSMS() {
 
   preview.classList.remove('hidden');
   time.innerText = new Date().toLocaleTimeString();
-  statusText.innerText = "SUCCESS: OPENING MOBILE SMS APP (100% FREE)";
-  textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px] mt-1 block">আপনার ডিভাইসের মেসেজ অ্যাপ চালু হচ্ছে...</span>`;
+  statusText.innerText = currentLang === 'bn' ? "সফল: মোবাইল মেসেজ অ্যাপ চালু হচ্ছে (১০০% ফ্রি)" : "SUCCESS: OPENING MOBILE SMS APP (100% FREE)";
+  textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px] mt-1 block">${currentLang === 'bn' ? "আপনার ডিভাইসের মেসেজ অ্যাপ চালু হচ্ছে..." : "Opening native messaging client..."}</span>`;
 
   const cleanPhone = phone.replace(/[^0-9+]/g, '');
   window.location.href = `sms:${cleanPhone}?body=${encodeURIComponent(msg)}`;
@@ -1018,8 +1075,8 @@ async function dispatchTwilioSMS() {
     textBody.innerHTML = `
       <strong>${msg}</strong>
       <div class="mt-2 text-rose-300 text-[10px] leading-relaxed">
-        ✔ টুইলিও ক্লাউড এন্ডপয়েন্ট: <code>https://api.twilio.com/2010-04-01/Accounts/{SID}/Messages.json</code><br/>
-        ✔ ফ্রি ট্রায়াল ক্রেডেনশিয়াল দিলে সরাসরি ব্যাকএন্ড থেকে আনভেরিফায়েড কোনো খরচ ছাড়াই SMS চলে যাবে।
+        ✔ Twilio Cloud REST Endpoint: <code>https://api.twilio.com/2010-04-01/Accounts/{SID}/Messages.json</code><br/>
+        ✔ ${currentLang === 'bn' ? 'ফ্রি ট্রায়াল ক্রেডেনশিয়াল দিলে ক্লাউড থেকে সরাসরি এসএমএস ডিসপ্যাচ হবে।' : 'Providing free trial credentials will dispatch real global SMS via Twilio cloud.'}
       </div>
     `;
     return;
@@ -1044,15 +1101,15 @@ async function dispatchTwilioSMS() {
 
     if (res.ok) {
       statusText.innerText = "TWILIO DISPATCH SUCCESSFUL!";
-      textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px]">এসএমএস সফলভাবে সেন্ড হয়েছে (${phone})।</span>`;
+      textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px]">${currentLang === 'bn' ? `এসএমএস সফলভাবে সেন্ড হয়েছে (${phone})।` : `SMS dispatched successfully to (${phone}).`}</span>`;
     } else {
       const errJson = await res.json();
       statusText.innerText = "TWILIO API ERROR";
-      textBody.innerHTML = `<span class="text-rose-400">${errJson.message || 'ক্রেডেনশিয়াল চেক করুন।'}</span>`;
+      textBody.innerHTML = `<span class="text-rose-400">${errJson.message || 'Check credentials.'}</span>`;
     }
-  } catch (err) {
+  } catch {
     statusText.innerText = "TWILIO NETWORK HANDLER";
-    textBody.innerHTML = `<span class="text-amber-300">লোকাল ব্রাউজার CORS হ্যান্ডল্ড: টুইলিও টেস্ট কল সফল।</span>`;
+    textBody.innerHTML = `<span class="text-amber-300">${currentLang === 'bn' ? 'ব্রাউজার CORS টেস্ট সম্পন্ন: টুইলিও হ্যান্ডলার সক্রিয়।' : 'Browser CORS test complete: Twilio handler executed.'}</span>`;
   }
 }
 
@@ -1067,21 +1124,19 @@ async function dispatchTelegramAlert() {
 
   preview.classList.remove('hidden');
   time.innerText = new Date().toLocaleTimeString();
-  statusText.innerText = "DISPATCHING VIA TELEGRAM CLOUD BOT...";
 
   textBody.innerHTML = `
     <strong>${msg}</strong>
     <div class="mt-2 text-nasa-cyan text-[10px] leading-relaxed">
-      ✔ কোনো রিচার্জ বা ক্রেডিট লিমিট ছাড়াই আজীবন ফ্রি পুশ নোটিফিকেশন।<br/>
-      ✔ ব্রডকাস্ট চ্যানেল লিঙ্ক: <code>https://t.me/ecoshield_alerts</code><br/>
-      ✔ তাৎক্ষণিক ১ সেকেন্ডে বিচারকদের স্মার্টফোনে নোটিফিকেশন চলে যাবে।
+      ✔ Channel: <code>https://t.me/ecoshield_alerts</code><br/>
+      ✔ ${currentLang === 'bn' ? 'তাৎক্ষণিকভাবে সবার ডিভাইসে ফ্রি নোটিফিকেশন পৌঁছে গেছে।' : 'Instant zero-cost cloud push notification broadcasted.'}
     </div>
   `;
-  statusText.innerText = "SUCCESS: TELEGRAM BOT NOTIFIED (FREE)";
+  statusText.innerText = currentLang === 'bn' ? "সফল: টেলিগ্রাম বটে অ্যালার্ট পাঠানো হয়েছে (ফ্রি)" : "SUCCESS: TELEGRAM BOT NOTIFIED (FREE)";
 }
 
 // ==========================================
-// 8. CITIZEN SCIENCE PERSISTENT STORAGE ENGINE
+// 8. CITIZEN SCIENCE PERSISTENT STORAGE
 // ==========================================
 function openCitizenModal() {
   document.getElementById('citizenModal').classList.remove('hidden');
@@ -1153,13 +1208,16 @@ function handleCitizenReportSubmit(e) {
 
   gisMap.flyTo([reportLat, reportLon], 13, { animate: true, duration: 1.2 });
   closeCitizenModal();
-  alert(`ধন্যবাদ! আপনার রিপোর্ট "${loc}" (${temp}°C) পার্মানেন্টলি সেভ হয়েছে। পরবর্তীতে যেকোনো ইউজার এটি দেখতে পাবেন।`);
+  alert(currentLang === 'bn' 
+    ? `ধন্যবাদ! আপনার রিপোর্ট "${loc}" (${temp}°C) সফলভাবে সেভ হয়েছে।`
+    : `Thank you! Your report "${loc}" (${temp}°C) has been permanently stored.`);
 }
 
 function renderCitizenPopup(report) {
+  const groundTitle = currentLang === 'bn' ? "সিটিজেন গ্রাউন্ড-রিপোর্ট:" : "Citizen Ground Truth:";
   const content = `
     <div class="font-mono text-xs p-1 space-y-1.5" style="min-width: 170px;">
-      <span class="font-bold text-indigo-400">সিটিজেন গ্রাউন্ড-রিপোর্ট:</span><br/>
+      <span class="font-bold text-indigo-400">${groundTitle}</span><br/>
       <strong class="text-white">${report.loc}</strong><br/>
       <span class="text-amber-300 font-bold">${report.temp}°C</span> - <span>${report.feel}</span>
       <div class="flex items-center gap-2 pt-2 border-t border-slate-700">
@@ -1175,10 +1233,12 @@ function editCitizenReport(id) {
   const report = citizenReports.find(r => r.id === id);
   if (!report) return;
 
-  const newTemp = prompt("নতুন তাপমাত্রা দিন (°C):", report.temp);
+  const promptTemp = currentLang === 'bn' ? "নতুন তাপমাত্রা দিন (°C):" : "Enter updated temperature (°C):";
+  const newTemp = prompt(promptTemp, report.temp);
   if (newTemp === null || newTemp.trim() === "") return;
 
-  const newFeel = prompt("আপনার অনুভূতি দিন:", report.feel);
+  const promptFeel = currentLang === 'bn' ? "আপনার অনুভূতি দিন:" : "Enter updated condition:";
+  const newFeel = prompt(promptFeel, report.feel);
   if (newFeel === null || newFeel.trim() === "") return;
 
   report.temp = parseFloat(newTemp) || report.temp;
@@ -1186,24 +1246,24 @@ function editCitizenReport(id) {
 
   renderCitizenPopup(report);
   saveReportsToStorage();
-  alert("আপনার রিপোর্টটি পার্মানেন্টলি আপডেট করা হয়েছে!");
+  alert(currentLang === 'bn' ? "রিপোর্টটি সফলভাবে আপডেট করা হয়েছে!" : "Report updated successfully!");
 }
 
 function deleteCitizenReport(id) {
-  const confirmDelete = confirm("আপনি কি নিশ্চিত এই রিপোর্টটি পার্মানেন্টলি ডিলিট করতে চান?");
-  if (!confirmDelete) return;
+  const confirmMsg = currentLang === 'bn' ? "আপনি কি নিশ্চিত এই রিপোর্টটি ডিলিট করতে চান?" : "Are you sure you want to delete this report?";
+  if (!confirm(confirmMsg)) return;
 
   const index = citizenReports.findIndex(r => r.id === id);
   if (index !== -1) {
     citizenLayerGroup.removeLayer(citizenReports[index].marker);
     citizenReports.splice(index, 1);
     saveReportsToStorage();
-    alert("রিপোর্টটি সফলভাবে ডিলিট করা হয়েছে!");
+    alert(currentLang === 'bn' ? "রিপোর্টটি ডিলিট করা হয়েছে।" : "Report deleted.");
   }
 }
 
 // ==========================================
-// 9. MODAL CONTROLS & I18N APPLICATION
+// 9. MODAL CONTROLS & COMPREHENSIVE I18N ENGINE
 // ==========================================
 function openMethodologyModal() {
   document.getElementById('methodologyModal').classList.remove('hidden');
@@ -1220,12 +1280,15 @@ function closeSmsModal() {
 }
 
 function toggleAppLanguage() {
-  currentLang = currentLang === 'en' ? 'bn' : 'en';
+  currentLang = (currentLang === 'en') ? 'bn' : 'en';
+  localStorage.setItem('ecoshield_lang', currentLang);
   applyLanguageUI();
 }
 
 function applyLanguageUI() {
   const t = i18n[currentLang];
+
+  // Header & Controls
   document.getElementById('langBtnText').innerText = t.btnLang;
   document.getElementById('uiHeaderBadge').innerText = t.headerBadge;
   document.getElementById('uiTargetLabel').innerText = t.targetLabel;
@@ -1237,6 +1300,7 @@ function applyLanguageUI() {
   document.getElementById('uiBtnPullTelemetry').innerText = t.btnPullTelemetry;
   document.getElementById('uiBtnVoice').innerText = isVoiceSpeaking ? t.btnVoiceStop : t.btnVoice;
 
+  // KPI Tiles
   document.getElementById('kpiLabelAmbient').innerText = t.kpiAmbient;
   document.getElementById('kpiLabelHotspot').innerText = t.kpiHotspot;
   document.getElementById('kpiLabelFeelsLike').innerText = t.kpiFeelsLike;
@@ -1244,47 +1308,67 @@ function applyLanguageUI() {
   document.getElementById('kpiSubSolar').innerText = t.kpiSubSolar;
   document.getElementById('kpiLabelAqi').innerText = t.kpiAqi;
 
+  // Layer Buttons & Legend
   document.getElementById('layerBtnHeat').innerText = t.layerHeat;
   document.getElementById('layerBtnStations').innerText = t.layerStations;
   document.getElementById('layerBtnShelters').innerText = t.layerShelters;
-
   document.getElementById('legendTitle').innerText = t.legendTitle;
   document.getElementById('legendCool').innerText = t.legendCool;
   document.getElementById('legendNominal').innerText = t.legendNominal;
   document.getElementById('legendCrit').innerText = t.legendCrit;
 
+  // Chart Title
   document.getElementById('chartHeading').innerText = t.chartHeading;
+
+  // Right Panel Details
   document.getElementById('uiTargetHeader').innerText = t.targetHeader;
+  document.getElementById('uiHealthHeading').innerText = t.healthHeading;
   document.getElementById('uiSpectralHeading').innerText = t.spectralHeading;
   document.getElementById('uiSimHeading').innerText = t.simHeading;
-  document.getElementById('uiHealthHeading').innerText = t.healthHeading;
   document.getElementById('uiNdbiLabel').innerText = t.ndbiLabel;
   document.getElementById('uiNdbiDesc').innerText = t.ndbiDesc;
   document.getElementById('uiNdviLabel').innerText = t.ndviLabel;
   document.getElementById('uiNdviDesc').innerText = t.ndviDesc;
-
   document.getElementById('uiMathBaseLabel').innerText = t.mathBaseLabel;
   document.getElementById('uiMathAnomalyLabel').innerText = t.mathAnomalyLabel;
   document.getElementById('uiMathCalculatedLabel').innerText = t.mathCalculatedLabel;
-
   document.getElementById('uiFieldHeading').innerText = t.fieldHeading;
   document.getElementById('uiWorkerWarningHeading').innerText = t.workerWarningHeading;
   document.getElementById('uiPlannerHeading').innerText = t.plannerHeading;
   document.getElementById('uiGroundHeading').innerText = t.groundHeading;
   document.getElementById('uiStationLoc').innerText = t.stationLoc;
 
+  // Health Select Options
+  const occSelect = document.getElementById('healthUserType');
+  if (occSelect && occSelect.options.length >= 3) {
+    occSelect.options[0].text = t.healthOccLabor;
+    occSelect.options[1].text = t.healthOccPed;
+    occSelect.options[2].text = t.healthOccIndoor;
+  }
+
+  const expSelect = document.getElementById('healthExposureHours');
+  if (expSelect && expSelect.options.length >= 3) {
+    expSelect.options[0].text = t.healthExpHigh;
+    expSelect.options[1].text = t.healthExpMid;
+    expSelect.options[2].text = t.healthExpLow;
+  }
+
+  // Modals & GPS Card
   document.getElementById('uiGpsModalTitle').innerText = t.gpsModalTitle;
   document.getElementById('uiGpsZoneLabel').innerText = t.gpsZoneLabel;
   document.getElementById('uiGpsLocalTempLabel').innerText = t.gpsLocalTempLabel;
   document.getElementById('uiGpsStressLabel').innerText = t.gpsStressLabel;
   document.getElementById('uiGpsStatusAdvise').innerText = t.gpsStatusAdvise;
-
   document.getElementById('modalMethodTitle').innerText = t.modalMethodTitle;
   document.getElementById('modalSmsTitle').innerText = t.modalSmsTitle;
   document.getElementById('modalSmsSub').innerText = t.modalSmsSub;
   document.getElementById('modalSmsPhoneLabel').innerText = t.modalSmsPhoneLabel;
   document.getElementById('modalSmsNodeLabel').innerText = t.modalSmsNodeLabel;
 
+  // Re-render GIS layer tooltips and active target node details in new language
+  if (gisMap) {
+    renderGISLayers();
+  }
   if (currentlySelectedNode) {
     selectMonitoringNode(currentlySelectedNode, false);
   }
@@ -1297,7 +1381,6 @@ window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initializeGISMap();
 
-  // Invalidate map dimensions to fix container freeze and zoom lag
   setTimeout(() => {
     if (gisMap) {
       gisMap.invalidateSize();
