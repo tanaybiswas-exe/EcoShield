@@ -323,17 +323,21 @@ function evaluateMicroclimate(node, baseT, radiation, wind) {
 function initializeGISMap() {
   gisMap = L.map('gis-map', {
     zoomControl: false,
-    attributionControl: false
+    attributionControl: false,
+    minZoom: 6,
+    maxZoom: 18
   }).setView([BD_CENTER_LAT, BD_CENTER_LON], 7);
 
   L.control.zoom({ position: 'topright' }).addTo(gisMap);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18
+    maxZoom: 18,
+    maxNativeZoom: 17
   }).addTo(gisMap);
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18
+    maxZoom: 18,
+    maxNativeZoom: 17
   }).addTo(gisMap);
 
   stationLayerGroup = L.layerGroup().addTo(gisMap);
@@ -386,7 +390,7 @@ function renderGISLayers() {
       </div>
     `, { direction: 'top', className: 'gis-tooltip' });
 
-    marker.on('click', () => selectMonitoringNode(node));
+    marker.on('click', () => selectMonitoringNode(node, true));
 
     if (isCool) {
       shelterLayerGroup.addLayer(marker);
@@ -451,10 +455,10 @@ function toggleShadedRoute() {
   }
 
   const safePathCoords = [
-    [23.7156, 90.3980], // Chawkbazar
+    [23.7156, 90.3980],
     [23.7230, 90.3990],
     [23.7290, 90.4010],
-    [23.7372, 90.3995]  // Ramna Park Oasis
+    [23.7372, 90.3995]
   ];
 
   safeRouteLayer = L.polyline(safePathCoords, {
@@ -611,8 +615,9 @@ async function executeTelemetryPipeline(targetLat = BD_CENTER_LAT, targetLon = B
     const worstName = currentLang === 'bn' ? worstNode.nameBn.split(' ')[0] : worstNode.nameEn.split(' ')[0];
     document.getElementById('kpiHotspotLoc').innerText = `${worstName} (+${worstNode.currentAnomaly}°C)`;
 
+    // Fix: Do not forcefully trigger flyTo on startup, just populate telemetry details
     if (!currentlySelectedNode) {
-      selectMonitoringNode(worstNode);
+      selectMonitoringNode(worstNode, false);
     }
 
   } catch (err) {
@@ -623,9 +628,9 @@ async function executeTelemetryPipeline(targetLat = BD_CENTER_LAT, targetLon = B
 }
 
 // ==========================================
-// 6. TARGET SELECTION & LIVE GPS (PRECISE MICRO AREA)
+// 6. TARGET SELECTION & LIVE GPS (SMOOTH ZOOM FIX)
 // ==========================================
-function selectMonitoringNode(node) {
+function selectMonitoringNode(node, shouldFlyTo = true) {
   currentlySelectedNode = node;
   document.getElementById('targetNodeName').innerText = currentLang === 'bn' ? node.nameBn : node.nameEn;
   document.getElementById('targetNodeCoords').innerText = `Lat: ${node.lat.toFixed(4)}° N | Lon: ${node.lon.toFixed(4)}° E | ${node.id}`;
@@ -665,7 +670,13 @@ function selectMonitoringNode(node) {
   runPolicySimulation();
   calculateHealthRisk();
 
-  gisMap.flyTo([node.lat, node.lon], 11, { duration: 1.2 });
+  // Smooth node zoom only when clicked
+  if (shouldFlyTo && gisMap) {
+    gisMap.flyTo([node.lat, node.lon], 13, {
+      animate: true,
+      duration: 1.2
+    });
+  }
 }
 
 function runPolicySimulation() {
@@ -759,7 +770,7 @@ function closeSosModal() {
 
 function navigateNearestShelter() {
   closeSosModal();
-  gisMap.flyTo([23.7372, 90.3995], 14, { duration: 1.5 });
+  gisMap.flyTo([23.7372, 90.3995], 14, { animate: true, duration: 1.2 });
   alert("নিকটবর্তী শীতল আশ্রয় (রমনা পার্ক কুলিং হ্যাভেন) ম্যাপে নির্দেশ করা হয়েছে।");
 }
 
@@ -810,7 +821,7 @@ function playVoiceWarning() {
   window.speechSynthesis.speak(utterance);
 }
 
-// REAL DYNAMIC GPS WITH OSM ZOOM-18 MICRO REVERSE GEOCODING
+// REAL DYNAMIC GPS WITH HIGH PRECISION ZOOM
 function requestUserGPS() {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
@@ -934,7 +945,11 @@ async function displayUserLocationCard(lat, lon, label) {
     liveGPSMarker = L.marker([lat, lon], { icon: gpsPulseIcon }).addTo(gisMap);
     liveGPSMarker.bindTooltip(`<b>${label}</b>`, { permanent: true, direction: "top", className: "gis-tooltip" });
 
-    gisMap.flyTo([lat, lon], 14, { duration: 1.5 });
+    // Smooth High-Precision Camera Zoom to detected user coordinates (Zoom 15)
+    gisMap.flyTo([lat, lon], 15, {
+      animate: true,
+      duration: 1.4
+    });
 
   } catch (err) {
     console.error("User loc API error:", err);
@@ -1136,7 +1151,7 @@ function handleCitizenReportSubmit(e) {
   createCitizenMapMarker(reportData);
   saveReportsToStorage();
 
-  gisMap.flyTo([reportLat, reportLon], 11);
+  gisMap.flyTo([reportLat, reportLon], 13, { animate: true, duration: 1.2 });
   closeCitizenModal();
   alert(`ধন্যবাদ! আপনার রিপোর্ট "${loc}" (${temp}°C) পার্মানেন্টলি সেভ হয়েছে। পরবর্তীতে যেকোনো ইউজার এটি দেখতে পাবেন।`);
 }
@@ -1271,13 +1286,24 @@ function applyLanguageUI() {
   document.getElementById('modalSmsNodeLabel').innerText = t.modalSmsNodeLabel;
 
   if (currentlySelectedNode) {
-    selectMonitoringNode(currentlySelectedNode);
+    selectMonitoringNode(currentlySelectedNode, false);
   }
 }
 
+// ==========================================
+// 10. INITIALIZATION ENGINE
+// ==========================================
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initializeGISMap();
+
+  // Invalidate map dimensions to fix container freeze and zoom lag
+  setTimeout(() => {
+    if (gisMap) {
+      gisMap.invalidateSize();
+    }
+  }, 250);
+
   loadStoredCitizenReports(); 
   executeTelemetryPipeline();
   requestUserGPS();
