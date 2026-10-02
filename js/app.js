@@ -72,7 +72,7 @@ const i18n = {
     targetValue: "সমগ্র বাংলাদেশ জাতীয় থার্মাল গ্রিড",
     btnDataAudit: "ডেটা অডিট",
     btnSmsAlert: "ফ্রি অ্যালার্ট",
-    btnCitizenReport: "হিট report",
+    btnCitizenReport: "হিট রিপোর্ট",
     btnDetectGps: "লাইভ জিপিএস",
     btnPullTelemetry: "ডেটা রিফ্রেশ",
     kpiAmbient: "বাতাসের তাপমাত্রা (T2M)",
@@ -440,7 +440,7 @@ function toggleLayer(layerType) {
   }
 }
 
-// NEW: THERMAL-SAFE ROUTING (Shaded Corridors)
+// THERMAL-SAFE ROUTING (Shaded Corridors)
 function toggleShadedRoute() {
   const btn = document.getElementById('toggleSafeRouteBtn');
   if (safeRouteLayer && gisMap.hasLayer(safeRouteLayer)) {
@@ -450,7 +450,6 @@ function toggleShadedRoute() {
     return;
   }
 
-  // Draw green shaded corridor from Chawkbazar to Ramna Park Cooling Haven
   const safePathCoords = [
     [23.7156, 90.3980], // Chawkbazar
     [23.7230, 90.3990],
@@ -624,7 +623,7 @@ async function executeTelemetryPipeline(targetLat = BD_CENTER_LAT, targetLon = B
 }
 
 // ==========================================
-// 6. TARGET SELECTION & LIVE GPS
+// 6. TARGET SELECTION & LIVE GPS (DYNAMIC REAL FIX)
 // ==========================================
 function selectMonitoringNode(node) {
   currentlySelectedNode = node;
@@ -644,7 +643,6 @@ function selectMonitoringNode(node) {
   document.getElementById('workerAdvisoryText').innerText = currentLang === 'bn' ? node.workerActionBn : node.workerActionEn;
   document.getElementById('plannerAdvisoryText').innerText = currentLang === 'bn' ? node.plannerActionBn : node.plannerActionEn;
 
-  // NEW: Calculate Night-Time Thermal Trapping Index
   const nightTrap = parseFloat((node.ndbi * 3.8 - node.ndvi * 1.5).toFixed(1));
   document.getElementById('nightRetentionVal').innerText = `+${nightTrap > 0 ? nightTrap : 0.8}°C`;
   const coolEfficiency = Math.max(15, Math.min(85, Math.round((1 - node.ndbi) * 100)));
@@ -714,7 +712,6 @@ function calculateHealthRisk() {
   }
 }
 
-// NEW: 1-CLICK ADVISORY CARD EXPORT (BULLETIN)
 function exportAdvisoryCard() {
   const node = currentlySelectedNode || monitoringNodes[0];
   const bulletinText = `
@@ -745,7 +742,6 @@ Source: NASA ECOSTRESS / Landsat-9 / Open-Meteo
   a.click();
 }
 
-// NEW: EMERGENCY SOS ENGINE
 function triggerEmergencySOS() {
   const modal = document.getElementById('sosModal');
   modal.classList.remove('hidden');
@@ -763,7 +759,6 @@ function closeSosModal() {
 
 function navigateNearestShelter() {
   closeSosModal();
-  // Fly to Ramna Park Cooling Haven
   gisMap.flyTo([23.7372, 90.3995], 14, { duration: 1.5 });
   alert("নিকটবর্তী শীতল আশ্রয় (রমনা পার্ক কুলিং হ্যাভেন) ম্যাপে নির্দেশ করা হয়েছে।");
 }
@@ -815,20 +810,49 @@ function playVoiceWarning() {
   window.speechSynthesis.speak(utterance);
 }
 
+// REAL DYNAMIC GPS WITH OSM REVERSE GEOCODING
 function requestUserGPS() {
   if (!navigator.geolocation) {
-    displayUserLocationCard(23.8820, 90.3200, currentLang === 'bn' ? "আশুলিয়া / সাভার (ডিটেক্টেড)" : "Ashulia / Savar (Detected)");
+    alert("Geolocation is not supported by your browser.");
     return;
   }
 
+  const geoOptions = {
+    enableHighAccuracy: true,
+    timeout: 15000,
+    maximumAge: 0
+  };
+
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      displayUserLocationCard(pos.coords.latitude, pos.coords.longitude, currentLang === 'bn' ? "আপনার বর্তমান অবস্থান (GPS Verified)" : "Your Current GPS Location");
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      
+      let detectedAreaName = currentLang === 'bn' ? "আপনার বর্তমান অবস্থান (GPS Verified)" : "Your Current GPS Location";
+      try {
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          const addr = geoData.address;
+          const subArea = addr.suburb || addr.neighbourhood || addr.residential || addr.city_district || addr.road || "";
+          const district = addr.city || addr.town || addr.state_district || addr.county || "Bangladesh";
+          detectedAreaName = subArea ? `${subArea}, ${district}` : district;
+        }
+      } catch (err) {
+        console.warn("Reverse geocode fallback to coords:", err);
+      }
+
+      displayUserLocationCard(lat, lon, detectedAreaName);
     },
-    () => {
-      displayUserLocationCard(23.8820, 90.3200, currentLang === 'bn' ? "আশুলিয়া / সাভার (ডিটেক্টেড)" : "Ashulia / Savar (Detected)");
+    (error) => {
+      let errMsg = "GPS signal lock failed. Please enable location permissions.";
+      if (error.code === error.PERMISSION_DENIED) {
+        errMsg = "Location permission denied. Please allow location access in your browser.";
+      }
+      console.warn("GPS Error:", errMsg);
+      alert(errMsg);
     },
-    { timeout: 6000, enableHighAccuracy: true }
+    geoOptions
   );
 }
 
@@ -840,7 +864,7 @@ async function displayUserLocationCard(lat, lon, label) {
   document.getElementById('liveLocCoords').innerText = `Lat: ${lat.toFixed(4)}° N | Lon: ${lon.toFixed(4)}° E`;
 
   try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=Asia%2FDhaka`);
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,direct_normal_irradiance,surface_temperature&timezone=Asia%2FDhaka`);
     const data = await res.json();
     const currentT = data.current.temperature_2m;
     
@@ -878,10 +902,9 @@ async function displayUserLocationCard(lat, lon, label) {
     });
 
     liveGPSMarker = L.marker([lat, lon], { icon: gpsPulseIcon }).addTo(gisMap);
-    const markerLabel = currentLang === 'bn' ? "<b>আপনার লাইভ অবস্থান</b>" : "<b>Your Live Location</b>";
-    liveGPSMarker.bindTooltip(markerLabel, { permanent: true, direction: "top", className: "gis-tooltip" });
+    liveGPSMarker.bindTooltip(`<b>${label}</b>`, { permanent: true, direction: "top", className: "gis-tooltip" });
 
-    gisMap.flyTo([lat, lon], 12, { duration: 1.5 });
+    gisMap.flyTo([lat, lon], 14, { duration: 1.5 });
 
   } catch (err) {
     console.error("User loc API error:", err);
