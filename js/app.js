@@ -623,7 +623,7 @@ async function executeTelemetryPipeline(targetLat = BD_CENTER_LAT, targetLon = B
 }
 
 // ==========================================
-// 6. TARGET SELECTION & LIVE GPS (DYNAMIC REAL FIX)
+// 6. TARGET SELECTION & LIVE GPS (PRECISE MICRO AREA)
 // ==========================================
 function selectMonitoringNode(node) {
   currentlySelectedNode = node;
@@ -810,7 +810,7 @@ function playVoiceWarning() {
   window.speechSynthesis.speak(utterance);
 }
 
-// REAL DYNAMIC GPS WITH OSM REVERSE GEOCODING
+// REAL DYNAMIC GPS WITH OSM ZOOM-18 MICRO REVERSE GEOCODING
 function requestUserGPS() {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
@@ -828,15 +828,45 @@ function requestUserGPS() {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       
-      let detectedAreaName = currentLang === 'bn' ? "আপনার বর্তমান অবস্থান (GPS Verified)" : "Your Current GPS Location";
+      let detectedAreaName = currentLang === 'bn' ? "আপনার বর্তমান অবস্থান" : "Your Current Location";
+
       try {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+          { headers: { 'Accept-Language': currentLang === 'bn' ? 'bn,en' : 'en' } }
+        );
+
         if (geoRes.ok) {
           const geoData = await geoRes.json();
-          const addr = geoData.address;
-          const subArea = addr.suburb || addr.neighbourhood || addr.residential || addr.city_district || addr.road || "";
-          const district = addr.city || addr.town || addr.state_district || addr.county || "Bangladesh";
-          detectedAreaName = subArea ? `${subArea}, ${district}` : district;
+          const addr = geoData.address || {};
+
+          const microArea = addr.suburb || 
+                            addr.neighbourhood || 
+                            addr.residential || 
+                            addr.village || 
+                            addr.hamlet || 
+                            addr.road || 
+                            addr.commercial || 
+                            addr.city_district || "";
+
+          const subDistrict = addr.subdistrict || 
+                              addr.municipality || 
+                              addr.town || 
+                              addr.city_district || 
+                              addr.city || "";
+
+          const district = addr.city || addr.state_district || addr.county || "";
+
+          if (microArea && subDistrict && microArea !== subDistrict) {
+            detectedAreaName = `${microArea}, ${subDistrict}`;
+          } else if (microArea) {
+            detectedAreaName = district ? `${microArea}, ${district}` : microArea;
+          } else if (subDistrict) {
+            detectedAreaName = district ? `${subDistrict}, ${district}` : subDistrict;
+          } else if (geoData.display_name) {
+            const parts = geoData.display_name.split(',');
+            detectedAreaName = parts.slice(0, 2).join(',').trim();
+          }
         }
       } catch (err) {
         console.warn("Reverse geocode fallback to coords:", err);
