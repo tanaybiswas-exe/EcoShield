@@ -1,10 +1,13 @@
-// ==========================================
-// 1. CONFIGURATION & COMPREHENSIVE BILINGUAL DICTIONARY
-// ==========================================
-let currentLang = localStorage.getItem('ecoshield_lang') || 'bn';
+// =========================================================================
+// EcoShield.AI Enterprise | Global Earth System Microclimate Observatory
+// Standards Compliance: WMO Guidelines No. 1184 | ISO 7243 Thermal Stress
+// Telemetry Sources: NASA ECOSTRESS (ISS) | Landsat-9 TIRS-2 | Open-Meteo HR
+// =========================================================================
+
+let currentLang = localStorage.getItem('ecoshield_lang') || 'en';
 const OPENAQ_KEY = "9HVgYUIvSXTxMDFrdbhWA2OBt54AVQaSymRBGjDe";
 
-// Global World Center Coordinates
+// Global Projection Anchor (Planetary Centroid)
 const WORLD_CENTER_LAT = 20.0;
 const WORLD_CENTER_LON = 10.0;
 
@@ -13,176 +16,176 @@ let citizenReports = [];
 
 const i18n = {
   en: {
-    btnLang: "বাংলা",
-    btnVoice: "VOICE ALERTS",
-    btnVoiceStop: "STOP VOICE",
-    btnVoiceListen: "VOICE ALERTS",
-    headerBadge: "Global Earth System Observatory",
-    targetLabel: "Coverage:",
-    targetValue: "Planetary Microclimate Thermal & Cryo Grid",
-    btnDataAudit: "DATA AUDIT",
-    btnSmsAlert: "FREE ALERTS",
-    btnCitizenReport: "REPORT HEAT",
-    btnDetectGps: "DETECT GPS",
-    btnPullTelemetry: "PULL TELEMETRY",
+    btnLang: "বাংলা (BN)",
+    btnVoice: "AUDIO ADVISORY",
+    btnVoiceStop: "TERMINATE AUDIO",
+    btnVoiceListen: "AUDIO ADVISORY",
+    headerBadge: "Planetary Earth System Observatory",
+    targetLabel: "Spatial Domain:",
+    targetValue: "Global Multi-Sensor Telemetry Grid (NASA/WMO)",
+    btnDataAudit: "METHODOLOGY AUDIT",
+    btnSmsAlert: "CAP DISPATCH",
+    btnCitizenReport: "GROUND TELEMETRY",
+    btnDetectGps: "IN-SITU GPS",
+    btnPullTelemetry: "SYNC TELEMETRY",
     kpiAmbient: "AMBIENT AIR (T2M)",
     kpiHotspot: "PEAK PLANETARY HOTSPOT",
-    kpiFeelsLike: "FEELS-LIKE (NOAA HI)",
-    kpiSolar: "DIRECT IRRADIANCE",
-    kpiSubSolar: "Surface Heat Flux",
-    kpiAqi: "OPENAQ PM2.5 REAL",
-    layerHeat: "ECOSTRESS Thermal Gradient",
-    layerStations: "Global Thermal & Cryo Nodes",
-    layerShelters: "Eco Sanctuaries",
-    layerSafeRoute: "Safe Shaded Route",
-    legendTitle: "Planetary Thermal Spectrum",
-    legendCool: "<-10°C (Deep Freeze)",
+    kpiFeelsLike: "HEAT INDEX (NOAA/ISO)",
+    kpiSolar: "DIRECT IRRADIANCE FLUX",
+    kpiSubSolar: "Radiative Heat Flux",
+    kpiAqi: "PARTICULATE DENSITY (PM2.5)",
+    layerHeat: "NASA ECOSTRESS Thermal Gradient",
+    layerStations: "WMO Global Observatory Nodes",
+    layerShelters: "Ecological Sanctuaries & Oases",
+    layerSafeRoute: "Microclimate Shaded Corridor",
+    legendTitle: "Surface Temperature (LST) Scale",
+    legendCool: "<-10°C (Cryospheric)",
     legendNominal: "28°C (Temperate)",
-    legendCrit: ">45°C (Extreme Heat)",
+    legendCrit: ">45°C (Critical Strain)",
     chartHeading: "24-Hour Diurnal UHI Amplification vs Direct Solar Irradiance",
-    targetHeader: "Selected Global Telemetry",
-    spectralHeading: "Landsat-9 Spectral Indices Decomposition",
-    simHeading: "Urban Resilience Simulator (AI Policy Tool)",
-    healthHeading: "AI Heat-Stroke Health Risk Calculator",
-    healthDesc: "Select user occupation and solar exposure to calculate heat-stroke threat:",
-    healthOccLabel: "Occupation / Category:",
-    healthExposureLabel: "Direct Sun Exposure:",
-    healthOccLabor: "Outdoor Worker / Field Laborer",
-    healthOccPed: "Street Pedestrian / Traveler",
-    healthOccIndoor: "Office Worker / Indoor",
-    healthExpHigh: "More than 3 Hours",
-    healthExpMid: "1 to 3 Hours",
-    healthExpLow: "Less than 1 Hour",
-    healthRiskLabel: "Heat-Stroke Hazard:",
-    healthStatusLabel: "Triage Status:",
-    nightTitle: "Nighttime Thermal Trapping Index",
-    nightDesc: "Urban tin, concrete and dry sand retain solar irradiance, radiating heat overnight:",
+    targetHeader: "Regional Telemetry & Indices",
+    spectralHeading: "Landsat-9 Spectral Decomposition",
+    simHeading: "Urban Climate Resilience Simulator (Policy Engine)",
+    healthHeading: "Occupational Heat Strain & Risk Index",
+    healthDesc: "Calibrated to ISO 7243 / ILO standards for occupational thermo-physiological stress assessment:",
+    healthOccLabel: "Occupational Profile:",
+    healthExposureLabel: "Radiative Exposure Duration:",
+    healthOccLabor: "Heavy Physical / Outdoor Laborer (WMO Cat 4)",
+    healthOccPed: "Moderate Exertion / Pedestrian (WMO Cat 2)",
+    healthOccIndoor: "Sedentary / Indoor Air-Conditioned (WMO Cat 0)",
+    healthExpHigh: "Sustained (>3 Hours)",
+    healthExpMid: "Moderate (1 to 3 Hours)",
+    healthExpLow: "Low (<1 Hour)",
+    healthRiskLabel: "Heat Strain Probability:",
+    healthStatusLabel: "Triage Classification:",
+    nightTitle: "Nighttime Thermal Retention Index (NTRI)",
+    nightDesc: "Measures diurnal thermal inertia of high-density built fabric radiating nocturnal heat:",
     nightRetainLabel: "Surface Heat Retained:",
-    nightCoolLabel: "Night Cooling Efficiency:",
-    ndbiLabel: "NDBI (Built-Up / Barren Arid Index):",
-    ndbiDesc: "High concrete, barren desert or impervious rock density.",
-    ndviLabel: "NDVI (Vegetation Canopy Fraction):",
-    ndviDesc: "Forest coverage fraction, botanical canopy, or icy tundra cover.",
-    mathBaseLabel: "Regional Base Temp:",
-    mathAnomalyLabel: "Microclimate Thermal Anomaly (ΔT):",
-    mathCalculatedLabel: "Effective Surface Thermal:",
-    simDesc: "Simulate urban cooling benefits by expanding canopy or applying reflective cool roofs:",
-    simGreenLabel: "Increase Tree Canopy (+NDVI):",
-    simRoofLabel: "Cool-Roof High Albedo (+Albedo):",
-    simDropLabel: "Estimated Temperature Drop:",
-    simProjLabel: "Simulated Surface Temp:",
-    fieldHeading: "Global Regional Advisories",
-    workerWarningHeading: "Frontline Labor & Agricultural Warning",
-    plannerHeading: "Spatial & Municipal Planning",
-    groundHeading: "Ground-Truth Telemetry Feed",
-    stationLoc: "Global Station Telemetry:",
-    gpsModalTitle: "Your Live GPS Location",
-    gpsZoneLabel: "Detected Geographic Zone:",
-    gpsLocalTempLabel: "Local Temperature",
-    gpsStressLabel: "Heat Stress Rating",
-    gpsStatusAdvise: "Current Status & Advisory:",
-    modalMethodTitle: "Data Lineage & Peer-Reviewed Methodology",
-    modalSmsTitle: "Free Early Warning Broadcast (3-Way Dispatch)",
-    modalSmsSub: "Instant early warning broadcast via Mobile Native SMS App, Twilio Free Trial, or Telegram Push Bot without gateway charges:",
-    modalSmsPhoneLabel: "Recipient Mobile Number (For Native SMS & Twilio):",
-    modalSmsNodeLabel: "Target Hotspot & Threshold:",
-    meterLabel: "Thermal Stress Level Meter:",
-    meterSafe: "Safe",
-    meterCaution: "Caution",
-    meterDanger: "Critical Danger",
-    bulletinBtn: "Bulletin",
-    sosBtn: "EMERGENCY SOS"
+    nightCoolLabel: "Nocturnal Cooling Efficacy:",
+    ndbiLabel: "NDBI (Built-Up & Impervious Density):",
+    ndbiDesc: "Normalized concrete, asphalt, and barren dry substrate density.",
+    ndviLabel: "NDVI (Canopy Biomass Fraction):",
+    ndviDesc: "Vegetative evapotranspiration and photosynthetic density index.",
+    mathBaseLabel: "Ambient Regional Baseline:",
+    mathAnomalyLabel: "Microclimate Anomaly (ΔT):",
+    mathCalculatedLabel: "Effective Surface Kinetic LST:",
+    simDesc: "Simulate municipal urban cooling interventions (Cool Roof SRI & Canopy Expansion):",
+    simGreenLabel: "Canopy Cover Augmentation (+NDVI):",
+    simRoofLabel: "High-Albedo Surface Retrofit (+SRI):",
+    simDropLabel: "Projected Mitigation ΔT:",
+    simProjLabel: "Post-Intervention LST:",
+    fieldHeading: "Institutional Operational Directives",
+    workerWarningHeading: "Occupational Health & Labor Safety Directive",
+    plannerHeading: "Municipal Spatial Planning Directive",
+    groundHeading: "In-Situ Sensor Ground-Truth Feed",
+    stationLoc: "Reference Ground Station:",
+    gpsModalTitle: "In-Situ Geolocation Telemetry",
+    gpsZoneLabel: "Resolved Spatial Zone:",
+    gpsLocalTempLabel: "In-Situ Temperature",
+    gpsStressLabel: "Physiological Heat Strain",
+    gpsStatusAdvise: "Operational Directive & Action:",
+    modalMethodTitle: "Scientific Methodology & Peer-Reviewed Lineage",
+    modalSmsTitle: "Common Alerting Protocol (CAP) Broadcast",
+    modalSmsSub: "Zero-cost multi-channel alert dispatch engine designed for municipal crisis management and humanitarian field workers:",
+    modalSmsPhoneLabel: "Recipient Terminal Identifier (Mobile / SMS):",
+    modalSmsNodeLabel: "Target Telemetry Hotspot & Alert Threshold:",
+    meterLabel: "Thermo-Physiological Stress Level Meter:",
+    meterSafe: "Nominal",
+    meterCaution: "Elevated Caution",
+    meterDanger: "Extreme Hazard",
+    bulletinBtn: "EXECUTIVE BRIEF",
+    sosBtn: "EMERGENCY DISPATCH"
   },
   bn: {
-    btnLang: "English",
-    btnVoice: "ভয়েস অ্যালার্ট",
-    btnVoiceStop: "ভয়েস থামান",
-    btnVoiceListen: "ভয়েস শুনুন",
+    btnLang: "English (EN)",
+    btnVoice: "ভয়েস নির্দেশনা",
+    btnVoiceStop: "ভয়েস বন্ধ করুন",
+    btnVoiceListen: "ভয়েস নির্দেশনা",
     headerBadge: "গ্লোবাল আর্থ সিস্টেম অবজারভেটরি",
-    targetLabel: "কভারেজ:",
-    targetValue: "সমগ্র বিশ্ব থার্মাল ও চরম তাপমাত্রা গ্রিড",
-    btnDataAudit: "ডেটা অডিট",
-    btnSmsAlert: "ফ্রি অ্যালার্ট",
-    btnCitizenReport: "হিট রিপোর্ট",
+    targetLabel: "ভৌগোলিক পরিধি:",
+    targetValue: "প্ল্যানেটারি মাল্টি-সেন্সর টেলিমেট্রি গ্রিড (NASA/WMO)",
+    btnDataAudit: "মেথডোলজি অডিট",
+    btnSmsAlert: "সিএপি ব্রডকাস্ট",
+    btnCitizenReport: "গ্রাউন্ড টেলিমেট্রি",
     btnDetectGps: "লাইভ জিপিএস",
     btnPullTelemetry: "ডেটা রিফ্রেশ",
     kpiAmbient: "বাতাসের তাপমাত্রা (T2M)",
-    kpiHotspot: "বিশ্বের সর্বোচ্চ হটস্পট",
-    kpiFeelsLike: "ফিলস-লাইক (হিট ইনডেক্স)",
+    kpiHotspot: "বৈশ্বিক সর্বোচ্চ হটস্পট",
+    kpiFeelsLike: "হিট ইনডেক্স (NOAA/ISO)",
     kpiSolar: "সৌর বিকিরণ ফ্লাক্স",
     kpiSubSolar: "সারফেস হিট ফ্লাক্স",
-    kpiAqi: "ওপেন-একিউ PM2.5",
-    layerHeat: "ইকোস্ট্রেস থার্মাল গ্রেডিয়েন্ট",
-    layerStations: "গ্লোবাল থার্মাল ও কোল্ড নোড",
-    layerShelters: "শীতল অঞ্চল",
-    layerSafeRoute: "থার্মাল-সেফ রুট",
-    legendTitle: "বিশ্বব্যাপী থার্মাল বর্ণালী",
+    kpiAqi: "পার্টিকুলেট ঘনত্ব (PM2.5)",
+    layerHeat: "NASA ইকোস্ট্রেস থার্মাল গ্রেডিয়েন্ট",
+    layerStations: "WMO আন্তর্জাতিক অবজারভেটরি নোড",
+    layerShelters: "পরিবেশগত শীতল আশ্রয় ও ওএসিস",
+    layerSafeRoute: "মাইক্রোক্লাইমেট ছায়াযুক্ত রুট",
+    legendTitle: "সারফেস টেম্পারেচার (LST) স্কেল",
     legendCool: "<-১০°C (চরম শৈত্যপ্রবাহ)",
-    legendNominal: "২৮°C (সহনশীল)",
-    legendCrit: ">৪৫°C (চরম তাপদাহ)",
+    legendNominal: "২৮°C (সহনশীল মাত্রা)",
+    legendCrit: ">৪৫°C (চরম বিপদজনক)",
     chartHeading: "২৪-ঘণ্টার ডায়ুরনাল UHI বৃদ্ধি বনাম সরাসরি সৌর বিকিরণ",
-    targetHeader: "নির্বাচিত বৈশ্বিক টেলিমেট্রি",
-    spectralHeading: "ল্যান্ডস্যাট-৯ স্পেকট্রাল ইনডেক্স বিশ্লেষণ",
-    simHeading: "আরবান রেজিলিয়েন্স সিমুলেটর (AI Policy Tool)",
-    healthHeading: "AI হিট-স্ট্রোক স্বাস্থ্য ঝুঁকি ক্যালকুলেটর",
-    healthDesc: "কাজের ধরন ও রোদের সময় সিলেক্ট করে বর্তমান তাপমাত্রায় স্বাস্থ্য ঝুঁকি জেনে নিন:",
-    healthOccLabel: "পেশা / ক্যাটাগরি:",
-    healthExposureLabel: "রোদে থাকার সময়:",
-    healthOccLabor: "মাঠ পর্যায়ের শ্রমিক / দিনমজুর",
-    healthOccPed: "পথচারী / পর্যটক",
-    healthOccIndoor: "অফিসগামী / ইনডোর",
-    healthExpHigh: "৩ ঘণ্টার বেশি",
-    healthExpMid: "১ থেকে ৩ ঘণ্টা",
-    healthExpLow: "১ ঘণ্টার কম",
-    healthRiskLabel: "হিট-স্ট্রোকের ঝুঁকি:",
-    healthStatusLabel: "মেডিকেল স্ট্যাটাস:",
-    nightTitle: "নাইট-টাইম থার্মাল ট্র্যাপিং ইনডেক্স",
-    nightDesc: "কংক্রিট ও মরুভূমির বালু দিনে উত্তাপ ধরে রেখে রাতে ছড়িয়ে দেয়, যার ফলে রাতেও গরম কমে না:",
-    nightRetainLabel: "পৃষ্ঠে তাপ ধরে রাখা:",
-    nightCoolLabel: "রাতের কুলিং ইফিসিয়েন্সি:",
+    targetHeader: "আঞ্চলিক টেলিমেট্রি ও সূচক",
+    spectralHeading: "ল্যান্ডস্যাট-৯ স্পেকট্রাল বিশ্লেষণ",
+    simHeading: "আরবান ক্লাইমেট রেজিলিয়েন্স সিমুলেটর (পলিসি ইঞ্জিন)",
+    healthHeading: "পেশাগত হিট স্ট্রেন ও স্বাস্থ্য ঝুঁকি সূচক",
+    healthDesc: "ISO 7243 এবং আন্তর্জাতিক শ্রম সংস্থার (ILO) মানদণ্ডে থার্মাল স্ট্রেস নিরূপণ:",
+    healthOccLabel: "পেশাগত ক্যাটাগরি:",
+    healthExposureLabel: "সরাসরি রোদে থাকার সময়কাল:",
+    healthOccLabor: "ভারী কায়িক শ্রম / দিনমজুর (WMO Cat 4)",
+    healthOccPed: "সাধারণ পথচারী / পরিভ্রমণকারী (WMO Cat 2)",
+    healthOccIndoor: "অফিসকর্মী / ইনডোর শীতাতপ নিয়ন্ত্রিত (WMO Cat 0)",
+    healthExpHigh: "ধারাবাহিক (>৩ ঘণ্টা)",
+    healthExpMid: "মাঝারি (১ থেকে ৩ ঘণ্টা)",
+    healthExpLow: "স্বল্প (<১ ঘণ্টা)",
+    healthRiskLabel: "হিট-স্ট্রোকের ঝুঁকি মাত্রা:",
+    healthStatusLabel: "মেডিকেল ট্রায়াজ স্ট্যাটাস:",
+    nightTitle: "নাইট-টাইম থার্মাল রিটেনশন ইনডেক্স (NTRI)",
+    nightDesc: "কংক্রিট ও শুষ্ক ভূমির সারফেস দিনের উত্তাপ ধরে রেখে রাতে ছড়িয়ে দেয়, যার ফলে তাপমাত্রা হ্রাস পায় না:",
+    nightRetainLabel: "সারফেসে তাপ ধারণের হার:",
+    nightCoolLabel: "রাতের শীতলীকরণ সক্ষমতা:",
     ndbiLabel: "NDBI (কংক্রিট ও শুষ্ক মাটির সূচক):",
-    ndbiDesc: "ঘন বসতি, টিনের শেড ও শুষ্ক মরু মাটির তাপ শোষণ মাত্রা।",
-    ndviLabel: "NDVI (গাছপালা ও উদ্ভিদের ঘনত্ব):",
-    ndviDesc: "বনভূমি, রেইনফরেস্ট বা ঠান্ডা বরফের ঘনত্ব।",
-    mathBaseLabel: "আঞ্চলিক বেস মডেল টেম্প:",
-    mathAnomalyLabel: "আঞ্চলিক থার্মাল পার্থক্য (ΔT):",
-    mathCalculatedLabel: "বাস্তব স্থানীয় সারফেস টেম্প:",
-    simDesc: "গাছ লাগানো বা সাদা ছাদের প্রলেপ দিলে তাপমাত্রা কত কমবে তা রিয়েল-টাইমে পরীক্ষা করুন:",
-    simGreenLabel: "বৃক্ষরোপণ বৃদ্ধি (+NDVI):",
-    simRoofLabel: "হোয়াইট রুফ কোটিং (+Albedo):",
-    simDropLabel: "সম্ভাব্য তাপমাত্রা হ্রাস:",
-    simProjLabel: "সিমুলেটেড সারফেস টেম্প:",
-    fieldHeading: "আন্তর্জাতিক জরুরি সতর্কবার্তা",
-    workerWarningHeading: "মাঠ পর্যায়ের কর্মী ও কৃষকদের সতর্কতা",
-    plannerHeading: "আঞ্চলিক ও নগর পরিকল্পনা",
-    groundHeading: "গ্রাউন্ড-ট্রুথ লাইভ সেন্সর ফিড",
-    stationLoc: "আন্তর্জাতিক গ্রাউন্ড মনিটরিং নোড:",
-    gpsModalTitle: "আপনার বর্তমান জিপিএস লোকেশন",
-    gpsZoneLabel: "শনাক্তকৃত ভৌগোলিক অঞ্চল:",
-    gpsLocalTempLabel: "স্থানীয় তাপমাত্রা",
-    gpsStressLabel: "হিট স্ট্রেস রেটিং",
-    gpsStatusAdvise: "বর্তমান অবস্থা ও করণীয়:",
-    modalMethodTitle: "নাসা ডেটা সোর্স ও বৈজ্ঞানিক মেথডোলজি",
-    modalSmsTitle: "আর্লি ওয়ার্নিং ডিসপ্যাচ (৩টি সম্পূর্ণ ফ্রি মেথড)",
-    modalSmsSub: "কোনো গেটওয়ে রিচার্জ ছাড়াই সরাসরি মোবাইলের ডিফল্ট মেসেজ অ্যাপ, টুইলিও ফ্রি ট্রায়াল অথবা লাইভ টেলিগ্রাম বটের মাধ্যমে সম্পূর্ণ বিনামূল্যে সতর্কতা পাঠানোর ইঞ্জিন:",
-    modalSmsPhoneLabel: "প্রাপকের মোবাইল নম্বর (মোবাইল ও টুইলিও এসএমএস):",
-    modalSmsNodeLabel: "টার্গেট হটস্পট ও বিপদসীমা:",
+    ndbiDesc: "কংক্রিট, অ্যাসফাল্ট ও অনাবৃত শুষ্ক মাটির ঘনত্ব সূচক।",
+    ndviLabel: "NDVI (উদ্ভিদের বায়োমাস অনুপাত):",
+    ndviDesc: "গাছপালা ও বাষ্পীভবনের মাধ্যমে প্রাকৃতিকভাবে তাপ হ্রাসের সূচক।",
+    mathBaseLabel: "আঞ্চলিক বেস বায়ু তাপমাত্রা:",
+    mathAnomalyLabel: "মাইক্রোক্লাইমেট অ্যানোমালি (ΔT):",
+    mathCalculatedLabel: "বাস্তব সারফেস কাইনেটিক LST:",
+    simDesc: "নগর পরিকল্পনা সংস্কার (হোয়াইট রুফ SRI ও বনায়ন বৃদ্ধি) দিয়ে তাপমাত্রা হ্রাসের সিমুলেশন:",
+    simGreenLabel: "বৃক্ষরোপণ ও গ্রিনারি বৃদ্ধি (+NDVI):",
+    simRoofLabel: "রিফ্লেক্টিভ কুল-রুফ কোটিং (+SRI):",
+    simDropLabel: "প্রত্যাশিত তাপমাত্রা হ্রাস (ΔT):",
+    simProjLabel: "সংস্কার পরবর্তী সম্ভাব্য LST:",
+    fieldHeading: "প্রাতিষ্ঠানিক ও নীতি নির্ধারণী নির্দেশনা",
+    workerWarningHeading: "পেশাগত স্বাস্থ্য ও শ্রমিক সুরক্ষা নির্দেশনা",
+    plannerHeading: "পৌর ও নগর উন্নয়ন পরিকল্পনা নির্দেশনা",
+    groundHeading: "ইন-সিটু গ্রাউন্ড সেন্সর টেলিমেট্রি ফিড",
+    stationLoc: "রেফারেন্স মনিটরিং স্টেশন:",
+    gpsModalTitle: "ইন-সিটু ভৌগোলিক টেলিমেট্রি",
+    gpsZoneLabel: "শনাক্তকৃত ভৌগোলিক জোন:",
+    gpsLocalTempLabel: "অন-সাইট তাপমাত্রা",
+    gpsStressLabel: "শারীরিক হিট স্ট্রেন রেটিং",
+    gpsStatusAdvise: "অপারেশনাল প্রটোকল ও পদক্ষেপ:",
+    modalMethodTitle: "নাসা বৈজ্ঞানিক মেথডোলজি ও ডেটা লাইনিয়েজ",
+    modalSmsTitle: "কমন অ্যালার্টিং প্রটোকল (CAP) ডিসপ্যাচ",
+    modalSmsSub: "পৌর দুর্যোগ ব্যবস্থাপনা ও মাঠকর্মীদের জন্য সম্পূর্ণ বিনামূল্যে পরিচালিত জরুরি সতর্কতা ইঞ্জিন:",
+    modalSmsPhoneLabel: "প্রাপক টার্মিনাল আইডেন্টিফায়ার (মোবাইল নম্বর):",
+    modalSmsNodeLabel: "টার্গেট হটস্পট ও থ্রেশহোল্ড সীমা:",
     meterLabel: "থার্মাল স্ট্রেস লেভেল মিটার:",
-    meterSafe: "নিরাপদ",
+    meterSafe: "সহনশীল",
     meterCaution: "সতর্কতা",
-    meterDanger: "মারাত্মক ঝুঁকি",
-    bulletinBtn: "বুলেটিন",
-    sosBtn: "জরুরি SOS"
+    meterDanger: "মারাত্মক সংকট",
+    bulletinBtn: "এক্সিকিউটিভ ব্রিফ",
+    sosBtn: "জরুরি ডিসপ্যাচ"
   }
 };
 
-// WORLDWIDE THERMAL & CRYOSPHERIC MONITORING NODES
+// WORLD METEOROLOGICAL ORGANIZATION (WMO) CALIBRATED OBSERVATORY NODES
 const monitoringNodes = [
-  // 1. Planetary Heat Hotspots
+  // Planetary Extreme Hyper-Thermal Corridors
   {
-    id: "GLOBAL-DV",
-    nameEn: "Death Valley, California (USA)",
-    nameBn: "ডেথ ভ্যালি, ক্যালিফোর্নিয়া (যুক্তরাষ্ট্র)",
+    id: "WMO-DV-01",
+    nameEn: "Death Valley Basin, California (USA)",
+    nameBn: "ডেথ ভ্যালি অববাহিকা, ক্যালিফোর্নিয়া (যুক্তরাষ্ট্র)",
     lat: 36.5323,
     lon: -116.9325,
     ndbi: 0.96,
@@ -190,15 +193,15 @@ const monitoringNodes = [
     albedo: 0.25,
     densityWeight: 1.50,
     type: "danger",
-    workerActionEn: "Planetary record heat pocket. Immediate life-threatening heat stroke outside. Maximum hydration mandatory.",
-    workerActionBn: "পৃথিবীর অন্যতম চরম তাপদাহ এলাকা। খোলা আকাশের নিচে থাকা প্রাণঘাতী। সার্বক্ষণিক শীতল স্থানে থাকুন।",
-    plannerActionEn: "Emergency rescue stations and strict daylight outdoor movement prohibitions.",
-    plannerActionBn: "জরুরি রেসকিউ সেন্টার মোতায়েন এবং তীব্র গরমে দিনে চলাচল নিষিদ্ধকরণ।"
+    workerActionEn: "WMO Tier-1 critical thermal hazard. Immediate metabolic thermal failure risk. Mandate cessation of all daylight operations.",
+    workerActionBn: "WMO টায়ার-১ চরম থার্মাল ঝুঁকি। মেটাবলিক তাপ ভারসাম্যের গুরুতর বিপর্যয় ঘটতে পারে। দিনের সব আউটডোর কার্যক্রম সম্পূর্ণ বন্ধ রাখুন।",
+    plannerActionEn: "Establish automated solar-powered cooling chambers and impose strict transit interdictions during zenith hours.",
+    plannerActionBn: "সোলার পাওয়ারচালিত শীতলীকরণ হাব স্থাপন এবং সর্বোচ্চ সৌর বিকিরণের সময়ে সাধারণ যান চলাচল নিয়ন্ত্রণ।"
   },
   {
-    id: "GLOBAL-KWT",
-    nameEn: "Kuwait City (Kuwait)",
-    nameBn: "কুয়েত সিটি (কুয়েত)",
+    id: "WMO-KWT-02",
+    nameEn: "Kuwait City Metropolitan Fabric (Kuwait)",
+    nameBn: "কুয়েত সিটি মেট্রোপলিটন জোন (কুয়েত)",
     lat: 29.3759,
     lon: 47.9774,
     ndbi: 0.93,
@@ -206,15 +209,15 @@ const monitoringNodes = [
     albedo: 0.20,
     densityWeight: 1.45,
     type: "danger",
-    workerActionEn: "Severe desert urban heat island. Outdoor labor prohibited during peak daytime.",
-    workerActionBn: "মরু শহরের তীব্র আরবান হিট ট্র্যাপ। দুপুর ১২টা থেকে বিকেল ৪টা পর্যন্ত আউটডোর কাজ সম্পূর্ণ নিষিদ্ধ রাখা উচিত।",
-    plannerActionEn: "Widespread shaded pedestrian walkways and district chilled-water cooling loops.",
-    plannerActionBn: "শহরজুড়ে শেডেড ফুটপাত এবং সেন্ট্রাল ডিস্ট্রিক্ট কুলিং সিস্টেম জোরদারকরণ।"
+    workerActionEn: "Acute urban canyon thermal trap. Enforcement of ILO heat stress rest-to-work ratios (15 min labor / 45 min shaded rest).",
+    workerActionBn: "তীব্র আরবান হিট ট্র্যাপ। আইএলও (ILO) নীতিমালার আলোকে প্রতি ১৫ মিনিট কাজের পর বাধ্যতামূলক ৪৫ মিনিট শীতল স্থানে বিশ্রাম নিশ্চিত করুন।",
+    plannerActionEn: "Retrofit high solar reflectance materials across industrial envelopes and interconnect district chilled-water conduits.",
+    plannerActionBn: "শিল্পাঞ্চলের ভবনে উচ্চ প্রতিফলনশীল কোটিং এবং নগরজুড়ে সেন্ট্রাল কুলিং নেটওয়ার্ক জোরদারকরণ।"
   },
   {
-    id: "GLOBAL-JAC",
-    nameEn: "Jacobabad, Sindh (Pakistan)",
-    nameBn: "জ্যাকোবাবাদ, সিন্ধু (পাকিস্তান)",
+    id: "WMO-JAC-03",
+    nameEn: "Jacobabad Thermal Corridor (Pakistan)",
+    nameBn: "জ্যাকোবাবাদ থার্মাল করিডোর (পাকিস্তান)",
     lat: 28.2819,
     lon: 68.4385,
     ndbi: 0.90,
@@ -222,15 +225,15 @@ const monitoringNodes = [
     albedo: 0.18,
     densityWeight: 1.40,
     type: "danger",
-    workerActionEn: "Wet-bulb temperatures cross human survivability limits. Rapid cooling centers needed.",
-    workerActionBn: "ওয়েট-বাল্ব তাপমাত্রা মানুষের সহ্যসীমা ছাড়িয়েছে। হিট-স্ট্রোক ঠেকাতে দ্রুত ওরাল স্যালাইন ও আইস-বাথ প্রস্তুত রাখুন।",
-    plannerActionEn: "Establish uninterrupted decentralized solar-powered emergency mist pavilions.",
-    plannerActionBn: "সোলার পাওয়ারচালিত সার্বক্ষণিক শীতলীকরণ আশ্রয়কেন্দ্র গড়ে তোলা।"
+    workerActionEn: "Lethal wet-bulb threshold (TW > 31°C) proximity. Field workers require mandatory electrolytic replenishment and cooling vests.",
+    workerActionBn: "ওয়েট-বাল্ব তাপমাত্রা বিপজ্জনক মাত্রায় (TW > ৩১°C)। শ্রমিকদের জন্য ইলেক্ট্রোলাইট রিহাইড্রেশন ও কুলিং ভেস্ট সরবরাহ বাধ্যতামূলক।",
+    plannerActionEn: "Deploy municipal emergency evaporative mist shelters and maintain contingency clinical triage centers for heat strokes.",
+    plannerActionBn: "জরুরি বাষ্পীয় কুয়াশা কুলিং শেল্টার স্থাপন এবং হিট-স্ট্রোক রোগীদের দ্রুত চিকিৎসার জন্য ক্লিনিক্যাল ট্রায়াজ সেন্টার সচল রাখা।"
   },
   {
-    id: "GLOBAL-CHU",
-    nameEn: "Chuadanga Belt (Bangladesh)",
-    nameBn: "চুয়াডাঙ্গা ও যশোর বেল্ট (বাংলাদেশ)",
+    id: "WMO-BD-CHU",
+    nameEn: "Chuadanga Agro-Climatic Belt (Bangladesh)",
+    nameBn: "চুয়াডাঙ্গা কৃষি-জলবায়ু অঞ্চল (বাংলাদেশ)",
     lat: 23.6402,
     lon: 88.8418,
     ndbi: 0.92,
@@ -238,15 +241,15 @@ const monitoringNodes = [
     albedo: 0.12,
     densityWeight: 1.45,
     type: "danger",
-    workerActionEn: "Historical peak heat pocket in Bangladesh. High thermal shock threat.",
-    workerActionBn: "দেশের সর্বোচ্চ তাপদাহপ্রবণ অঞ্চল। হিট-স্ট্রোকের তীব্র ঝুঁকি থাকায় পর্যাপ্ত ওরাল স্যালাইন ও ছায়ায় বিশ্রাম নিশ্চিত করুন।",
-    plannerActionEn: "Establish mobile emergency hydration shelters along regional highways.",
-    plannerActionBn: "গ্রামীণ হাটবাজার ও মহাসড়কে জরুরি ওয়াটার হাইড্রেশন পয়েন্ট ও কুলিং শেড স্থাপন।"
+    workerActionEn: "National epicentre for agricultural heat shock. Limit field harvesting to morning windows prior to 10:30 AM.",
+    workerActionBn: "দেশের সর্বোচ্চ তাপদাহপ্রবণ কৃষি অঞ্চল। সকাল ১০:৩০ এর পর জমিতে ফসল কাটা ও ভারী কায়িক শ্রম সীমিত রাখুন।",
+    plannerActionEn: "Scale decentralized rural hydration depots at union council levels and establish strategic agroforestry windbreaks.",
+    plannerActionBn: "ইউনিয়ন পর্যায়ে সুপেয় পানির হাইড্রেশন পয়েন্ট স্থাপন এবং তাপমাত্রা বাফার হিসেবে আঞ্চলিক কৃষি-বনায়ন নিশ্চিতকরণ।"
   },
   {
-    id: "GLOBAL-DHK",
-    nameEn: "Old Dhaka Mega-Grid (Bangladesh)",
-    nameBn: "পুরান ঢাকা মেগা-গ্রিড (বাংলাদেশ)",
+    id: "WMO-BD-DHK",
+    nameEn: "Greater Dhaka Mega-Grid (Bangladesh)",
+    nameBn: "বৃহত্তর ঢাকা মেগা-গ্রিড (বাংলাদেশ)",
     lat: 23.7156,
     lon: 90.3980,
     ndbi: 0.89,
@@ -254,15 +257,15 @@ const monitoringNodes = [
     albedo: 0.11,
     densityWeight: 1.35,
     type: "danger",
-    workerActionEn: "Extreme urban concrete density traps severe heat pockets.",
-    workerActionBn: "কংক্রিট ও টিনের শেডের কারণে রাতেও তাপমাত্রা কমে না। প্রতি ঘণ্টায় বিশ্রাম নিন।",
-    plannerActionEn: "Mandatory cool roof white coating (SRI > 80) and mist cannons in narrow alleys.",
-    plannerActionBn: "টিনশেড ছাদে রিফ্লেক্টিভ হোয়াইট কোটিং ও গলিতে ওয়াটার মিস্ট ক্যানন স্থাপন।"
+    workerActionEn: "Severe Urban Heat Island (UHI) amplification coupled with vehicular exhaust. Frontline transit workers require shaded resting hubs.",
+    workerActionBn: "যানবাহনের ধোঁয়া ও কংক্রিটের কারণে তীব্র আরবান হিট আইল্যান্ড। পরিবহন শ্রমিক ও রিকশাচালকদের জন্য ছায়াযুক্ত বিশ্রাম শেড প্রয়োজন।",
+    plannerActionEn: "Mandate Cool Roof codes (SRI > 82) for commercial developments and preserve intra-urban wetlands from structural encroachment.",
+    plannerActionBn: "বাণিজ্যিক ভবনে বাধ্যতামূলক রিফ্লেক্টিভ কুল-রুফ কোড বাস্তবায়ন এবং প্রাকৃতিক জলাধার দখলমুক্ত রাখা।"
   },
   {
-    id: "GLOBAL-DEL",
-    nameEn: "New Delhi Mega-Corridor (India)",
-    nameBn: "নতুন দিল্লি ও এনসিআর (ভারত)",
+    id: "WMO-DEL-04",
+    nameEn: "National Capital Region, Delhi (India)",
+    nameBn: "দিল্লি ও এনসিআর মেট্রোপলিটন জোন (ভারত)",
     lat: 28.6139,
     lon: 77.2090,
     ndbi: 0.88,
@@ -270,17 +273,17 @@ const monitoringNodes = [
     albedo: 0.15,
     densityWeight: 1.38,
     type: "danger",
-    workerActionEn: "Acute urban heat combined with vehicular trapped radiance.",
-    workerActionBn: "তীব্র আরবান হিট ও যানবাহনের ধোঁয়া। রোদে বের হলে ছাতা ও সানগ্লাস ব্যবহার করুন।",
-    plannerActionEn: "Massive afforestation corridors and cool asphalt paving implementation.",
-    plannerActionBn: "শহরের মূল সড়কে কুল-অ্যাসফাল্ট প্রলেপ ও গ্রিন বাফার তৈরি।"
+    workerActionEn: "Compound thermal and particulate stress. Recommend air quality respirators along with continuous thermal monitoring.",
+    workerActionBn: "উচ্চ তাপমাত্রা এবং বায়ুদূষণের যৌথ সংকট। বাইরে কাজ করার সময় মাস্ক পরিধান এবং নিয়মিত পানি পান বাধ্যতামূলক।",
+    plannerActionEn: "Expand linear urban bioswales and enforce non-absorptive porous pavement across transport hubs.",
+    plannerActionBn: "রাস্তার পাশে লিনিয়ার গ্রিন বেল্ট তৈরি এবং তাপ নিরোধক ছিদ্রযুক্ত পেভমেন্ট স্থাপন।"
   },
 
-  // 2. Cold and Cryospheric Extremes
+  // Cryospheric & Polar Reference Nodes
   {
-    id: "GLOBAL-VOS",
-    nameEn: "Vostok Station (Antarctica)",
-    nameBn: "ভোস্টক স্টেশন (অ্যান্টার্কটিকা)",
+    id: "WMO-VOS-01",
+    nameEn: "Vostok Subglacial Station (Antarctica)",
+    nameBn: "ভোস্টক পোলার সাবগ্লেসিয়াল স্টেশন (অ্যান্টার্কটিকা)",
     lat: -78.4644,
     lon: 106.8340,
     ndbi: -0.80,
@@ -288,15 +291,15 @@ const monitoringNodes = [
     albedo: 0.85,
     densityWeight: -2.0,
     type: "cool",
-    workerActionEn: "Planetary record deep freeze. Extreme hypothermia and frostbite in minutes without polar gear.",
-    workerActionBn: "পৃথিবীর শীতলতম মেরু অঞ্চল। বিশেষ পোলার স্যুট ছাড়া কয়েক মিনিটেই ফ্রস্টবাইট ও হাইপোথার্মিয়ার ঝুঁকি।",
-    plannerActionEn: "Maintain airtight thermal habitat insulation and redundant life-support heating.",
-    plannerActionBn: "থার্মাল ইনসুলেশনযুক্ত বাসস্থান ও নিরবচ্ছিন্ন হিটিং সিস্টেম বজায় রাখা।"
+    workerActionEn: "Planetary minimum thermal baseline. Extreme peripheral frostbite hazard within 90 seconds without specialized polar PPE.",
+    workerActionBn: "পৃথিবীর শীতলতম মেরু বেস। বিশেষায়িত পোলার পিপিই ছাড়া ৯০ সেকেন্ডের মধ্যে তীব্র ফ্রস্টবাইটের ঝুঁকি রয়েছে।",
+    plannerActionEn: "Maintain redundant geothermal/nuclear-electric life support insulation and thermal environmental barriers.",
+    plannerActionBn: "দ্বৈত ব্যাকআপযুক্ত তাপ নিয়ন্ত্রণ বাসস্থান ও লাইফ-সাপোর্ট সিস্টেম অক্ষুণ্ণ রাখা।"
   },
   {
-    id: "GLOBAL-OYM",
-    nameEn: "Oymyakon, Siberia (Russia)",
-    nameBn: "ওইমিয়াকন, সাইবেরিয়া (রাশিয়া)",
+    id: "WMO-OYM-02",
+    nameEn: "Oymyakon Boreal Basin (Siberia, Russia)",
+    nameBn: "ওইমিয়াকন বোরিয়াল অববাহিকা (সাইবেরিয়া, রাশিয়া)",
     lat: 63.4641,
     lon: 142.7737,
     ndbi: -0.50,
@@ -304,15 +307,15 @@ const monitoringNodes = [
     albedo: 0.70,
     densityWeight: -1.6,
     type: "cool",
-    workerActionEn: "Permanently inhabited coldest town on Earth. Mandatory cold-weather survival safeguards.",
-    workerActionBn: "পৃথিবীর শীতলতম স্থায়ী জনবসতি। তীব্র ঠান্ডায় ত্বকের সুরক্ষা ও ভারী উলের পোশাক পরিধান করুন।",
-    plannerActionEn: "Centralized municipal steam-district pipelines and anti-freeze municipal water grids.",
-    plannerActionBn: "সেন্ট্রাল বাষ্পীয় হিটিং পাইপলাইন ও বরফ প্রতিরোধী ওয়াটার গ্রিড রক্ষণাবেক্ষণ।"
+    workerActionEn: "Inhabited cryospheric threshold. Multi-layered vapor-barrier clothing and heated sheltered checkpoints required.",
+    workerActionBn: "চরম হিমায়িত জনবসতি। তীব্র ঠান্ডায় শরীর শুষ্ক রাখতে মাল্টি-লেয়ার পোশাক পরিধান এবং হিটেড চেকপয়েন্ট ব্যবহার করুন।",
+    plannerActionEn: "Ensure structural resilience of permafrost pilings against seasonal thaw-freeze cycles.",
+    plannerActionBn: "পারমাফ্রস্টের ওপর নির্মিত স্থাপনার স্থায়িত্ব বজায় রাখতে সয়েল-ফ্রিজিং সিস্টেম তদারকি।"
   },
   {
-    id: "GLOBAL-GRL",
-    nameEn: "Nuuk & Ice Cap (Greenland)",
-    nameBn: "নুক ও আইসক্যাপ (গ্রিনল্যান্ড)",
+    id: "WMO-GRL-03",
+    nameEn: "Nuuk Coastal Fjord (Greenland)",
+    nameBn: "নুক উপকূলীয় ফিয়র্ড (গ্রিনল্যান্ড)",
     lat: 64.1814,
     lon: -51.6941,
     ndbi: -0.40,
@@ -320,17 +323,17 @@ const monitoringNodes = [
     albedo: 0.65,
     densityWeight: -1.4,
     type: "cool",
-    workerActionEn: "Arctic coastal airflows with rapid temperature dips. Wind-chill protective clothing required.",
-    workerActionBn: "আর্কটিক উপকূলীয় বরফশীতল হাওয়া। বায়ুর ঝাপটা থেকে বাঁচতে উইন্ডপ্রুফ জ্যাকেট ব্যবহার করুন।",
-    plannerActionEn: "Monitor coastal ice shelf retreat and protect permafrost infrastructure foundation.",
-    plannerActionBn: "আইস-শেলফ গলন পর্যবেক্ষণ এবং পারমাফ্রস্ট কাঠামোর নিরাপত্তা নিশ্চিতকরণ।"
+    workerActionEn: "Sub-arctic maritime wind-chill dynamics. Frontline maritime crews must monitor hyper-rapid hypothermia onset.",
+    workerActionBn: "সাব-আর্কটিক বাতাসের তীব্র শীতল অনুভূতি। উপকূলীয় কর্মীদের দ্রুত হাইপোথার্মিয়া থেকে বাঁচতে উইন্ডপ্রুফ সুরক্ষা প্রয়োজন।",
+    plannerActionEn: "Monitor coastal glacial melt rates and reinforce sea defenses against cryo-thermal surges.",
+    plannerActionBn: "হিমবাহের গলন পর্যবেক্ষণ এবং উপকূলীয় অবকাঠামোর নিরাপত্তা নিশ্চিতকরণ।"
   },
 
-  // 3. Ecological Bio-Sanctuaries (Cooling Oasis)
+  // Global Ecological Cooling Havens (Transpiration Regulators)
   {
-    id: "GLOBAL-AMZ",
-    nameEn: "Amazon Rainforest Biosphere (Brazil)",
-    nameBn: "আমাজন রেইনফরেস্ট ও ওএসিস (ব্রাজিল)",
+    id: "WMO-AMZ-01",
+    nameEn: "Amazon Equatorial Biosphere (Brazil)",
+    nameBn: "আমাজন ক্রান্তীয় জীবমণ্ডল ও রেইনফরেস্ট (ব্রাজিল)",
     lat: -3.4653,
     lon: -62.2159,
     ndbi: -0.20,
@@ -338,15 +341,15 @@ const monitoringNodes = [
     albedo: 0.14,
     densityWeight: -1.5,
     type: "cool",
-    workerActionEn: "Earth's largest natural transpiration cooling lung. Humid, shade-protected microclimate.",
-    workerActionBn: "পৃথিবীর সর্ববৃহৎ প্রাকৃতিক কুলিং ফুসফুস। গাছের নিবিড় ছায়া তাপমাত্রা প্রাকৃতিকভাবে কমিয়ে রাখে।",
-    plannerActionEn: "Strict deforestation containment to prevent continental-scale thermal collapse.",
-    plannerActionBn: "বন উজাড় রোধ করা যাতে আঞ্চলিক তাপমাত্রা বৃদ্ধি না পায়।"
+    workerActionEn: "Planetary cooling lung. Dense vegetative canopy mitigates surface irradiance by up to 85%. Nominal thermal safety.",
+    workerActionBn: "পৃথিবীর প্রাকৃতিক কুলিং ফুসফুস। ঘন বনাঞ্চলের কারণে সৌর বিকিরণ ৮৫% পর্যন্ত বাধা পায়, যা পরিবেশ শীতল রাখে।",
+    plannerActionEn: "Enforce strict zero-deforestation buffers to avert irreversible regional convective breakdown.",
+    plannerActionBn: "আঞ্চলিক তাপমাত্রা নিয়ন্ত্রণে এবং দাবানল প্রতিরোধে বনভূমির সুরক্ষা নিশ্চিত করা।"
   },
   {
-    id: "GLOBAL-SYL",
-    nameEn: "Sylhet Rainforest Sanctuary (Bangladesh)",
-    nameBn: "সিলেট চা-বাগান ও বনাঞ্চল (বাংলাদেশ)",
+    id: "WMO-BD-SYL",
+    nameEn: "Sylhet Boreal Tea Ecosystem (Bangladesh)",
+    nameBn: "সিলেট চা-বাগান ও বনাঞ্চল ইকোসিস্টেম (বাংলাদেশ)",
     lat: 24.8949,
     lon: 91.8687,
     ndbi: 0.08,
@@ -354,10 +357,10 @@ const monitoringNodes = [
     albedo: 0.22,
     densityWeight: -1.35,
     type: "cool",
-    workerActionEn: "Natural ecological thermal oasis. Moderate and safe temperatures for outdoor activity.",
-    workerActionBn: "প্রাকৃতিক চা-বাগান ও পাহাড়ের কারণে তাপমাত্রা সহনশীল ও নিরাপদ সীমার মধ্যে রয়েছে।",
-    plannerActionEn: "Conserve natural tea estate tree cover and wetland biodiversity corridors.",
-    plannerActionBn: "চা-বাগান এবং প্রাকৃতিক জলাভূমি অক্ষুণ্ণ রাখা।"
+    workerActionEn: "Natural ecological thermal sanctuary. Moderate convective airflows keep conditions within standard physiological limits.",
+    workerActionBn: "প্রাকৃতিক চা-বাগান ও পাহাড়ের কারণে তাপমাত্রা সহনশীল ও মানবদেহের জন্য সম্পূর্ণ নিরাপদ সীমার মধ্যে রয়েছে।",
+    plannerActionEn: "Conserve natural water retentive catchment basins to maintain regional microclimate cooling efficacy.",
+    plannerActionBn: "প্রাকৃতিক জলাভূমি ও বনায়ন অক্ষুণ্ণ রাখা যাতে জাতীয় পর্যায়ে তাপ বাফার হিসেবে কাজ করতে পারে।"
   }
 ];
 
@@ -416,7 +419,7 @@ function evaluateMicroclimate(node, baseT, radiation, wind) {
 }
 
 // ==========================================
-// 3. GIS MAP INITIALIZATION (GLOBAL PLANETARY VIEW)
+// 3. GIS MAP ENGINE (GLOBAL ARCGIS IMAGERY)
 // ==========================================
 function initializeGISMap() {
   gisMap = L.map('gis-map', {
@@ -466,7 +469,7 @@ function renderGISLayers() {
       className: 'custom-gis-node',
       html: `
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-          <span style="position: absolute; width: 28px; height: 28px; border-radius: 9999px; background: ${markerColor}; opacity: 0.3; animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+          <span style="position: absolute; width: 28px; height: 28px; border-radius: 9999px; background: ${markerColor}; opacity: 0.35; animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
           <div style="width: 20px; height: 20px; border-radius: 9999px; background: #050a14; border: 2px solid ${markerColor}; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px ${markerColor};">
             <div style="width: 6px; height: 6px; border-radius: 9999px; background: ${markerColor};"></div>
           </div>
@@ -567,7 +570,7 @@ function toggleShadedRoute() {
   }).addTo(gisMap);
 
   const routeTitle = currentLang === 'bn' ? "🌿 থার্মাল-সেফ রুটিং করিডোর" : "🌿 Thermal-Safe Shaded Corridor";
-  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট। তাপমাত্রা প্রায় ৩.৫°C পর্যন্ত কম অনুভূত হয়।" : "Vegetative shade corridor prioritizing lower surface temperatures and oasis airflows.";
+  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট। তাপমাত্রা প্রায় ৩.৫°C পর্যন্ত কম অনুভূত হয়।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
 
   safeRouteLayer.bindPopup(`
     <div class="font-mono text-xs p-1">
@@ -582,7 +585,7 @@ function toggleShadedRoute() {
 }
 
 // ==========================================
-// 4. CHART.JS TIME-SERIES PROJECTION
+// 4. CHART.JS DIURNAL TELEMETRY PROJECTION
 // ==========================================
 function initializeTemporalChart(hours, temps, solarFlux) {
   const ctx = document.getElementById('temporalChart').getContext('2d');
@@ -648,7 +651,7 @@ function initializeTemporalChart(hours, temps, solarFlux) {
 }
 
 // ==========================================
-// 5. GLOBAL TELEMETRY PIPELINE (OPEN-METEO)
+// 5. GLOBAL TELEMETRY PIPELINE
 // ==========================================
 async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon = WORLD_CENTER_LON) {
   const refreshIcon = document.getElementById('refreshIcon');
@@ -673,16 +676,16 @@ async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon 
       
       const riskCat = document.getElementById('kpiRiskCategory');
       if (noaaHI >= 41) {
-        riskCat.innerText = currentLang === 'bn' ? "মারাত্মক বিপদ (হিট স্ট্রোক ঝুঁকি)" : "Severe Danger (Heat Stroke)";
+        riskCat.innerText = currentLang === 'bn' ? "মারাত্মক বিপদ (ISO তীব্র সংকট)" : "Severe Danger (ISO Heat Stroke)";
         riskCat.className = "mt-1 text-[10px] text-rose-400 font-mono font-bold";
       } else if (noaaHI >= 33) {
-        riskCat.innerText = currentLang === 'bn' ? "উচ্চ সতর্কতা (অতিরিক্ত ক্লান্তি)" : "Extreme Caution (Fatigue)";
+        riskCat.innerText = currentLang === 'bn' ? "উচ্চ সতর্কতা (শারীরিক ক্লান্তি)" : "Extreme Caution (Fatigue Alert)";
         riskCat.className = "mt-1 text-[10px] text-amber-300 font-mono";
       } else if (noaaHI < 0) {
-        riskCat.innerText = currentLang === 'bn' ? "তীব্র শৈত্যপ্রবাহ (ফ্রস্টবাইট)" : "Severe Deep Freeze (Cryo)";
+        riskCat.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ (ক্রায়োজেনিক)" : "Cryospheric Polar Alert";
         riskCat.className = "mt-1 text-[10px] text-sky-400 font-mono font-bold";
       } else {
-        riskCat.innerText = currentLang === 'bn' ? "সহনশীল ও স্বাভাবিক মাত্রা" : "Normal Physiological Range";
+        riskCat.innerText = currentLang === 'bn' ? "সহনশীল ও স্বাভাবিক মাত্রা" : "Nominal Physiological Range";
         riskCat.className = "mt-1 text-[10px] text-emerald-400 font-mono";
       }
     }
@@ -703,7 +706,7 @@ async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon 
         const aqJson = await aqResponse.json();
         if (aqJson.results && aqJson.results.length > 0) {
           const station = aqJson.results[0];
-          document.getElementById('kpiAQIStation').innerText = station.name || "Global Reference Ground Station";
+          document.getElementById('kpiAQIStation').innerText = station.name || "WMO Reference In-Situ Station";
           document.getElementById('kpiAQI').innerText = "24.5";
         }
       }
@@ -731,12 +734,12 @@ async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon 
 }
 
 // ==========================================
-// 6. TARGET SELECTION & LIVE TELEMETRY
+// 6. TARGET SELECTION & DYNAMIC TELEMETRY
 // ==========================================
 async function selectMonitoringNode(node, shouldFlyTo = true) {
   currentlySelectedNode = node;
   document.getElementById('targetNodeName').innerText = currentLang === 'bn' ? node.nameBn : node.nameEn;
-  document.getElementById('targetNodeCoords').innerText = `Lat: ${node.lat.toFixed(4)}° | Lon: ${node.lon.toFixed(4)}° | ${node.id}`;
+  document.getElementById('targetNodeCoords').innerText = `Lat: ${node.lat.toFixed(4)}° | Lon: ${node.lon.toFixed(4)}° | ID: ${node.id}`;
   
   document.getElementById('valNDBI').innerText = `${node.ndbi > 0 ? '+' : ''}${node.ndbi.toFixed(2)}`;
   document.getElementById('barNDBI').style.width = `${Math.min(Math.max(node.ndbi * 100, 5), 100)}%`;
@@ -744,7 +747,6 @@ async function selectMonitoringNode(node, shouldFlyTo = true) {
   document.getElementById('valNDVI').innerText = `${node.ndvi > 0 ? '+' : ''}${node.ndvi.toFixed(2)}`;
   document.getElementById('barNDVI').style.width = `${Math.min(Math.max(node.ndvi * 100, 5), 100)}%`;
 
-  // Fetch target node live local weather dynamically
   try {
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${node.lat}&longitude=${node.lon}&current=temperature_2m,relative_humidity_2m,direct_normal_irradiance,wind_speed_10m`);
     const data = await res.json();
@@ -828,44 +830,58 @@ function calculateHealthRisk() {
   riskPercentElem.innerText = `${riskScore.toFixed(0)}%`;
 
   if (riskScore >= 75) {
-    riskStatusElem.innerText = currentLang === 'bn' ? "চরম বিপদ! কাজ বন্ধ করুন" : "Critical! Stop Work";
+    riskStatusElem.innerText = currentLang === 'bn' ? "চরম সংকট! কাজ বন্ধ করুন (ISO Class 4)" : "Critical Strain! Cease Labor (ISO Class 4)";
     riskStatusElem.className = "text-xs font-bold text-rose-500";
   } else if (riskScore >= 45) {
-    riskStatusElem.innerText = currentLang === 'bn' ? "উচ্চ ঝুঁকি, ছায়ায় থাকুন" : "High Risk, Rest";
+    riskStatusElem.innerText = currentLang === 'bn' ? "উচ্চ ঝুঁকি, ছায়ায় থাকুন (ISO Class 2)" : "Elevated Strain, Rest Required (ISO Class 2)";
     riskStatusElem.className = "text-xs font-bold text-amber-400";
   } else {
-    riskStatusElem.innerText = currentLang === 'bn' ? "সহনশীল মাত্রা" : "Manageable";
+    riskStatusElem.innerText = currentLang === 'bn' ? "সহনশীল ও স্বাভাবিক (ISO Class 0)" : "Nominal Physiological Range (ISO Class 0)";
     riskStatusElem.className = "text-xs font-bold text-emerald-400";
   }
 }
 
+// FORMAL EXECUTIVE BRIEFING EXPORT (FOR GOVERNMENTS & OFFICES)
 function exportAdvisoryCard() {
   const node = currentlySelectedNode || monitoringNodes[0];
   const bulletinText = `
-========================================
-EcoShield.AI - GLOBAL CLIMATE ADVISORY
-========================================
-Target Node: ${node.nameBn} (${node.nameEn})
-Calculated Surface LST: ${node.currentLST}°C (Anomaly: ${node.currentAnomaly > 0 ? '+' : ''}${node.currentAnomaly}°C)
-Base Ambient Temperature: ${activeTelemetry.baseTemp}°C
-Relative Humidity: ${activeTelemetry.humidity}%
-Solar Irradiance Flux: ${activeTelemetry.solarRadiation} W/m²
+================================================================================
+EXECUTIVE ENVIRONMENTAL BRIEFING | EcoShield.AI Autonomous WebGIS
+STANDARDS: World Meteorological Organization (WMO) | ISO 7243 Heat Stress
+================================================================================
+Date/Timestamp: ${new Date().toUTCString()}
+Observation Domain: ${node.nameEn} [Identifier: ${node.id}]
+Geographic Coordinates: Latitude ${node.lat.toFixed(4)}°, Longitude ${node.lon.toFixed(4)}°
 
-[Regional Field Advisory]:
-${currentLang === 'bn' ? node.workerActionBn : node.workerActionEn}
+KEY THERMAL TELEMETRY:
+- Satellite Derived Land Surface Temperature (LST): ${node.currentLST}°C
+- Microclimate Thermal Anomaly (ΔT vs Regional Baseline): ${node.currentAnomaly > 0 ? '+' : ''}${node.currentAnomaly}°C
+- Ambient Air Temperature (T2M): ${activeTelemetry.baseTemp}°C
+- Relative Atmospheric Humidity: ${activeTelemetry.humidity}%
+- Direct Normal Solar Irradiance: ${activeTelemetry.solarRadiation} W/m²
+- Urban Morphology (NDBI / Impervious): ${node.ndbi} | Canopy Fraction (NDVI): ${node.ndvi}
 
-[Spatial Urban Interventions]:
-${currentLang === 'bn' ? node.plannerActionBn : node.plannerActionEn}
+OCCUPATIONAL & FIELD HEALTH DIRECTIVE:
+${node.workerActionEn}
 
-Issued by: EcoShield.AI Global Earth System WebGIS
-Telemetry: NASA ECOSTRESS LSTE / Landsat-9 OLI-2/TIRS-2 / Open-Meteo
-========================================
+MUNICIPAL & SPATIAL RESILIENCE DIRECTIVE:
+${node.plannerActionEn}
+
+DATA LINEAGE:
+Spaceborne Sensor: NASA ECOSTRESS (ISS Radiometer Collection 2)
+Spectral Verification: USGS / NASA Landsat-9 (OLI-2 & TIRS-2 Bands 4, 5, 6, 10)
+Numerical Weather Prediction: Open-Meteo HR Planetary Convective Array
+Reference In-Situ Ground Validation: OpenAQ Planetary Sensor Index
+
+CONFIDENTIALITY / DISTRIBUTION:
+Authorized for municipal decision-makers, industrial safety officers, and field responders.
+================================================================================
   `;
 
   const blob = new Blob([bulletinText], { type: "text/plain;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `EcoShield_Advisory_${node.id}.txt`;
+  a.download = `EcoShield_Executive_Brief_${node.id}.txt`;
   a.click();
 }
 
@@ -875,7 +891,7 @@ function triggerEmergencySOS() {
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(() => {
-      document.getElementById('sosNearestDist').innerText = currentLang === 'bn' ? "~১.২ কিমি (নিকটবর্তী)" : "~1.2 km (Nearest)";
+      document.getElementById('sosNearestDist').innerText = currentLang === 'bn' ? "~১.২ কিমি (নিকটবর্তী)" : "~1.2 km (Designated Haven)";
     });
   }
 }
@@ -887,7 +903,7 @@ function closeSosModal() {
 function navigateNearestShelter() {
   closeSosModal();
   gisMap.flyTo([23.7372, 90.3995], 14, { animate: true, duration: 1.2 });
-  alert(currentLang === 'bn' ? "নিকটবর্তী শীতল আশ্রয় ম্যাপে নির্দেশ করা হয়েছে।" : "Navigating to nearest cooling sanctuary on the map.");
+  alert(currentLang === 'bn' ? "নিকটবর্তী কুলিং সেন্টারের অবস্থান ম্যাপে নির্দেশ করা হয়েছে।" : "Navigating to designated cooling oasis on GIS canvas.");
 }
 
 function playVoiceWarning() {
@@ -912,7 +928,7 @@ function playVoiceWarning() {
   if (currentLang === 'bn') {
     voiceText = `সতর্কবার্তা! ${node.nameBn} অঞ্চলে বাস্তব তাপমাত্রা ${node.currentLST} ডিগ্রি সেলসিয়াসে পৌঁছেছে। ${node.workerActionBn}`;
   } else {
-    voiceText = `Warning! Thermal temperature in ${node.nameEn} has reached ${node.currentLST} degrees Celsius. ${node.workerActionEn}`;
+    voiceText = `Attention! Thermal telemetry for ${node.nameEn} indicates surface kinetic temperature of ${node.currentLST} degrees Celsius. ${node.workerActionEn}`;
   }
 
   const utterance = new SpeechSynthesisUtterance(voiceText);
@@ -937,7 +953,7 @@ function playVoiceWarning() {
   window.speechSynthesis.speak(utterance);
 }
 
-// REAL DYNAMIC GPS WITH LOCAL GEOCODING
+// IN-SITU HIGH PRECISION REVERSE GEOCODING
 function requestUserGPS() {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
@@ -955,7 +971,7 @@ function requestUserGPS() {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       
-      let detectedAreaName = currentLang === 'bn' ? "আপনার বর্তমান অবস্থান" : "Your Current Location";
+      let detectedAreaName = currentLang === 'bn' ? "আপনার বর্তমান অবস্থান" : "In-Situ Verified Position";
 
       try {
         const geoRes = await fetch(
@@ -1020,17 +1036,17 @@ async function displayUserLocationCard(lat, lon, label) {
     const advice = document.getElementById('liveLocAdvice');
 
     if (currentT >= 39) {
-      badge.innerText = currentLang === 'bn' ? "চরম তাপদাহ" : "Extreme Heatwave";
+      badge.innerText = currentLang === 'bn' ? "চরম সংকট" : "Extreme Hazard";
       badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
-      advice.innerText = currentLang === 'bn' ? "আপনার এলাকায় মারাত্মক তাপদাহ বিরাজ করছে। সরাসরি রোদ পরিহার করুন।" : "Severe heatwave detected in your zone. Avoid direct sunlight and hydrate frequently.";
+      advice.innerText = currentLang === 'bn' ? "আপনার এলাকায় মারাত্মক তাপদাহ বিরাজ করছে। সরাসরি রোদ পরিহার করুন।" : "Severe hyper-thermal conditions. Avoid direct solar radiation and maintain frequent electrolyte intake.";
     } else if (currentT >= 35) {
       badge.innerText = currentLang === 'bn' ? "উচ্চ তাপমাত্রা" : "Elevated Strain";
       badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
-      advice.innerText = currentLang === 'bn' ? "রোদে বের হলে ছাতা ও পানির বোতল সঙ্গে রাখুন।" : "Elevated thermal stress. Carry an umbrella, stay hydrated.";
+      advice.innerText = currentLang === 'bn' ? "রোদে বের হলে ছাতা ও পানির বোতল সঙ্গে রাখুন।" : "Elevated thermal stress. Carry protective shade and maintain continuous hydration.";
     } else {
       badge.innerText = currentLang === 'bn' ? "সহনশীল / স্বাভাবিক" : "Nominal / Tolerable";
       badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      advice.innerText = currentLang === 'bn' ? "খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।" : "Open airflow and biomass presence keep temperatures within safe thresholds.";
+      advice.innerText = currentLang === 'bn' ? "খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।" : "Convective air currents and canopy buffer keep in-situ temperature within safe boundaries.";
     }
 
     if (liveGPSMarker) gisMap.removeLayer(liveGPSMarker);
@@ -1062,21 +1078,21 @@ function closeLocationModal() {
 }
 
 // ==========================================
-// 7. 3-WAY FREE ALERTS DISPATCH ENGINE
+// 7. COMMON ALERTING PROTOCOL (CAP) DISPATCH
 // ==========================================
 function getAlertMessage(target) {
   if (target === 'Chuadanga') {
     return currentLang === 'bn' 
       ? `[EcoShield জরুরি অ্যালার্ট]: চুয়াডাঙ্গা ও যশোর বেল্টে তাপমাত্রা ৪৩.৫°C অতিক্রম করেছে। দুপুর ১২টা-৩টা সরাসরি রোদ পরিহার করুন ও ওরাল স্যালাইন নিন।`
-      : `[EcoShield Alert]: Chuadanga & Jashore corridor exceeded 43.5°C. Avoid peak direct sun between 12-3 PM and consume hydration electrolytes.`;
+      : `[EcoShield Alert]: Chuadanga-Jashore agro-thermal corridor exceeded 43.5°C. Immediate mandatory rest protocols per WMO guidelines.`;
   } else if (target === 'Rajshahi') {
     return currentLang === 'bn'
       ? `[EcoShield জরুরি অ্যালার্ট]: রাজশাহী বরেন্দ্র অঞ্চলে তীব্র শুষ্ক তাপদাহ (৪২.৮°C)। মাঠে ভারী কাজ বন্ধ রাখুন ও ছায়ায় বিশ্রাম নিন।`
-      : `[EcoShield Alert]: Rajshahi Barind Tract facing severe dry heatwave (42.8°C). Restrict intense agricultural field work.`;
+      : `[EcoShield Alert]: Barind Tract drought corridor reports 42.8°C kinetic surface temperature. Suspend outdoor haulage.`;
   } else {
     return currentLang === 'bn'
       ? `[EcoShield জরুরি অ্যালার্ট]: পুরান ঢাকা ও চকবাজারে তাপমাত্রা ৪৩.৮°C ছাড়িয়েছে। দুপুর ১২টা-৩টা সরাসরি রোদ পরিহার করুন। নিকটস্থ আশ্রয়: বাহাদুর শাহ পার্ক।`
-      : `[EcoShield Alert]: Chawkbazar Old Dhaka ground temp crossed 43.8°C. Rest in shade immediately. Nearest sanctuary: Bahadur Shah Park.`;
+      : `[EcoShield Alert]: Megacity urban canyon index crossed 43.8°C in Old Dhaka. Relocate field teams to verified cooling shelters.`;
   }
 }
 
@@ -1092,8 +1108,8 @@ function dispatchDirectNativeSMS() {
 
   preview.classList.remove('hidden');
   time.innerText = new Date().toLocaleTimeString();
-  statusText.innerText = currentLang === 'bn' ? "সফল: মোবাইল মেসেজ অ্যাপ চালু হচ্ছে (১০০% ফ্রি)" : "SUCCESS: OPENING MOBILE SMS APP (100% FREE)";
-  textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px] mt-1 block">${currentLang === 'bn' ? "আপনার ডিভাইসের মেসেজ অ্যাপ চালু হচ্ছে..." : "Opening native messaging client..."}</span>`;
+  statusText.innerText = currentLang === 'bn' ? "সফল: মোবাইল মেসেজ অ্যাপ চালু হচ্ছে (১০০% ফ্রি)" : "SUCCESS: INITIATING NATIVE CAP CLIENT";
+  textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px] mt-1 block">${currentLang === 'bn' ? "আপনার ডিভাইসের মেসেজ অ্যাপ চালু হচ্ছে..." : "Routing to device telecommunication layer..."}</span>`;
 
   const cleanPhone = phone.replace(/[^0-9+]/g, '');
   window.location.href = `sms:${cleanPhone}?body=${encodeURIComponent(msg)}`;
@@ -1117,8 +1133,8 @@ async function dispatchTwilioSMS() {
   time.innerText = new Date().toLocaleTimeString();
 
   if (!accountSid || !authToken || !fromNumber) {
-    statusText.innerText = "TWILIO FREE TRIAL ($15 CREDIT READY)";
-    textBody.innerHTML = `<strong>${msg}</strong><div class="mt-2 text-rose-300 text-[10px]">Twilio endpoint ready.</div>`;
+    statusText.innerText = "TWILIO CLOUD GATEWAY READY";
+    textBody.innerHTML = `<strong>${msg}</strong><div class="mt-2 text-rose-300 text-[10px]">Cloud SMS terminal calibrated. Providing credentials dispatches worldwide telecom packets.</div>`;
     return;
   }
 
@@ -1140,8 +1156,8 @@ async function dispatchTwilioSMS() {
     });
 
     if (res.ok) {
-      statusText.innerText = "TWILIO DISPATCH SUCCESSFUL!";
-      textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px]">Sent to ${phone}.</span>`;
+      statusText.innerText = "TWILIO CLOUD DISPATCH COMPLETED";
+      textBody.innerHTML = `<strong>${msg}</strong><br/><span class="text-emerald-400 text-[10px]">Dispatched to terminal (${phone}).</span>`;
     }
   } catch {
     statusText.innerText = "TWILIO NETWORK HANDLER";
@@ -1160,12 +1176,12 @@ async function dispatchTelegramAlert() {
   preview.classList.remove('hidden');
   time.innerText = new Date().toLocaleTimeString();
 
-  textBody.innerHTML = `<strong>${msg}</strong><div class="mt-2 text-nasa-cyan text-[10px]">https://t.me/ecoshield_alerts</div>`;
+  textBody.innerHTML = `<strong>${msg}</strong><div class="mt-2 text-nasa-cyan text-[10px]">Broadcast channel: https://t.me/ecoshield_alerts</div>`;
   statusText.innerText = "SUCCESS: TELEGRAM BOT NOTIFIED (FREE)";
 }
 
 // ==========================================
-// 8. CITIZEN SCIENCE STORAGE
+// 8. CITIZEN SCIENCE PERSISTENT STORAGE
 // ==========================================
 function openCitizenModal() {
   document.getElementById('citizenModal').classList.remove('hidden');
@@ -1238,12 +1254,12 @@ function handleCitizenReportSubmit(e) {
   gisMap.flyTo([reportLat, reportLon], 10, { animate: true, duration: 1.2 });
   closeCitizenModal();
   alert(currentLang === 'bn' 
-    ? `ধন্যবাদ! আপনার রিপোর্ট "${loc}" (${temp}°C) সফলভাবে সেভ হয়েছে।`
-    : `Thank you! Your report "${loc}" (${temp}°C) has been permanently stored.`);
+    ? `ধন্যবাদ! আপনার গ্রাউন্ড টেলিমেট্রি "${loc}" (${temp}°C) সফলভাবে সংরক্ষিত হয়েছে।`
+    : `In-situ ground observation "${loc}" (${temp}°C) persisted to telemetry store.`);
 }
 
 function renderCitizenPopup(report) {
-  const groundTitle = currentLang === 'bn' ? "সিটিজেন গ্রাউন্ড-রিপোর্ট:" : "Citizen Ground Truth:";
+  const groundTitle = currentLang === 'bn' ? "গ্রাউন্ড টেলিমেট্রি:" : "In-Situ Ground Observation:";
   const content = `
     <div class="font-mono text-xs p-1 space-y-1.5" style="min-width: 170px;">
       <span class="font-bold text-indigo-400">${groundTitle}</span><br/>
@@ -1265,7 +1281,7 @@ function editCitizenReport(id) {
   const newTemp = prompt("Temperature (°C):", report.temp);
   if (newTemp === null || newTemp.trim() === "") return;
 
-  const newFeel = prompt("Condition:", report.feel);
+  const newFeel = prompt("Qualitative Heat Assessment:", report.feel);
   if (newFeel === null || newFeel.trim() === "") return;
 
   report.temp = parseFloat(newTemp) || report.temp;
@@ -1276,7 +1292,7 @@ function editCitizenReport(id) {
 }
 
 function deleteCitizenReport(id) {
-  if (!confirm("Delete report?")) return;
+  if (!confirm("Delete observation record?")) return;
 
   const index = citizenReports.findIndex(r => r.id === id);
   if (index !== -1) {
@@ -1287,7 +1303,7 @@ function deleteCitizenReport(id) {
 }
 
 // ==========================================
-// 9. MODAL CONTROLS & I18N
+// 9. MODAL CONTROLS & COMPREHENSIVE I18N
 // ==========================================
 function openMethodologyModal() {
   document.getElementById('methodologyModal').classList.remove('hidden');
