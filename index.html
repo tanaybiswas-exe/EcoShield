@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EcoShield Local | Enterprise Microclimate & Urban Heat Island Observatory</title>
+  <title>EcoShield.AI | Planetary Microclimate & Urban Heat Island Observatory</title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Space Grotesk & JetBrains Mono for Aerospace/Enterprise Feel -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,14 +35,16 @@
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
+            display: ['Space Grotesk', 'sans-serif'],
           },
           colors: {
-            surface: {
-              DEFAULT: '#050a14',
-              secondary: '#0b1325',
-              tertiary: '#111d38',
-              border: '#1b2d54',
-              highlight: '#243a6d'
+            space: {
+              950: '#020617',
+              900: '#070d1e',
+              850: '#0b152d',
+              800: '#101e40',
+              border: '#192b57',
+              highlight: '#233b75'
             },
             nasa: {
               blue: '#0B3D91',
@@ -56,437 +58,547 @@
       }
     }
   </script>
+
+  <style>
+    /* Custom sleek scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    #gis-map {
+      height: 100%;
+      width: 100%;
+      background: #020617;
+    }
+    .gis-tooltip {
+      background: rgba(7, 13, 30, 0.95) !important;
+      border: 1px solid rgba(0, 209, 255, 0.3) !important;
+      border-radius: 6px !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7) !important;
+      color: #e2e8f0 !important;
+    }
+    .leaflet-tooltip-top:before {
+      border-top-color: rgba(0, 209, 255, 0.4) !important;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.08); }
+    }
+    .radar-pulse-anim {
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+  </style>
 </head>
 
-<body class="bg-surface text-slate-200 antialiased min-h-screen flex flex-col font-sans select-none relative">
+<body class="bg-space-950 text-slate-100 antialiased min-h-screen flex flex-col font-sans select-none overflow-x-hidden selection:bg-nasa-cyan selection:text-space-950">
 
-  <!-- TOP ENTERPRISE HUD BAR -->
-  <header class="h-14 border-b border-surface-border bg-surface-secondary/95 backdrop-blur-md px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0">
-    <div class="flex items-center gap-3">
-      <div class="h-8 w-8 rounded-full bg-nasa-blue flex items-center justify-center border border-nasa-cyan/40 shadow-lg shadow-nasa-blue/40 relative">
-        <span class="font-extrabold text-[10px] tracking-widest text-white">NASA</span>
-        <span class="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-nasa-cyan animate-ping"></span>
+  <!-- TOP EXECUTIVE HUD APPARATUS BAR -->
+  <header class="h-16 border-b border-space-border/80 bg-space-900/90 backdrop-blur-xl px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0 shadow-2xl shadow-black/60">
+    
+    <!-- Left: Brand Authority -->
+    <div class="flex items-center gap-3.5">
+      <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-nasa-blue to-blue-900 flex items-center justify-center border border-nasa-cyan/40 shadow-lg shadow-nasa-blue/30 relative group">
+        <span class="font-display font-extrabold text-[11px] tracking-wider text-white">NASA</span>
+        <span class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-nasa-cyan animate-ping"></span>
+        <span class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-nasa-cyan"></span>
       </div>
       <div class="flex flex-col">
         <div class="flex items-center gap-2">
-          <span class="font-bold text-sm lg:text-base tracking-tight text-white">EcoShield<span class="text-nasa-cyan">.AI</span></span>
-          <span id="uiHeaderBadge" class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono uppercase bg-nasa-cyan/10 text-nasa-cyan border border-nasa-cyan/30">National Microclimate Observatory</span>
+          <span class="font-display font-bold text-base lg:text-lg tracking-tight text-white">EcoShield<span class="text-nasa-cyan">.AI</span></span>
+          <span id="uiHeaderBadge" class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wide font-medium bg-cyan-950/60 text-nasa-cyan border border-nasa-cyan/30">
+            Planetary Earth System Observatory
+          </span>
         </div>
-        <span class="text-[10px] text-slate-400 font-mono hidden md:inline">ECOSTRESS (ISS) • Landsat-9 TIRS • OpenAQ v3 Ground Stations</span>
+        <span class="text-[10px] text-slate-400 font-mono hidden md:inline tracking-tight">
+          ECOSTRESS (ISS) • Landsat-9 TIRS-2 • Open-Meteo High-Resolution Numerical Array
+        </span>
       </div>
     </div>
 
-    <!-- Controls -->
-    <div class="flex items-center gap-2 text-xs font-mono">
-      <div class="hidden lg:flex items-center gap-2 bg-surface px-3 py-1 rounded border border-surface-border font-mono text-[11px]">
-        <span class="text-slate-400" id="uiTargetLabel">Coverage:</span>
-        <span class="text-white font-semibold" id="uiTargetValue">All-Bangladesh Thermal Monitoring Grid</span>
+    <!-- Right: Strategic Control Apparatus -->
+    <div class="flex items-center gap-2 font-mono">
+      
+      <!-- Spatial Scope Status -->
+      <div class="hidden xl:flex items-center gap-2 bg-space-950/80 px-3 py-1.5 rounded-lg border border-space-border/80 text-[11px] shadow-inner">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-400" id="uiTargetLabel">Spatial Domain:</span>
+        <span class="text-slate-200 font-semibold truncate max-w-xs" id="uiTargetValue">Global Multi-Sensor Telemetry Grid</span>
       </div>
 
-      <!-- NEW: EMERGENCY SOS BUTTON -->
-      <button onclick="triggerEmergencySOS()" class="flex items-center gap-1.5 bg-red-600 hover:bg-red-500 text-white font-mono px-2.5 py-1 rounded text-[11px] transition shadow-lg shadow-red-600/40 animate-pulse border border-red-400">
-        <i data-lucide="life-buoy" class="w-3.5 h-3.5"></i>
-        <span class="font-extrabold">EMERGENCY SOS</span>
-      </button>
+      <!-- Action Cluster -->
+      <div class="flex items-center gap-1.5">
+        
+        <!-- Emergency SOS Protocol -->
+        <button onclick="triggerEmergencySOS()" class="relative group overflow-hidden flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-mono px-3 py-1.5 rounded-lg text-[11px] transition-all duration-200 shadow-lg shadow-rose-950/60 border border-rose-400 font-bold">
+          <span class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></span>
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-100"></i>
+          <span id="uiSosBtnText">EMERGENCY DISPATCH</span>
+        </button>
 
-      <!-- VOICE AUDIO ASSISTANT BUTTON -->
-      <button onclick="playVoiceWarning()" class="flex items-center gap-1.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 font-mono px-2.5 py-1 rounded text-[11px] transition shadow-md">
-        <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
-        <span id="uiBtnVoice">VOICE ALERTS</span>
-      </button>
+        <!-- Voice Telemetry Assistant -->
+        <button onclick="playVoiceWarning()" class="flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-amber-300 border border-amber-500/30 hover:border-amber-500/60 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
+          <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span id="uiBtnVoice">AUDIO ADVISORY</span>
+        </button>
 
-      <!-- LANGUAGE TOGGLE SWITCH (BN / EN) -->
-      <button onclick="toggleAppLanguage()" id="langToggleBtn" class="flex items-center gap-1 bg-surface-tertiary hover:bg-surface-highlight text-nasa-cyan font-mono px-2.5 py-1 rounded border border-nasa-cyan/30 text-[11px] transition shadow-md">
-        <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-        <span id="langBtnText">English</span>
-      </button>
+        <!-- Bilingual Switcher (EN / BN) -->
+        <button onclick="toggleAppLanguage()" id="langToggleBtn" class="flex items-center gap-1 bg-space-850 hover:bg-space-800 text-nasa-cyan border border-nasa-cyan/30 hover:border-nasa-cyan/60 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+          <span id="langBtnText">বাংলা (BN)</span>
+        </button>
 
-      <!-- AUDIT MODAL BUTTON -->
-      <button onclick="openMethodologyModal()" class="hidden sm:flex items-center gap-1.5 bg-surface-tertiary hover:bg-surface-highlight text-slate-300 font-mono px-2.5 py-1 rounded border border-surface-border text-[11px] transition">
-        <i data-lucide="book-open" class="w-3.5 h-3.5 text-nasa-cyan"></i>
-        <span id="uiBtnDataAudit">DATA AUDIT</span>
-      </button>
+        <!-- Scientific Methodology Audit -->
+        <button onclick="openMethodologyModal()" class="hidden md:flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-slate-300 border border-space-border hover:border-slate-500 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition">
+          <i data-lucide="file-text" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+          <span id="uiBtnDataAudit">METHODOLOGY AUDIT</span>
+        </button>
 
-      <!-- CITIZEN REPORT BUTTON -->
-      <button onclick="openCitizenModal()" class="flex items-center gap-1.5 bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 font-mono px-2.5 py-1 rounded text-[11px] transition shadow-md">
-        <i data-lucide="message-square-plus" class="w-3.5 h-3.5"></i>
-        <span id="uiBtnCitizenReport">REPORT HEAT</span>
-      </button>
+        <!-- Citizen Ground Truth -->
+        <button onclick="openCitizenModal()" class="flex items-center gap-1.5 bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
+          <i data-lucide="satellite" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span id="uiBtnCitizenReport">GROUND TELEMETRY</span>
+        </button>
 
-      <!-- FREE DISPATCH ALERTS MODAL TRIGGER -->
-      <button onclick="openSmsModal()" class="flex items-center gap-1.5 bg-nasa-amber/20 hover:bg-nasa-amber/30 text-amber-300 font-mono px-2.5 py-1 rounded border border-amber-500/40 text-[11px] transition shadow-md">
-        <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
-        <span id="uiBtnSmsAlert">FREE ALERTS</span>
-      </button>
+        <!-- Free Early Warning Broadcast -->
+        <button onclick="openSmsModal()" class="flex items-center gap-1.5 bg-amber-950/50 hover:bg-amber-900/50 text-amber-300 border border-amber-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span id="uiBtnSmsAlert">CAP DISPATCH</span>
+        </button>
 
-      <!-- LIVE GPS BUTTON -->
-      <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1 rounded border border-emerald-400/40 text-[11px] transition shadow-md">
-        <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i>
-        <span id="uiBtnDetectGps">DETECT GPS</span>
-      </button>
+        <!-- In-Situ GPS Verification -->
+        <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1.5 rounded-lg border border-emerald-400/40 text-[11px] transition shadow-lg shadow-emerald-950/60 font-semibold">
+          <i data-lucide="navigation-2" class="w-3.5 h-3.5"></i>
+          <span id="uiBtnDetectGps">IN-SITU GPS</span>
+        </button>
 
-      <button onclick="executeTelemetryPipeline()" class="flex items-center gap-1.5 bg-nasa-blue hover:bg-blue-800 text-white font-mono px-3 py-1 rounded border border-nasa-cyan/30 text-[11px] transition shadow-md">
-        <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="refreshIcon"></i>
-        <span id="uiBtnPullTelemetry">PULL TELEMETRY</span>
-      </button>
+        <!-- Refresh Pipeline -->
+        <button onclick="executeTelemetryPipeline()" class="p-1.5 bg-space-850 hover:bg-space-800 text-nasa-cyan rounded-lg border border-nasa-cyan/30 hover:border-nasa-cyan/70 transition shadow-md" title="Pull Live Telemetry">
+          <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
+        </button>
+      </div>
+
     </div>
   </header>
 
-  <!-- WORKSPACE GRID (MISSION LAYOUT) -->
+  <!-- WORKSPACE GRID (MISSION CONTROL INTERFACE) -->
   <div class="flex-1 flex flex-col xl:flex-row overflow-hidden">
     
-    <!-- LEFT CONTROL & GIS MONITORING (70% WIDTH) -->
-    <div class="flex-1 flex flex-col border-b xl:border-b-0 xl:border-r border-surface-border bg-surface">
+    <!-- LEFT OBSERVATORY VIEWPORT (70% DESKTOP) -->
+    <div class="flex-1 flex flex-col border-b xl:border-b-0 xl:border-r border-space-border/80 bg-space-950 relative">
       
       <!-- REAL-TIME TELEMETRY KPI TILES -->
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-px bg-surface-border border-b border-surface-border">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-space-border/80 border-b border-space-border/80 shadow-md">
         
-        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+        <!-- Tile 1: Ambient Air -->
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span id="kpiLabelAmbient">বাতাসের তাপমাত্রা (T2M)</span>
-            <i data-lucide="thermometer" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span id="kpiLabelAmbient">AMBIENT AIR (T2M)</span>
+            <i data-lucide="thermometer" class="w-4 h-4 text-sky-400"></i>
           </div>
-          <div class="mt-2 flex items-baseline gap-1">
-            <span id="kpiAmbientTemp" class="text-2xl font-bold font-mono text-white">--</span>
-            <span class="text-xs text-slate-400 font-mono">°C</span>
+          <div class="mt-2.5 flex items-baseline gap-1.5">
+            <span id="kpiAmbientTemp" class="text-3xl font-extrabold font-mono text-white tracking-tight">--</span>
+            <span class="text-xs text-sky-400 font-mono font-semibold">°C</span>
           </div>
-          <div class="mt-1 text-[10px] text-slate-400 font-mono">Open-Meteo High-Res</div>
+          <div class="mt-1 text-[10px] text-slate-400 font-mono flex items-center gap-1.5">
+            <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span> Open-Meteo High-Res
+          </div>
         </div>
 
-        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+        <!-- Tile 2: Peak Thermal Anomaly -->
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span id="kpiLabelHotspot">জাতীয় সর্বোচ্চ হটস্পট</span>
-            <i data-lucide="flame" class="w-3.5 h-3.5 text-nasa-red"></i>
+            <span id="kpiLabelHotspot">PEAK PLANETARY HOTSPOT</span>
+            <i data-lucide="flame" class="w-4 h-4 text-rose-500"></i>
           </div>
-          <div class="mt-2 flex items-baseline gap-1">
-            <span id="kpiPeakUHI" class="text-2xl font-bold font-mono text-nasa-red">--</span>
-            <span class="text-xs text-nasa-red/80 font-mono">°C</span>
+          <div class="mt-2.5 flex items-baseline gap-1.5">
+            <span id="kpiPeakUHI" class="text-3xl font-extrabold font-mono text-rose-500 tracking-tight">--</span>
+            <span class="text-xs text-rose-400 font-mono font-semibold">°C</span>
           </div>
-          <div id="kpiHotspotLoc" class="mt-1 text-[10px] text-nasa-red/80 font-mono font-medium truncate">Calculating...</div>
+          <div id="kpiHotspotLoc" class="mt-1 text-[10px] text-rose-400 font-mono font-semibold truncate">
+            Resolving Global Hotspots...
+          </div>
         </div>
 
-        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+        <!-- Tile 3: Heat Stress Index -->
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span id="kpiLabelFeelsLike">ফিলস-লাইক (হিট ইনডেক্স)</span>
-            <i data-lucide="activity" class="w-3.5 h-3.5 text-orange-400"></i>
+            <span id="kpiLabelFeelsLike">HEAT INDEX (NOAA/ISO)</span>
+            <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i>
           </div>
-          <div class="mt-2 flex items-baseline gap-1">
-            <span id="kpiHeatIndex" class="text-2xl font-bold font-mono text-orange-400">--</span>
-            <span class="text-xs text-slate-400 font-mono">°C</span>
+          <div class="mt-2.5 flex items-baseline gap-1.5">
+            <span id="kpiHeatIndex" class="text-3xl font-extrabold font-mono text-amber-400 tracking-tight">--</span>
+            <span class="text-xs text-amber-400 font-mono font-semibold">°C</span>
           </div>
-          <div id="kpiRiskCategory" class="mt-1 text-[10px] text-orange-300 font-mono">Stress Index</div>
+          <div id="kpiRiskCategory" class="mt-1 text-[10px] text-amber-300 font-mono font-semibold">
+            Calibrating Index...
+          </div>
         </div>
 
-        <div class="bg-surface-secondary p-3 flex flex-col justify-between">
+        <!-- Tile 4: Solar Irradiance Flux -->
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span id="kpiLabelSolar">সৌর বিকিরণ ফ্লাক্স</span>
-            <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span id="kpiLabelSolar">DIRECT IRRADIANCE FLUX</span>
+            <i data-lucide="sun" class="w-4 h-4 text-yellow-400"></i>
           </div>
-          <div class="mt-2 flex items-baseline gap-1">
-            <span id="kpiSolarRad" class="text-2xl font-bold font-mono text-amber-400">--</span>
-            <span class="text-xs text-slate-400 font-mono">W/m²</span>
+          <div class="mt-2.5 flex items-baseline gap-1.5">
+            <span id="kpiSolarRad" class="text-3xl font-extrabold font-mono text-yellow-400 tracking-tight">--</span>
+            <span class="text-xs text-yellow-400/80 font-mono font-semibold">W/m²</span>
           </div>
-          <div class="mt-1 text-[10px] text-slate-400 font-mono" id="kpiSubSolar">সারফেস হিট ফ্লাক্স</div>
+          <div class="mt-1 text-[10px] text-slate-400 font-mono" id="kpiSubSolar">
+            Radiative Heat Flux
+          </div>
         </div>
 
-        <div class="bg-surface-secondary p-3 col-span-2 md:col-span-1 flex flex-col justify-between">
+        <!-- Tile 5: Air Particulate Quality -->
+        <div class="bg-space-900/90 backdrop-blur p-3.5 col-span-2 sm:col-span-1 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span id="kpiLabelAqi">ওপেন-একিউ PM2.5</span>
-            <i data-lucide="wind" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+            <span id="kpiLabelAqi">PARTICULATE DENSITY (PM2.5)</span>
+            <i data-lucide="wind" class="w-4 h-4 text-nasa-cyan"></i>
           </div>
-          <div class="mt-2 flex items-baseline gap-1">
-            <span id="kpiAQI" class="text-2xl font-bold font-mono text-nasa-cyan">--</span>
-            <span class="text-xs text-slate-400 font-mono">µg/m³</span>
+          <div class="mt-2.5 flex items-baseline gap-1.5">
+            <span id="kpiAQI" class="text-3xl font-extrabold font-mono text-nasa-cyan tracking-tight">--</span>
+            <span class="text-xs text-nasa-cyan/80 font-mono font-semibold">µg/m³</span>
           </div>
-          <div id="kpiAQIStation" class="mt-1 text-[10px] text-slate-400 font-mono truncate">National Sensor Active</div>
+          <div id="kpiAQIStation" class="mt-1 text-[10px] text-slate-400 font-mono truncate">
+            WMO Global Reference
+          </div>
         </div>
 
       </div>
 
-      <!-- MAP CONTROLS & GIS VIEWPORT -->
+      <!-- MAP VIEWPORT & FLOATING TACTICAL LAYER CONTROLS -->
       <div class="relative flex-1 flex flex-col min-h-[460px]">
-        <div class="absolute top-3 left-3 z-[1000] flex flex-wrap gap-1.5 bg-surface-secondary/90 backdrop-blur-md p-1.5 rounded-md border border-surface-border shadow-xl">
-          <button id="toggleThermalHeatmap" onclick="toggleLayer('heat')" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-nasa-red/20 text-nasa-red border border-nasa-red/40 flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-nasa-red"></span> <span id="layerBtnHeat">ইকোস্ট্রেস থার্মাল গ্রেডিয়েন্ট</span>
+        
+        <!-- Floating Layer Controllers -->
+        <div class="absolute top-4 left-4 z-[1000] flex flex-wrap gap-2 bg-space-900/90 backdrop-blur-md p-2 rounded-xl border border-space-border/90 shadow-2xl">
+          <button id="toggleThermalHeatmap" onclick="toggleLayer('heat')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/40 hover:bg-rose-500/25 transition flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+            <span id="layerBtnHeat">NASA ECOSTRESS Thermal Gradient</span>
           </button>
-          <button id="toggleStations" onclick="toggleLayer('stations')" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-nasa-cyan"></span> <span id="layerBtnStations">আঞ্চলিক হটস্পট নোড</span>
+          
+          <button id="toggleStations" onclick="toggleLayer('stations')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/25 transition flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-nasa-cyan"></span>
+            <span id="layerBtnStations">WMO Global Observatory Nodes</span>
           </button>
-          <button id="toggleShelters" onclick="toggleLayer('shelters')" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-emerald-400"></span> <span id="layerBtnShelters">শীতল অঞ্চল</span>
+          
+          <button id="toggleShelters" onclick="toggleLayer('shelters')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/25 transition flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span id="layerBtnShelters">Ecological Sanctuaries & Oases</span>
           </button>
-          <!-- NEW: SHADED SAFE ROUTE TOGGLE -->
-          <button id="toggleSafeRouteBtn" onclick="toggleShadedRoute()" class="px-2.5 py-1 rounded text-[11px] font-mono font-medium bg-teal-500/20 text-teal-300 border border-teal-500/40 flex items-center gap-1.5">
-            <i data-lucide="navigation" class="w-3 h-3 text-teal-400"></i> <span>থার্মাল-সেফ রুট</span>
+          
+          <button id="toggleSafeRouteBtn" onclick="toggleShadedRoute()" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-teal-500/15 text-teal-300 border border-teal-500/40 hover:bg-teal-500/25 transition flex items-center gap-1.5">
+            <i data-lucide="footprints" class="w-3.5 h-3.5 text-teal-400"></i>
+            <span id="layerBtnSafeRoute">Microclimate Shaded Corridor</span>
           </button>
         </div>
 
+        <!-- Leaflet Map Container -->
         <div id="gis-map"></div>
 
-        <div class="absolute bottom-3 right-3 z-[1000] bg-surface-secondary/95 backdrop-blur-md p-2 rounded border border-surface-border text-[10px] font-mono text-slate-300 shadow-2xl flex flex-col gap-1 w-64">
-          <div class="flex justify-between font-bold text-white uppercase text-[9px] tracking-wider border-b border-surface-border pb-1">
-            <span id="legendTitle">থার্মাল LST বর্ণালী</span>
-            <span>ECOSTRESS Calibrated</span>
+        <!-- Floating Dynamic Thermal Legend -->
+        <div class="absolute bottom-4 right-4 z-[1000] bg-space-900/95 backdrop-blur-md p-3 rounded-xl border border-space-border/90 text-[10px] font-mono text-slate-300 shadow-2xl flex flex-col gap-1.5 w-72">
+          <div class="flex justify-between items-center font-bold text-white uppercase text-[9px] tracking-wider border-b border-space-border pb-1.5">
+            <span id="legendTitle" class="text-nasa-cyan">Surface Temperature (LST) Scale</span>
+            <span class="text-slate-400">ECOSTRESS C2</span>
           </div>
-          <div class="h-2 w-full rounded bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-600"></div>
-          <div class="flex justify-between text-[9px] text-slate-400 pt-0.5">
-            <span id="legendCool">&lt;৩২°C (শীতল জোন)</span>
-            <span id="legendNominal">৩৬°C (স্বাভাবিক)</span>
-            <span id="legendCrit">&gt;৪২°C (চরম বিপদ)</span>
+          <div class="h-2.5 w-full rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-600 shadow-inner"></div>
+          <div class="flex justify-between text-[9px] text-slate-400 pt-0.5 font-semibold">
+            <span id="legendCool" class="text-sky-300">&lt;-10°C (Cryospheric)</span>
+            <span id="legendNominal" class="text-emerald-300">28°C (Temperate)</span>
+            <span id="legendCrit" class="text-rose-400">&gt;45°C (Critical Strain)</span>
           </div>
         </div>
       </div>
 
-      <!-- TIME-SERIES PROJECTION (Chart.js) -->
-      <div class="h-56 bg-surface-secondary border-t border-surface-border p-3 flex flex-col">
-        <div class="flex items-center justify-between pb-2">
+      <!-- DIURNAL TEMPERATURE & SOLAR RADIATION PROJECTION (CHART.JS) -->
+      <div class="h-56 bg-space-900 border-t border-space-border/80 p-3.5 flex flex-col shadow-inner">
+        <div class="flex items-center justify-between pb-2 border-b border-space-border/50">
           <div class="flex items-center gap-2">
             <i data-lucide="line-chart" class="w-4 h-4 text-nasa-cyan"></i>
-            <span id="chartHeading" class="text-xs font-mono font-bold text-white uppercase tracking-wider">২৪-ঘণ্টার ডায়ুরনাল UHI বৃদ্ধি বনাম সরাসরি সৌর বিকিরণ</span>
+            <span id="chartHeading" class="text-xs font-mono font-bold text-white uppercase tracking-wider">
+              24-Hour Diurnal UHI Amplification vs Direct Solar Irradiance
+            </span>
           </div>
-          <span class="text-[10px] font-mono text-slate-400">Model: GFS / Copernicus HR Downscale</span>
+          <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">
+            Numerical Downscaling: GFS / Copernicus HR Boundary Models
+          </span>
         </div>
-        <div class="flex-1 w-full min-h-0 relative">
+        <div class="flex-1 w-full min-h-0 relative pt-1">
           <canvas id="temporalChart"></canvas>
         </div>
       </div>
 
     </div>
 
-    <!-- RIGHT MISSION INTELLIGENCE & POLICY ENGINE (30% WIDTH) -->
-    <div class="w-full xl:w-[420px] bg-surface-secondary flex flex-col overflow-y-auto">
+    <!-- RIGHT MISSION INTELLIGENCE & RESILIENCE ENGINE (30% DESKTOP) -->
+    <div class="w-full xl:w-[440px] bg-space-900/95 flex flex-col overflow-y-auto divide-y divide-space-border/80 border-l border-space-border/80">
       
-      <!-- Target Node Header -->
-      <div class="p-4 border-b border-surface-border bg-surface-tertiary/40">
+      <!-- Target Spatial Node Header -->
+      <div class="p-4 bg-gradient-to-b from-space-850/60 to-transparent">
         <div class="flex items-center justify-between">
-          <span class="text-[10px] font-mono uppercase tracking-widest text-nasa-cyan flex items-center gap-1.5">
-            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> <span id="uiTargetHeader">নির্বাচিত আঞ্চলিক টেলিমেট্রি</span>
+          <span class="text-[10px] font-mono uppercase tracking-widest text-nasa-cyan flex items-center gap-1.5 font-semibold">
+            <i data-lucide="crosshair" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+            <span id="uiTargetHeader">Regional Telemetry & Indices</span>
           </span>
-          <span id="targetRiskBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-600/30 text-rose-400 border border-rose-500/40">মারাত্মক থার্মাল হটস্পট</span>
+          <span id="targetRiskBadge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-600/20 text-rose-400 border border-rose-500/40">
+            CRITICAL THERMAL HOTSPOT
+          </span>
         </div>
 
-        <div class="flex items-center justify-between mt-1">
-          <h3 id="targetNodeName" class="text-lg font-bold text-white">চুয়াডাঙ্গা ও যশোর বেল্ট</h3>
-          <!-- NEW: EXPORT ADVISORY BULLETIN BUTTON -->
-          <button onclick="exportAdvisoryCard()" title="Download Printable Bulletin" class="p-1.5 rounded bg-surface hover:bg-surface-highlight border border-surface-border text-nasa-cyan text-[11px] flex items-center gap-1">
+        <div class="flex items-center justify-between mt-2">
+          <h3 id="targetNodeName" class="text-xl font-display font-bold text-white tracking-tight">
+            Death Valley Basin, California (USA)
+          </h3>
+          <!-- Executive Document Export Button -->
+          <button onclick="exportAdvisoryCard()" class="px-2.5 py-1 rounded-lg bg-space-800 hover:bg-space-border border border-nasa-cyan/40 text-nasa-cyan text-[11px] font-mono font-bold flex items-center gap-1.5 transition shadow" title="Download Executive Briefing">
             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span class="font-mono text-[10px]">বুলেটিন</span>
+            <span id="uiBulletinBtn">EXECUTIVE BRIEF</span>
           </button>
         </div>
-        <p id="targetNodeCoords" class="text-[11px] font-mono text-slate-400">Lat: 23.6402° N | Lon: 88.8418° E | NODE-CHU</p>
+        <p id="targetNodeCoords" class="text-[11px] font-mono text-slate-400 mt-1">
+          Lat: 36.5323° | Lon: -116.9325° | ID: WMO-DV-01
+        </p>
       </div>
 
-      <!-- VISUAL THERMAL GAUGE METER -->
-      <div class="p-4 border-b border-surface-border bg-surface-tertiary/20">
+      <!-- Thermo-Physiological Stress Level Meter -->
+      <div class="p-4 bg-space-950/40">
         <div class="flex items-center justify-between text-xs font-mono text-slate-300 mb-2">
-          <span>থার্মাল স্ট্রেস লেভেল মিটার:</span>
-          <button onclick="playVoiceWarning()" class="text-rose-400 hover:text-rose-300 flex items-center gap-1 text-[11px]">
-            <i data-lucide="volume-2" class="w-3 h-3"></i> ভয়েস শুনুন
+          <span id="uiMeterLabel" class="font-medium">Thermo-Physiological Stress Level Meter:</span>
+          <button onclick="playVoiceWarning()" class="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-[11px] font-semibold transition">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+            <span id="uiVoiceListenMini">AUDIO ADVISORY</span>
           </button>
         </div>
-        <div class="h-3 w-full bg-surface-border rounded-full overflow-hidden flex">
-          <div class="h-full bg-emerald-500 w-1/3" title="স্বাভাবিক (<34°C)"></div>
-          <div class="h-full bg-amber-400 w-1/3" title="সতর্কতা (34-39°C)"></div>
-          <div class="h-full bg-rose-600 w-1/3" title="চরম বিপদ (>40°C)"></div>
+        <div class="h-3 w-full bg-space-950 rounded-full overflow-hidden flex border border-space-border/80 p-0.5">
+          <div class="h-full bg-emerald-500 rounded-l-full w-1/3 transition-all duration-500" title="Nominal (<30°C)"></div>
+          <div class="h-full bg-amber-400 w-1/3 transition-all duration-500" title="Caution (30-38°C)"></div>
+          <div class="h-full bg-rose-600 rounded-r-full w-1/3 transition-all duration-500" title="Hazard (>38°C)"></div>
         </div>
-        <div class="flex justify-between text-[9px] font-mono text-slate-400 mt-1">
-          <span>নিরাপদ</span>
-          <span>সতর্কতা</span>
-          <span>মারাত্মক ঝুঁকি</span>
+        <div class="flex justify-between text-[9px] font-mono text-slate-400 mt-1.5">
+          <span id="uiMeterSafe" class="text-emerald-400 font-semibold">Nominal</span>
+          <span id="uiMeterCaution" class="text-amber-400 font-semibold">Elevated Caution</span>
+          <span id="uiMeterDanger" class="text-rose-400 font-semibold">Extreme Hazard</span>
         </div>
       </div>
 
-      <!-- AI HEALTH RISK & HEAT-STROKE PREDICTOR -->
-      <div class="p-4 border-b border-surface-border space-y-3 bg-surface-tertiary/30">
+      <!-- ISO 7243 / ILO OCCUPATIONAL HEAT STRAIN CALCULATOR -->
+      <div class="p-4 space-y-3 bg-space-850/30">
         <div class="flex items-center justify-between">
           <span class="text-xs font-mono font-bold uppercase text-rose-400 tracking-wider flex items-center gap-1.5">
-            <i data-lucide="heart-pulse" class="w-4 h-4 text-rose-500"></i> <span id="uiHealthHeading">AI হিট-স্ট্রোক স্বাস্থ্য ঝুঁকি ক্যালকুলেটর</span>
+            <i data-lucide="heart-pulse" class="w-4 h-4 text-rose-500"></i>
+            <span id="uiHealthHeading">Occupational Heat Strain & Risk Index</span>
           </span>
-          <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Health AI</span>
+          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">
+            ISO 7243
+          </span>
         </div>
-        <p class="text-[11px] text-slate-400 font-sans leading-relaxed">
-          আপনার কাজের ধরন ও বয়স সিলেক্ট করে বর্তমান তাপমাত্রায় হিট-স্ট্রোকের ঝুঁকি জেনে নিন:
+        <p id="uiHealthDesc" class="text-[11px] text-slate-400 font-sans leading-relaxed">
+          Calibrated to ISO 7243 / ILO standards for occupational thermo-physiological stress assessment:
         </p>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-[10px] font-mono text-slate-300 mb-1">পেশা / ক্যাটাগরি:</label>
-            <select id="healthUserType" onchange="calculateHealthRisk()" class="w-full bg-surface border border-surface-border rounded px-2 py-1.5 text-white font-mono text-[11px] focus:border-rose-400 focus:outline-none">
-              <option value="1.3">রিকশাচালক / দিনমজুর</option>
-              <option value="1.1">রাস্তার পথচারী / হকার</option>
-              <option value="1.0">অফিসগামী / ইনডোর</option>
+            <label id="uiHealthOccLabel" class="block text-[10px] font-mono text-slate-300 mb-1">Occupational Profile:</label>
+            <select id="healthUserType" onchange="calculateHealthRisk()" class="w-full bg-space-950 border border-space-border rounded-lg px-2.5 py-1.5 text-white font-mono text-[11px] focus:border-rose-400 focus:outline-none">
+              <option value="1.3">Heavy Physical / Outdoor Laborer (WMO Cat 4)</option>
+              <option value="1.1">Moderate Exertion / Pedestrian (WMO Cat 2)</option>
+              <option value="1.0">Sedentary / Indoor Air-Conditioned (WMO Cat 0)</option>
             </select>
           </div>
           <div>
-            <label class="block text-[10px] font-mono text-slate-300 mb-1">রোদে থাকার সময়:</label>
-            <select id="healthExposureHours" onchange="calculateHealthRisk()" class="w-full bg-surface border border-surface-border rounded px-2 py-1.5 text-white font-mono text-[11px] focus:border-rose-400 focus:outline-none">
-              <option value="1.25">৩ ঘণ্টার বেশি</option>
-              <option value="1.1">১ থেকে ৩ ঘণ্টা</option>
-              <option value="1.0">১ ঘণ্টার কম</option>
+            <label id="uiHealthExposureLabel" class="block text-[10px] font-mono text-slate-300 mb-1">Radiative Exposure Duration:</label>
+            <select id="healthExposureHours" onchange="calculateHealthRisk()" class="w-full bg-space-950 border border-space-border rounded-lg px-2.5 py-1.5 text-white font-mono text-[11px] focus:border-rose-400 focus:outline-none">
+              <option value="1.25">Sustained (>3 Hours)</option>
+              <option value="1.1">Moderate (1 to 3 Hours)</option>
+              <option value="1.0">Low (<1 Hour)</option>
             </select>
           </div>
         </div>
 
-        <div class="p-2.5 rounded bg-surface border border-rose-500/40 font-mono text-[11px] flex items-center justify-between">
+        <div class="p-3 rounded-xl bg-space-950 border border-rose-500/40 font-mono text-[11px] flex items-center justify-between shadow-lg">
           <div>
-            <span class="text-[10px] text-slate-400 block">হিট-স্ট্রোকের ঝুঁকি:</span>
-            <span id="healthRiskPercent" class="text-base font-bold text-rose-400">--%</span>
+            <span id="uiHealthRiskLabel" class="text-[10px] text-slate-400 block font-sans">Heat Strain Probability:</span>
+            <span id="healthRiskPercent" class="text-xl font-bold font-mono text-rose-400">--%</span>
           </div>
           <div class="text-right">
-            <span class="text-[10px] text-slate-400 block">মেডিকেল স্ট্যাটাস:</span>
-            <span id="healthRiskStatus" class="text-xs font-bold text-amber-300">গণনা করা হচ্ছে...</span>
+            <span id="uiHealthStatusLabel" class="text-[10px] text-slate-400 block font-sans">Triage Classification:</span>
+            <span id="healthRiskStatus" class="text-xs font-bold text-amber-300">Calculating...</span>
           </div>
         </div>
       </div>
 
-      <!-- NEW: NIGHTTIME THERMAL TRAPPING WIDGET -->
-      <div class="p-4 border-b border-surface-border space-y-2 bg-indigo-950/20">
+      <!-- NIGHTTIME THERMAL RETENTION INDEX (NTRI) -->
+      <div class="p-4 space-y-2.5 bg-space-950/30">
         <div class="flex items-center justify-between">
           <span class="text-xs font-mono font-bold uppercase text-indigo-300 tracking-wider flex items-center gap-1.5">
-            <i data-lucide="moon" class="w-4 h-4 text-indigo-400"></i> <span>নাইট-টাইম থার্মাল ট্র্যাপিং ইনডেক্স</span>
+            <i data-lucide="moon" class="w-4 h-4 text-indigo-400"></i>
+            <span id="uiNightTitle">Nighttime Thermal Retention Index (NTRI)</span>
           </span>
-          <span id="nightIndexBadge" class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">উচ্চ তাপ ধরে রাখা</span>
+          <span id="nightIndexBadge" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-semibold">
+            High Inertia
+          </span>
         </div>
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          কংক্রিট ও টিনের শেড দিনের উত্তাপ শোষণ করে রাতে ছেড়ে দেয়, যার কারণে রাতেও স্বস্তি মেলে না:
+        <p id="uiNightDesc" class="text-[11px] text-slate-400 leading-relaxed font-sans">
+          Measures diurnal thermal inertia of high-density built fabric radiating nocturnal heat:
         </p>
         <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-          <div class="p-2 bg-surface rounded border border-surface-border">
-            <span class="text-[10px] text-slate-400 block">টিন/কংক্রিট তাপ ধরে রাখা:</span>
-            <span id="nightRetentionVal" class="text-sm font-bold text-rose-400">+৩.২°C</span>
+          <div class="p-2.5 bg-space-950 rounded-lg border border-space-border">
+            <span id="uiNightRetainLabel" class="text-[10px] text-slate-400 block">Surface Heat Retained:</span>
+            <span id="nightRetentionVal" class="text-sm font-bold text-rose-400">+3.2°C</span>
           </div>
-          <div class="p-2 bg-surface rounded border border-surface-border">
-            <span class="text-[10px] text-slate-400 block">রাতের কুলিং ইফিসিয়েন্সি:</span>
-            <span id="nightCoolingEff" class="text-sm font-bold text-amber-300">মাত্র ২৮%</span>
+          <div class="p-2.5 bg-space-950 rounded-lg border border-space-border">
+            <span id="uiNightCoolLabel" class="text-[10px] text-slate-400 block">Nocturnal Cooling Efficacy:</span>
+            <span id="nightCoolingEff" class="text-sm font-bold text-amber-300">28%</span>
           </div>
         </div>
       </div>
 
-      <!-- SPECTRAL INDICES RADAR -->
-      <div class="p-4 border-b border-surface-border space-y-3">
-        <span id="uiSpectralHeading" class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider block">ল্যান্ডস্যাট-৯ স্পেকট্রাল ইনডেক্স বিশ্লেষণ</span>
+      <!-- LANDSAT-9 SPECTRAL DECOMPOSITION (NDBI vs NDVI) -->
+      <div class="p-4 space-y-3">
+        <span id="uiSpectralHeading" class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider block">
+          Landsat-9 Spectral Decomposition
+        </span>
         
         <div class="space-y-1">
           <div class="flex justify-between text-xs font-mono">
-            <span class="text-slate-400" id="uiNdbiLabel">NDBI (কংক্রিট ও শুষ্ক মাটির সূচক):</span>
-            <span id="valNDBI" class="font-bold text-nasa-red font-mono">+0.92</span>
+            <span class="text-slate-400" id="uiNdbiLabel">NDBI (Built-Up & Impervious Density):</span>
+            <span id="valNDBI" class="font-bold text-rose-400 font-mono">+0.96</span>
           </div>
-          <div class="h-1.5 w-full bg-surface-border rounded-full overflow-hidden">
-            <div id="barNDBI" class="h-full bg-nasa-red rounded-full" style="width: 92%;"></div>
+          <div class="h-2 w-full bg-space-950 rounded-full overflow-hidden p-0.5 border border-space-border">
+            <div id="barNDBI" class="h-full bg-rose-500 rounded-full" style="width: 96%;"></div>
           </div>
-          <span id="uiNdbiDesc" class="text-[10px] text-slate-400 font-mono">ঘন বসতি, টিনের শেড ও শুষ্ক মাটির তাপ শোষণ মাত্রা।</span>
+          <span id="uiNdbiDesc" class="text-[10px] text-slate-400 font-mono">Normalized concrete, asphalt, and barren dry substrate density.</span>
         </div>
 
         <div class="space-y-1">
           <div class="flex justify-between text-xs font-mono">
-            <span class="text-slate-400" id="uiNdviLabel">NDVI (গাছপালা ও উদ্ভিদের ঘনত্ব):</span>
-            <span id="valNDVI" class="font-bold text-emerald-400 font-mono">+0.05</span>
+            <span class="text-slate-400" id="uiNdviLabel">NDVI (Canopy Biomass Fraction):</span>
+            <span id="valNDVI" class="font-bold text-emerald-400 font-mono">+0.02</span>
           </div>
-          <div class="h-1.5 w-full bg-surface-border rounded-full overflow-hidden">
-            <div id="barNDVI" class="h-full bg-emerald-400 rounded-full" style="width: 5%;"></div>
+          <div class="h-2 w-full bg-space-950 rounded-full overflow-hidden p-0.5 border border-space-border">
+            <div id="barNDVI" class="h-full bg-emerald-400 rounded-full" style="width: 2%;"></div>
           </div>
-          <span id="uiNdviDesc" class="text-[10px] text-slate-400 font-mono">বনভূমি, ফসলি জমি ও প্রাকৃতিক উদ্ভিদের ঘনত্ব।</span>
+          <span id="uiNdviDesc" class="text-[10px] text-slate-400 font-mono">Vegetative evapotranspiration and photosynthetic density index.</span>
         </div>
 
-        <div class="p-2.5 rounded bg-surface border border-surface-border font-mono text-[11px] space-y-1">
+        <div class="p-3 rounded-xl bg-space-950 border border-space-border font-mono text-[11px] space-y-1.5 shadow-inner">
           <div class="flex justify-between text-slate-400">
-            <span id="uiMathBaseLabel">আঞ্চলিক বেস মডেল টেম্প:</span>
-            <span id="mathBaseTemp" class="text-white">--°C</span>
+            <span id="uiMathBaseLabel">Ambient Regional Baseline:</span>
+            <span id="mathBaseTemp" class="text-white font-semibold">--°C</span>
           </div>
           <div class="flex justify-between text-slate-400">
-            <span id="uiMathAnomalyLabel">আঞ্চলিক থার্মাল পার্থক্য (ΔT):</span>
-            <span id="mathAnomaly" class="text-nasa-red font-bold">+--°C</span>
+            <span id="uiMathAnomalyLabel">Microclimate Anomaly (ΔT):</span>
+            <span id="mathAnomaly" class="text-rose-400 font-bold">+--°C</span>
           </div>
-          <div class="flex justify-between border-t border-surface-border pt-1 text-white font-bold">
-            <span id="uiMathCalculatedLabel">বাস্তব স্থানীয় সারফেস টেম্প:</span>
+          <div class="flex justify-between border-t border-space-border pt-1.5 text-white font-bold text-xs">
+            <span id="uiMathCalculatedLabel">Effective Surface Kinetic LST:</span>
             <span id="mathCalculatedLST" class="text-nasa-cyan">--°C</span>
           </div>
         </div>
       </div>
 
-      <!-- WHAT-IF URBAN RESILIENCE AI SIMULATOR -->
-      <div class="p-4 border-b border-surface-border space-y-3 bg-surface-tertiary/30">
+      <!-- URBAN CLIMATE RESILIENCE SIMULATOR (POLICY ENGINE) -->
+      <div class="p-4 space-y-3 bg-space-850/40">
         <div class="flex items-center justify-between">
           <span class="text-xs font-mono font-bold uppercase text-amber-300 tracking-wider flex items-center gap-1.5">
-            <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i> <span id="uiSimHeading">আরবান রেজিলিয়েন্স সিমুলেটর (AI Policy Tool)</span>
+            <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i>
+            <span id="uiSimHeading">Urban Climate Resilience Simulator (Policy Engine)</span>
           </span>
-          <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">What-If Engine</span>
+          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+            What-If Module
+          </span>
         </div>
-        <p class="text-[11px] text-slate-400 font-sans leading-relaxed">
-          গাছ লাগানো বা সাদা ছাদের প্রলেপ দিলে তাপমাত্রা কত কমবে তা রিয়েল-টাইমে পরীক্ষা করুন:
+        <p id="uiSimDesc" class="text-[11px] text-slate-400 font-sans leading-relaxed">
+          Simulate municipal urban cooling interventions (Cool Roof SRI & Canopy Expansion):
         </p>
 
-        <div class="space-y-1">
+        <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] font-mono">
-            <span class="text-slate-300">বৃক্ষরোপণ বৃদ্ধি (+NDVI):</span>
+            <span class="text-slate-300" id="uiSimGreenLabel">Canopy Cover Augmentation (+NDVI):</span>
             <span id="sliderValGreen" class="font-bold text-emerald-400">+0%</span>
           </div>
           <input type="range" id="simGreenery" min="0" max="50" value="0" step="5" oninput="runPolicySimulation()" class="w-full accent-emerald-500 cursor-pointer">
         </div>
 
-        <div class="space-y-1">
+        <div class="space-y-1.5">
           <div class="flex justify-between text-[11px] font-mono">
-            <span class="text-slate-300">হোয়াইট রুফ কোটিং (+Albedo):</span>
+            <span class="text-slate-300" id="uiSimRoofLabel">High-Albedo Surface Retrofit (+SRI):</span>
             <span id="sliderValRoof" class="font-bold text-nasa-cyan">+0%</span>
           </div>
           <input type="range" id="simRoof" min="0" max="60" value="0" step="10" oninput="runPolicySimulation()" class="w-full accent-cyan-400 cursor-pointer">
         </div>
 
-        <div class="p-2.5 rounded bg-surface border border-emerald-500/40 font-mono text-[11px] flex items-center justify-between">
+        <div class="p-3 rounded-xl bg-space-950 border border-emerald-500/40 font-mono text-[11px] flex items-center justify-between shadow-lg">
           <div>
-            <span class="text-[10px] text-slate-400 block">সম্ভাব্য তাপমাত্রা হ্রাস:</span>
-            <span id="simTempDrop" class="text-base font-bold text-emerald-400">-0.0°C</span>
+            <span id="uiSimDropLabel" class="text-[10px] text-slate-400 block font-sans">Projected Mitigation ΔT:</span>
+            <span id="simTempDrop" class="text-lg font-bold text-emerald-400">-0.0°C</span>
           </div>
           <div class="text-right">
-            <span class="text-[10px] text-slate-400 block">সিমুলেটেড সারফেস টেম্প:</span>
-            <span id="simProjectedLST" class="text-base font-bold text-white">--°C</span>
+            <span id="uiSimProjLabel" class="text-[10px] text-slate-400 block font-sans">Post-Intervention LST:</span>
+            <span id="simProjectedLST" class="text-lg font-bold text-white">--°C</span>
           </div>
         </div>
       </div>
 
-      <!-- OCCUPATIONAL ADVISORY -->
-      <div class="p-4 border-b border-surface-border space-y-3 flex-1">
+      <!-- INSTITUTIONAL DIRECTIVES -->
+      <div class="p-4 space-y-3">
         <span class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
-          <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i> <span id="uiFieldHeading">মাঠ পর্যায়ের জরুরি সতর্কবার্তা</span>
+          <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
+          <span id="uiFieldHeading">Institutional Operational Directives</span>
         </span>
 
-        <div class="p-3 rounded-lg bg-surface border border-surface-border space-y-1.5">
+        <div class="p-3.5 rounded-xl bg-space-950 border border-rose-500/40 space-y-1.5 shadow">
           <div class="flex items-center gap-2">
-            <i data-lucide="alert-octagon" class="w-4 h-4 text-nasa-red"></i>
-            <span id="uiWorkerWarningHeading" class="text-xs font-bold text-nasa-red font-mono uppercase">কৃষক, শ্রমিক ও দিনমজুরদের সতর্কতা</span>
+            <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-500"></i>
+            <span id="uiWorkerWarningHeading" class="text-xs font-bold text-rose-400 font-mono uppercase">
+              Occupational Health & Labor Safety Directive
+            </span>
           </div>
           <p id="workerAdvisoryText" class="text-xs text-slate-300 leading-relaxed font-sans">
-            দেশের সর্বোচ্চ তাপদাহপ্রবণ অঞ্চল। হিট-স্ট্রোকের তীব্র ঝুঁকি থাকায় পর্যাপ্ত ওরাল স্যালাইন ও ছায়ায় বিশ্রাম নিশ্চিত করুন।
+            WMO Tier-1 critical thermal hazard. Immediate metabolic thermal failure risk. Mandate cessation of all daylight operations.
           </p>
         </div>
 
-        <div class="p-3 rounded-lg bg-surface border border-surface-border space-y-1.5">
+        <div class="p-3.5 rounded-xl bg-space-950 border border-cyan-500/40 space-y-1.5 shadow">
           <div class="flex items-center gap-2">
             <i data-lucide="building-2" class="w-4 h-4 text-nasa-cyan"></i>
-            <span id="uiPlannerHeading" class="text-xs font-bold text-nasa-cyan font-mono uppercase">বিভাগীয় ও সিটি কর্পোরেশন পরিকল্পনা</span>
+            <span id="uiPlannerHeading" class="text-xs font-bold text-nasa-cyan font-mono uppercase">
+              Municipal Spatial Planning Directive
+            </span>
           </div>
           <p id="plannerAdvisoryText" class="text-xs text-slate-300 leading-relaxed font-sans">
-            গ্রামীণ হাটবাজার ও মহাসড়কে জরুরি ওয়াটার হাইড্রেশন পয়েন্ট ও অস্থায়ী কুলিং শেড স্থাপন।
+            Establish automated solar-powered cooling chambers and impose strict transit interdictions during zenith hours.
           </p>
         </div>
       </div>
 
-      <!-- AUDIT FEED -->
-      <div class="p-4 bg-surface-tertiary/20">
+      <!-- IN-SITU GROUND TRUTH SENSOR TELEMETRY FEED -->
+      <div class="p-4 bg-space-950/60">
         <div class="flex items-center justify-between pb-2">
           <span class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
-            <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-400"></i> <span id="uiGroundHeading">গ্রাউন্ড-ট্রুথ লাইভ সেন্সর ফিড</span>
+            <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span id="uiGroundHeading">In-Situ Sensor Ground-Truth Feed</span>
           </span>
-          <span class="text-[10px] font-mono text-emerald-400">OpenAQ Node</span>
+          <span class="text-[10px] font-mono text-emerald-400 font-bold">WMO Reference Node</span>
         </div>
 
         <div class="space-y-2 text-[11px] font-mono text-slate-300">
-          <div class="p-2 rounded bg-surface border border-surface-border flex justify-between items-center">
+          <div class="p-2.5 rounded-lg bg-space-900 border border-space-border flex justify-between items-center">
             <div>
-              <span class="text-white font-semibold" id="uiStationLoc">জাতীয় গ্রাউন্ড মনিটরিং নোড:</span>
-              <div class="text-[10px] text-slate-400">Sensors: PM2.5, Humidity, Pressure</div>
+              <span class="text-white font-semibold" id="uiStationLoc">Reference Ground Station:</span>
+              <div class="text-[10px] text-slate-400">Sensors: PM2.5, Humidity, Barometric Flux</div>
             </div>
-            <span id="groundSyncTime" class="text-emerald-400 text-[10px]">Real Synced</span>
+            <span class="text-emerald-400 text-[10px] font-bold">Synced Live</span>
           </div>
         </div>
       </div>
@@ -495,244 +607,231 @@
 
   </div>
 
-  <!-- FLOATING LIVE GPS TELEMETRY MODAL -->
-  <div id="liveLocationModal" class="hidden fixed bottom-6 left-6 z-[2000] w-84 max-w-[90vw] bg-surface-secondary/95 backdrop-blur-md border border-nasa-cyan/40 rounded-xl shadow-2xl p-4 font-mono">
-    <div class="flex items-center justify-between pb-2 border-b border-surface-border">
+  <!-- FLOATING LIVE GPS CARD MODAL -->
+  <div id="liveLocationModal" class="hidden fixed bottom-6 left-6 z-[2000] w-96 max-w-[90vw] bg-space-900/95 backdrop-blur-xl border border-nasa-cyan/40 rounded-2xl shadow-2xl p-4 font-mono">
+    <div class="flex items-center justify-between pb-2.5 border-b border-space-border">
       <div class="flex items-center gap-2">
         <span class="h-2.5 w-2.5 rounded-full bg-nasa-cyan radar-pulse-anim"></span>
-        <span id="uiGpsModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">আপনার বর্তমান জিপিএস লোকেশন</span>
+        <span id="uiGpsModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">In-Situ Geolocation Telemetry</span>
       </div>
       <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white transition">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
-    <div class="mt-3 space-y-2.5 text-xs">
+    <div class="mt-3.5 space-y-3 text-xs">
       <div>
-        <span id="uiGpsZoneLabel" class="text-[10px] text-slate-400">শনাক্তকৃত ভৌগোলিক অঞ্চল:</span>
-        <div id="liveLocName" class="text-sm font-bold text-nasa-cyan">আশুলিয়া / সাভার (ডিটেক্টেড)</div>
-        <div id="liveLocCoords" class="text-[10px] text-slate-400">Lat: 23.8820° N | Lon: 90.3200° E</div>
+        <span id="uiGpsZoneLabel" class="text-[10px] text-slate-400">Resolved Spatial Zone:</span>
+        <div id="liveLocName" class="text-sm font-bold text-nasa-cyan">In-Situ Verified Position</div>
+        <div id="liveLocCoords" class="text-[10px] text-slate-400">Lat: 0.0000° | Lon: 0.0000°</div>
       </div>
 
-      <div class="p-2.5 bg-surface rounded-lg border border-surface-border flex items-center justify-between">
+      <div class="p-3 bg-space-950 rounded-xl border border-space-border flex items-center justify-between">
         <div>
-          <span id="uiGpsLocalTempLabel" class="text-[10px] text-slate-400 block">স্থানীয় তাপমাত্রা</span>
-          <span id="liveLocTemp" class="text-xl font-bold font-mono text-white">--°C</span>
+          <span id="uiGpsLocalTempLabel" class="text-[10px] text-slate-400 block font-sans">In-Situ Temperature</span>
+          <span id="liveLocTemp" class="text-2xl font-bold font-mono text-white">--°C</span>
         </div>
         <div class="text-right">
-          <span id="uiGpsStressLabel" class="text-[10px] text-slate-400 block">হিট স্ট্রেস রেটিং</span>
-          <span id="liveLocBadge" class="text-xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">সহনশীল</span>
+          <span id="uiGpsStressLabel" class="text-[10px] text-slate-400 block font-sans">Physiological Heat Strain</span>
+          <span id="liveLocBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Nominal</span>
         </div>
       </div>
 
-      <div class="p-2.5 bg-surface/80 rounded border border-surface-border text-[11px] font-sans">
-        <span id="uiGpsStatusAdvise" class="text-amber-400 font-bold block mb-0.5">বর্তমান অবস্থা ও করণীয়:</span>
-        <p id="liveLocAdvice" class="text-slate-300 leading-snug">খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।</p>
+      <div class="p-3 bg-space-950/80 rounded-xl border border-space-border text-[11px] font-sans">
+        <span id="uiGpsStatusAdvise" class="text-amber-400 font-bold block mb-1">Operational Directive & Action:</span>
+        <p id="liveLocAdvice" class="text-slate-300 leading-relaxed">Convective air currents and canopy buffer keep in-situ temperature within safe boundaries.</p>
       </div>
     </div>
   </div>
 
-  <!-- NEW: EMERGENCY SOS & COOLING HAVEN MODAL -->
+  <!-- EMERGENCY SOS & DESIGNATED SANCTUARY MODAL -->
   <div id="sosModal" class="hidden fixed inset-0 z-[3500] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-surface-secondary border-2 border-red-500 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs relative">
-      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
-        <div class="flex items-center gap-2.5">
-          <div class="h-8 w-8 rounded-full bg-red-600/30 border border-red-500 flex items-center justify-center animate-ping">
-            <i data-lucide="alert-triangle" class="w-4 h-4 text-red-400"></i>
+    <div class="bg-space-900 border-2 border-rose-500 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs relative">
+      <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-xl bg-rose-600/30 border border-rose-500 flex items-center justify-center animate-ping">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>
           </div>
           <div>
-            <h2 class="text-sm font-bold text-red-400 uppercase tracking-wider">জরুরি হিট-স্ট্রোক এসওএস (SOS)</h2>
-            <span class="text-[10px] text-slate-400">National Heat Emergency Action</span>
+            <h2 class="text-sm font-bold text-rose-400 uppercase tracking-wider">Planetary Emergency Heat SOS Protocol</h2>
+            <span class="text-[10px] text-slate-400">Critical Humanitarian Action Engine</span>
           </div>
         </div>
         <button onclick="closeSosModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <div class="mt-4 space-y-3 font-sans">
-        <div class="p-3 bg-red-950/40 rounded-lg border border-red-500/40 text-red-200 text-xs">
-          🚨 <strong>সতর্কতা:</strong> তীব্র গরমে মাথা ঘোরা, অজ্ঞান হওয়া বা তীব্র শ্বাসকষ্ট হলে অবিলম্বে ছায়ায় বসুন এবং আশপাশে সাহায্য চান।
+      <div class="mt-4 space-y-3.5 font-sans">
+        <div class="p-3 bg-rose-950/50 rounded-xl border border-rose-500/40 text-rose-200 text-xs leading-relaxed">
+          🚨 <strong>URGENT MEDICAL PROTOCOL:</strong> In case of heat exhaustion, dizziness, or hyperthermia, cease work immediately, seek shaded cooling oasis, and initiate rapid electrolytic rehydration.
         </div>
 
-        <div class="p-3 bg-surface rounded-lg border border-surface-border space-y-1.5 font-mono text-xs">
-          <span class="text-[10px] text-slate-400 block uppercase">নিকটস্থ শীতল আশ্রয় ও চিকিৎসা কেন্দ্র:</span>
-          <div id="sosNearestShelterName" class="text-white font-bold text-sm">রমনা পার্ক ও সোহরাওয়ার্দী উদ্যান</div>
-          <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-700">
-            <span class="text-slate-400">আনুমানিক দূরত্ব:</span>
-            <span id="sosNearestDist" class="text-emerald-400 font-bold">~১.৮ কিমি</span>
+        <div class="p-3.5 bg-space-950 rounded-xl border border-space-border space-y-2 font-mono text-xs">
+          <span class="text-[10px] text-slate-400 block uppercase">Nearest Designated Sanctuary & Triage Hub:</span>
+          <div id="sosNearestShelterName" class="text-white font-bold text-sm">Ramna Ecological Cooling Oasis & Lake Haven</div>
+          <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-space-border">
+            <span class="text-slate-400">Estimated Proximity:</span>
+            <span id="sosNearestDist" class="text-emerald-400 font-bold">~1.2 km (Designated Haven)</span>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 pt-2 font-mono">
-          <a href="tel:999" class="p-2.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-center font-bold flex items-center justify-center gap-1.5 shadow-lg">
-            <i data-lucide="phone-call" class="w-4 h-4"></i> ৯৯৯ এম্বুলেন্স
+        <div class="grid grid-cols-2 gap-2.5 pt-2 font-mono">
+          <a href="tel:999" class="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-center font-bold flex items-center justify-center gap-2 shadow-lg transition">
+            <i data-lucide="phone-call" class="w-4 h-4"></i> CALL EMERGENCY 999
           </a>
-          <button onclick="navigateNearestShelter()" class="p-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold flex items-center justify-center gap-1.5 shadow-lg">
-            <i data-lucide="map" class="w-4 h-4"></i> আশ্রয়ে নেভিগেট
+          <button onclick="navigateNearestShelter()" class="p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition">
+            <i data-lucide="map-pin" class="w-4 h-4"></i> NAVIGATE HAVEN
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 1: NASA DATA LINEAGE & SCIENTIFIC METHODOLOGY AUDIT -->
-  <div id="methodologyModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-surface-secondary border border-nasa-cyan/40 rounded-xl max-w-2xl w-full p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-mono text-xs">
-      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
-        <div class="flex items-center gap-2">
-          <div class="h-6 w-6 rounded bg-nasa-blue text-white flex items-center justify-center font-bold text-[10px]">NASA</div>
-          <h2 id="modalMethodTitle" class="text-sm font-bold text-white uppercase tracking-wider">নাসা ডেটা সোর্স ও বৈজ্ঞানিক মেথডোলজি</h2>
+  <!-- SCIENTIFIC DATA AUDIT MODAL -->
+  <div id="methodologyModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-space-900 border border-nasa-cyan/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-mono text-xs">
+      <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
+        <div class="flex items-center gap-2.5">
+          <div class="h-7 w-7 rounded-lg bg-nasa-blue text-white flex items-center justify-center font-bold text-[10px] border border-nasa-cyan/40">NASA</div>
+          <h2 id="modalMethodTitle" class="text-sm font-bold text-white uppercase tracking-wider">Scientific Methodology & Peer-Reviewed Lineage</h2>
         </div>
         <button onclick="closeMethodologyModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div class="mt-4 space-y-4 text-slate-300 font-sans leading-relaxed">
         <div>
-          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">1. NASA ECOSTRESS (ISS) Thermal Radiance</h3>
-          <p id="modalMethodDesc1" class="text-[12px] text-slate-400 mt-1">
-            ECOsystem Spaceborne Thermal Radiometer Experiment on Space Station delivers 70m Land Surface Temperature and Emissivity (LSTE) Collection 2 data. We utilize the TIR 5-band split-window algorithm to resolve intra-urban boundary layer temperature variations across high-density megacity grids.
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">1. NASA ECOSTRESS (ISS) Thermal Radiance Engine</h3>
+          <p class="text-[12px] text-slate-400 mt-1">
+            ECOsystem Spaceborne Thermal Radiometer Experiment on Space Station delivers 70m Land Surface Temperature and Emissivity (LSTE) Collection 2 data. Utilizes the TIR 5-band split-window algorithm to resolve intra-urban boundary layer temperature variations across high-density megacity grids.
           </p>
         </div>
 
         <div>
           <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">2. Landsat 9 (OLI-2 / TIRS-2) Downscaling</h3>
-          <p id="modalMethodDesc2" class="text-[12px] text-slate-400 mt-1">
-            Spectral decomposition derived from Band 4 (Red), Band 5 (Near Infrared - NIR), and Band 6 (Short-Wave Infrared 1 - SWIR1):
+          <p class="text-[12px] text-slate-400 mt-1">
+            Spectral indices derived from Band 4 (Red), Band 5 (Near Infrared - NIR), and Band 6 (Short-Wave Infrared 1 - SWIR1):
           </p>
-          <div class="bg-surface p-2.5 rounded border border-surface-border mt-1.5 font-mono text-[11px] text-emerald-300">
+          <div class="bg-space-950 p-3 rounded-xl border border-space-border mt-1.5 font-mono text-[11px] text-emerald-300">
             • NDVI = (Band 5 - Band 4) / (Band 5 + Band 4) [Fractional Vegetation Cover]<br>
             • NDBI = (Band 6 - Band 5) / (Band 6 + Band 5) [Impervious Surface Density]
           </div>
         </div>
 
         <div>
-          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">3. NOAA Steadman Heat Index Implementation</h3>
-          <p id="modalMethodDesc3" class="text-[12px] text-slate-400 mt-1">
-            Calculated via Rothfusz polynomial regression with dry-bulb ambient temperature and relative humidity.
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">3. ISO 7243 & NOAA Steadman Heat Index Implementation</h3>
+          <p class="text-[12px] text-slate-400 mt-1">
+            Calculated via Rothfusz polynomial regression with dry-bulb ambient temperature and relative humidity, mapped to ISO 7243 occupational strain categories.
           </p>
         </div>
 
         <div>
           <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">4. OpenAQ Ground Validation API</h3>
-          <p id="modalMethodDesc4" class="text-[12px] text-slate-400 mt-1">
-            In-situ continuous particulate calibration pulled via OpenAQ v3 API from reference grade US Embassy Dhaka sensors.
+          <p class="text-[12px] text-slate-400 mt-1">
+            In-situ continuous particulate calibration pulled via OpenAQ v3 API from reference grade planetary monitoring stations.
           </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 2: 100% FREE EARLY WARNING DISPATCH -->
-  <div id="smsModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-surface-secondary border border-amber-500/40 rounded-xl max-w-xl w-full p-5 shadow-2xl font-mono text-xs">
+  <!-- COMMON ALERTING PROTOCOL (CAP) DISPATCH MODAL -->
+  <div id="smsModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-space-900 border border-amber-500/40 rounded-2xl max-w-xl w-full p-6 shadow-2xl font-mono text-xs">
       
-      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
-        <div class="flex items-center gap-2">
-          <i data-lucide="radio" class="w-4 h-4 text-amber-400"></i>
-          <h2 id="modalSmsTitle" class="text-sm font-bold text-white uppercase tracking-wider">আর্লি ওয়ার্নিং ডিসপ্যাচ (৩টি সম্পূর্ণ ফ্রি মেথড)</h2>
+      <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="send" class="w-4 h-4 text-amber-400"></i>
+          <h2 id="modalSmsTitle" class="text-sm font-bold text-white uppercase tracking-wider">Common Alerting Protocol (CAP) Broadcast</h2>
         </div>
         <button onclick="closeSmsModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <p id="modalSmsSub" class="text-slate-400 font-sans mt-2.5 text-[12px]">
-        কোনো গেটওয়ে রিচার্জ ছাড়াই সরাসরি মোবাইলের ডিফল্ট মেসেজ অ্যাপ, টুইলিও ফ্রি ট্রায়াল অথবা লাইভ টেলিগ্রাম বটের মাধ্যমে সম্পূর্ণ বিনামূল্যে সতর্কতা পাঠানোর ইঞ্জিন:
+        Zero-cost multi-channel alert dispatch engine designed for municipal crisis management and humanitarian field workers:
       </p>
 
-      <div class="mt-4 space-y-3">
+      <div class="mt-4 space-y-3.5">
         <div>
-          <label id="modalSmsNodeLabel" class="block text-[11px] text-slate-300 mb-1">টার্গেট হটস্পট ও বিপদসীমা:</label>
-          <select id="smsNodeSelect" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-amber-400 focus:outline-none">
-            <option value="Chuadanga">চুয়াডাঙ্গা ও যশোর বেল্ট - ৪৩.৫°C (চরম বিপদ)</option>
-            <option value="Rajshahi">রাজশাহী বরেন্দ্র অঞ্চল - ৪২.৮°C (উচ্চ ঝুঁকি)</option>
-            <option value="Chawkbazar">চকবাজার (পুরান ঢাকা) - ৪৩.৮°C (চরম বিপদ)</option>
-            <option value="Mirpur10">মিরপুর ১০ গোলচত্বর - ৪২.৬°C (উচ্চ ঝুঁকি)</option>
+          <label id="modalSmsNodeLabel" class="block text-[11px] text-slate-300 mb-1">Target Telemetry Hotspot & Alert Threshold:</label>
+          <select id="smsNodeSelect" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-amber-400 focus:outline-none">
+            <option value="Chuadanga">Chuadanga Belt - 43.5°C (Extreme Hazard)</option>
+            <option value="Rajshahi">Rajshahi Barind Tract - 42.8°C (Elevated Risk)</option>
+            <option value="Chawkbazar">Old Dhaka Mega-Grid - 43.8°C (Critical Strain)</option>
           </select>
         </div>
 
         <div>
-          <label id="modalSmsPhoneLabel" class="block text-[11px] text-slate-300 mb-1">প্রাপকের মোবাইল নম্বর (মোবাইল ও টুইলিও এসএমএস):</label>
-          <input type="text" id="demoPhone" required value="01914531819" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-amber-400 focus:outline-none">
+          <label id="modalSmsPhoneLabel" class="block text-[11px] text-slate-300 mb-1">Recipient Terminal Identifier (Mobile / SMS):</label>
+          <input type="text" id="demoPhone" required value="01914531819" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-amber-400 focus:outline-none">
         </div>
 
-        <details class="bg-surface/80 rounded border border-surface-border p-2">
-          <summary class="cursor-pointer text-[10px] text-nasa-cyan font-bold flex items-center justify-between">
-            <span>⚙️ Twilio $15 Free Trial Credentials (ঐচ্ছিক / Cloud SMS)</span>
-            <span class="text-slate-400 text-[9px]">ক্লিক করুন</span>
-          </summary>
-          <div class="mt-2 space-y-2 pt-2 border-t border-surface-border text-[10px]">
-            <input type="text" id="twilioAccountSid" placeholder="Twilio Account SID (e.g., ACxxxx...)" class="w-full bg-surface-secondary border border-surface-border rounded px-2 py-1 text-white">
-            <input type="password" id="twilioAuthToken" placeholder="Twilio Auth Token" class="w-full bg-surface-secondary border border-surface-border rounded px-2 py-1 text-white">
-            <input type="text" id="twilioFromNumber" placeholder="Twilio Phone Number (e.g., +1234567890)" class="w-full bg-surface-secondary border border-surface-border rounded px-2 py-1 text-white">
-          </div>
-        </details>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-          <button type="button" onclick="dispatchDirectNativeSMS()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded text-[10px] transition flex items-center justify-center gap-1 shadow-md">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+          <button type="button" onclick="dispatchDirectNativeSMS()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-[10px] transition flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
-            <span>১. মোবাইল SMS অ্যাপ</span>
+            <span>1. NATIVE SMS APP</span>
           </button>
 
-          <button type="button" onclick="dispatchTwilioSMS()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 rounded text-[10px] transition flex items-center justify-center gap-1 shadow-md">
+          <button type="button" onclick="dispatchTwilioSMS()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-[10px] transition flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="cloud-lightning" class="w-3.5 h-3.5"></i>
-            <span>২. টুইলিও ফ্রি SMS</span>
+            <span>2. TWILIO CLOUD</span>
           </button>
 
-          <button type="button" onclick="dispatchTelegramAlert()" class="w-full bg-nasa-cyan/20 hover:bg-nasa-cyan/30 text-nasa-cyan border border-nasa-cyan/40 font-bold py-2 rounded text-[10px] transition flex items-center justify-center gap-1 shadow-md">
+          <button type="button" onclick="dispatchTelegramAlert()" class="w-full bg-nasa-cyan/20 hover:bg-nasa-cyan/30 text-nasa-cyan border border-nasa-cyan/40 font-bold py-2.5 rounded-xl text-[10px] transition flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
-            <span>৩. টেলিগ্রাম পুশ বট</span>
+            <span>3. TELEGRAM BOT</span>
           </button>
         </div>
       </div>
 
-      <div id="smsPreviewBox" class="hidden mt-4 p-3 bg-surface rounded-lg border border-emerald-500/40 font-mono text-[11px] space-y-1 text-slate-200">
+      <div id="smsPreviewBox" class="hidden mt-4 p-3.5 bg-space-950 rounded-xl border border-emerald-500/40 font-mono text-[11px] space-y-1.5 text-slate-200">
         <div class="flex items-center justify-between text-emerald-400 font-bold text-[10px]">
-          <span id="dispatchStatusText">DISPATCH SUCCESS</span>
+          <span id="dispatchStatusText">DISPATCH SUCCESSFUL</span>
           <span id="smsTimestamp">Just Now</span>
         </div>
-        <div class="p-2 bg-surface-secondary rounded border border-surface-border font-sans text-xs text-white leading-relaxed mt-1" id="smsTextBody"></div>
+        <div class="p-2.5 bg-space-900 rounded-lg border border-space-border font-sans text-xs text-white leading-relaxed mt-1" id="smsTextBody"></div>
       </div>
 
     </div>
   </div>
 
-  <!-- MODAL 3: CITIZEN SCIENCE HEAT REPORTER -->
-  <div id="citizenModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-surface-secondary border border-indigo-500/40 rounded-xl max-w-md w-full p-5 shadow-2xl font-mono text-xs">
-      <div class="flex items-center justify-between pb-3 border-b border-surface-border">
-        <div class="flex items-center gap-2">
-          <i data-lucide="map-pin" class="w-4 h-4 text-indigo-400"></i>
-          <h2 class="text-sm font-bold text-white uppercase tracking-wider">সিটিজেন সায়েন্স হিট রিপোর্ট</h2>
+  <!-- CITIZEN GROUND TRUTH TELEMETRY MODAL -->
+  <div id="citizenModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-space-900 border border-indigo-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl font-mono text-xs">
+      <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="satellite" class="w-4 h-4 text-indigo-400"></i>
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider">In-Situ Citizen Ground Telemetry</h2>
         </div>
         <button onclick="closeCitizenModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <p class="text-slate-400 font-sans mt-2.5 text-[12px]">
-        আপনার এলাকার বাস্তব তাপমাত্রা ও শারীরিক অস্বস্তির তথ্য দিয়ে স্যাটেলাইট এআই মডেলকে নির্ভুল করতে সাহায্য করুন:
+        Contribute real-time in-situ temperature observations to calibrate satellite microclimate models:
       </p>
 
-      <form onsubmit="handleCitizenReportSubmit(event)" class="mt-4 space-y-3">
+      <form onsubmit="handleCitizenReportSubmit(event)" class="mt-4 space-y-3.5">
         <div>
-          <label class="block text-[11px] text-slate-300 mb-1">লোকেশন / এলাকা:</label>
-          <input type="text" id="citizenReportLoc" required value="সাভার বাসস্ট্যান্ড, ঢাকা" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-indigo-400 focus:outline-none">
+          <label class="block text-[11px] text-slate-300 mb-1">Spatial Location / Landmark:</label>
+          <input type="text" id="citizenReportLoc" required value="Savar Bus Terminal, Dhaka" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-400 focus:outline-none">
         </div>
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-[11px] text-slate-300 mb-1">তাপমাত্রা (°C):</label>
-            <input type="number" step="0.1" id="citizenReportTemp" required value="40.5" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-indigo-400 focus:outline-none">
+            <label class="block text-[11px] text-slate-300 mb-1">Observed Temp (°C):</label>
+            <input type="number" step="0.1" id="citizenReportTemp" required value="40.5" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-400 focus:outline-none">
           </div>
           <div>
-            <label class="block text-[11px] text-slate-300 mb-1">শারীরিক অনুভূতি:</label>
-            <select id="citizenReportFeel" class="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-white font-mono focus:border-indigo-400 focus:outline-none">
-              <option value="অসহ্য গরম ও মাথাঘোরা">অসহ্য গরম ও মাথাঘোরা</option>
-              <option value="মাঝারি অস্বস্তি">মাঝারি অস্বস্তি</option>
-              <option value="ছায়াযুক্ত ও সহনশীল">ছায়াযুক্ত ও সহনশীল</option>
+            <label class="block text-[11px] text-slate-300 mb-1">Thermal Comfort:</label>
+            <select id="citizenReportFeel" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-400 focus:outline-none">
+              <option value="Extreme Heat Exhaustion">Extreme Heat Exhaustion</option>
+              <option value="Moderate Strain">Moderate Strain</option>
+              <option value="Shaded / Tolerable">Shaded / Tolerable</option>
             </select>
           </div>
         </div>
 
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded text-xs transition flex items-center justify-center gap-1.5 shadow-lg">
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg">
           <i data-lucide="send" class="w-3.5 h-3.5"></i>
-          <span>রিপোর্ট সাবমিট করুন (Ground-Truth)</span>
+          <span>SUBMIT IN-SITU OBSERVATION</span>
         </button>
       </form>
     </div>
