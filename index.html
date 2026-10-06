@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoShield.AI | Planetary Earth System Microclimate Observatory</title>
 
-  <!-- Google Fonts: Space Grotesk & Inter -->
+  <!-- Google Fonts: Space Grotesk, Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -23,9 +23,6 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- External Stylesheet -->
-  <link rel="stylesheet" href="css/style.css" />
 
   <script>
     tailwind.config = {
@@ -86,7 +83,7 @@
 
 <body class="bg-space-950 text-slate-100 antialiased min-h-screen flex flex-col font-sans select-none overflow-x-hidden">
 
-  <!-- ==================== EXECUTIVE APP BAR ==================== -->
+  <!-- ==================== EXECUTIVE HUD HEADER ==================== -->
   <header class="h-16 border-b border-space-border/60 bg-space-900/90 backdrop-blur-xl px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0 shadow-lg">
     
     <!-- Brand Info -->
@@ -102,18 +99,18 @@
             Planetary Earth System Observatory
           </span>
         </div>
-        <p class="text-[10px] text-slate-400 font-mono hidden md:block">ECOSTRESS (ISS) • Landsat-9 TIRS-2 • Open-Meteo High-Res Array</p>
+        <p class="text-[10px] text-slate-400 font-mono hidden md:block">ECOSTRESS (ISS) • Landsat-9 TIRS-2 • WMO Numerical Grid Array</p>
       </div>
     </div>
 
-    <!-- Center Status Indicator -->
+    <!-- Spatial Scope Status -->
     <div class="hidden xl:flex items-center gap-2 bg-space-950/80 px-3 py-1.5 rounded-lg border border-space-border/60 text-[11px] font-mono">
       <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
       <span class="text-slate-400" id="uiTargetLabel">Spatial Domain:</span>
       <span class="text-slate-200 font-semibold truncate max-w-xs" id="uiTargetValue">Global Multi-Sensor Telemetry Grid</span>
     </div>
 
-    <!-- Clean Action Bar (Organized without clutter) -->
+    <!-- Action Bar -->
     <div class="flex items-center gap-2 font-mono">
       
       <!-- Primary Emergency Dispatch Button -->
@@ -122,19 +119,19 @@
         <span id="uiSosBtnText">EMERGENCY DISPATCH</span>
       </button>
 
-      <!-- In-Situ GPS Button -->
+      <!-- In-Situ GPS -->
       <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md transition">
         <i data-lucide="navigation-2" class="w-3.5 h-3.5"></i>
         <span id="uiBtnDetectGps">IN-SITU GPS</span>
       </button>
 
-      <!-- Language Toggle Switch -->
+      <!-- Language Toggle -->
       <button onclick="toggleAppLanguage()" id="langToggleBtn" class="flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-nasa-cyan px-2.5 py-1.5 rounded-lg border border-nasa-cyan/30 text-xs transition">
         <i data-lucide="globe" class="w-3.5 h-3.5"></i>
         <span id="langBtnText">বাংলা (BN)</span>
       </button>
 
-      <!-- Unified Tools Dropdown (Cleans up the clutter) -->
+      <!-- Unified Tools Dropdown -->
       <div class="relative">
         <button onclick="toggleToolsMenu()" id="btnToolsDropdown" class="flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-slate-300 px-3 py-1.5 rounded-lg border border-space-border text-xs transition">
           <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-nasa-cyan"></i>
@@ -142,7 +139,6 @@
           <i data-lucide="chevron-down" class="w-3 h-3"></i>
         </button>
 
-        <!-- Dropdown Menu -->
         <div id="toolsMenuDropdown" class="hidden absolute right-0 mt-2 w-56 bg-space-900 border border-space-border rounded-xl shadow-2xl p-2 space-y-1 z-50 text-xs">
           <button onclick="toggleSonification(); toggleToolsMenu();" class="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-space-850 text-purple-300 transition text-left">
             <i data-lucide="waves" class="w-4 h-4 text-purple-400"></i>
@@ -175,13 +171,13 @@
     </div>
   </header>
 
-  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <!-- ==================== MAIN OBSERVATORY LAYOUT ==================== -->
   <div class="flex-1 flex flex-col xl:flex-row overflow-hidden">
     
-    <!-- LEFT OBSERVATORY (MAP & METRICS - 70%) -->
+    <!-- LEFT OBSERVATORY (MAP & TIMELINE - 70%) -->
     <div class="flex-1 flex flex-col border-b xl:border-b-0 xl:border-r border-space-border/60 bg-space-950">
       
-      <!-- Minimalist KPI Band -->
+      <!-- KPI Band -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-px bg-space-border/40 border-b border-space-border/60">
         
         <div class="bg-space-900/80 p-3 flex flex-col justify-between">
@@ -277,6 +273,18 @@
           </button>
         </div>
 
+        <!-- NEW: 2000-2026 HISTORICAL TREND DETECTIVE SLIDER (CHALLENGE CORE) -->
+        <div class="absolute top-3 right-3 z-[1000] bg-space-900/90 backdrop-blur-md px-3 py-2 rounded-xl border border-space-border/80 shadow-2xl flex items-center gap-2.5 font-mono text-xs">
+          <i data-lucide="history" class="w-4 h-4 text-nasa-cyan"></i>
+          <div>
+            <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold mb-0.5">
+              <span>NASA TREND TIMELINE</span>
+              <span id="trendYearLabel" class="text-nasa-cyan font-bold">2026 (Present)</span>
+            </div>
+            <input type="range" id="trendTimelineSlider" min="2000" max="2026" value="2026" step="5" oninput="handleHistoricalTrendChange(this.value)" class="w-44 accent-cyan-400 cursor-pointer h-1.5 bg-space-950 rounded">
+          </div>
+        </div>
+
         <!-- The Map Container -->
         <div id="gis-map"></div>
 
@@ -357,7 +365,7 @@
         </div>
       </div>
 
-      <!-- MODERN NAVIGATION TABS (Eliminates Long Cluttered Scrolling) -->
+      <!-- NAVIGATION TABS -->
       <div class="flex border-b border-space-border/60 bg-space-950/60 p-1 gap-1 font-mono text-xs">
         <button onclick="switchMissionTab('telemetry')" id="tabBtnTelemetry" class="flex-1 py-1.5 text-center rounded-lg font-bold border border-transparent tab-active transition">
           Telemetry
@@ -366,7 +374,7 @@
           Health & Directives
         </button>
         <button onclick="switchMissionTab('simulator')" id="tabBtnSimulator" class="flex-1 py-1.5 text-center rounded-lg font-bold border border-transparent text-slate-400 hover:text-slate-200 transition">
-          Simulator
+          Simulator & ROI
         </button>
       </div>
 
@@ -526,7 +534,7 @@
 
       </div>
 
-      <!-- TAB 3: RESILIENCE POLICY SIMULATOR -->
+      <!-- TAB 3: RESILIENCE POLICY SIMULATOR & ECONOMIC ROI -->
       <div id="tabContentSimulator" class="hidden flex-1 p-4 overflow-y-auto space-y-4">
         
         <div class="p-3.5 bg-space-950 rounded-xl border border-amber-500/30 space-y-3 font-mono text-xs">
@@ -566,6 +574,22 @@
               <span id="simProjectedLST" class="text-lg font-bold text-white">--°C</span>
             </div>
           </div>
+
+          <!-- NEW: ECONOMIC & COOLING ENERGY ROI CALCULATOR -->
+          <div class="p-3 rounded-lg bg-emerald-950/20 border border-emerald-500/30 space-y-1 text-xs">
+            <div class="flex items-center gap-1.5 text-emerald-400 font-bold">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span>Economic Cooling ROI Projection:</span>
+            </div>
+            <div class="flex justify-between text-slate-300 text-[11px]">
+              <span>Municipal Grid Power Saved:</span>
+              <span id="roiPowerVal" class="text-emerald-300 font-bold">0.0 MW/km²</span>
+            </div>
+            <div class="flex justify-between text-slate-300 text-[11px]">
+              <span>Est. Annual Cost Reduction:</span>
+              <span id="roiSavingsVal" class="text-nasa-cyan font-bold">$0 / yr</span>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -574,9 +598,7 @@
 
   </div>
 
-  <!-- ==================== ESSENTIAL MODALS ==================== -->
-  
-  <!-- GPS In-Situ Modal -->
+  <!-- MODALS -->
   <div id="liveLocationModal" class="hidden fixed bottom-6 left-6 z-[2000] w-88 max-w-[90vw] bg-space-900/95 backdrop-blur-xl border border-nasa-cyan/40 rounded-2xl shadow-2xl p-4 font-mono">
     <div class="flex items-center justify-between pb-2 border-b border-space-border/60">
       <div class="flex items-center gap-2">
@@ -605,7 +627,6 @@
     </div>
   </div>
 
-  <!-- Emergency SOS Modal -->
   <div id="sosModal" class="hidden fixed inset-0 z-[3500] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border-2 border-rose-500 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs">
       <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
@@ -636,7 +657,6 @@
     </div>
   </div>
 
-  <!-- Methodology Modal -->
   <div id="methodologyModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border border-nasa-cyan/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-mono text-xs">
       <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
@@ -660,7 +680,6 @@
     </div>
   </div>
 
-  <!-- CAP Alert Dispatch Modal -->
   <div id="smsModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border border-amber-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs">
       <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
@@ -693,7 +712,6 @@
     </div>
   </div>
 
-  <!-- Citizen Ground Truth Modal -->
   <div id="citizenModal" class="hidden fixed inset-0 z-[3000] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border border-indigo-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl font-mono text-xs">
       <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
@@ -726,11 +744,9 @@
     </div>
   </div>
 
-  <!-- Hidden Canvas for Infographics -->
   <canvas id="hazardCardCanvas" width="1080" height="1080" class="hidden"></canvas>
 
   <script>
-    // Tab Switching Function (Ensures Clean, Non-Cluttered Right Panel)
     function switchMissionTab(tabId) {
       document.getElementById('tabContentTelemetry').classList.add('hidden');
       document.getElementById('tabContentHealth').classList.add('hidden');
@@ -752,13 +768,11 @@
       }
     }
 
-    // Toggle Unified Tools Dropdown
     function toggleToolsMenu() {
       const menu = document.getElementById('toolsMenuDropdown');
       menu.classList.toggle('hidden');
     }
 
-    // Close dropdown on outside click
     window.addEventListener('click', function(e) {
       const btn = document.getElementById('btnToolsDropdown');
       const menu = document.getElementById('toolsMenuDropdown');
