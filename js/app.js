@@ -1,5 +1,5 @@
 // =========================================================================
-// EcoShield.AI Enterprise | Global Earth System Microclimate Observatory
+// EcoShield.AI Enterprise | Planetary Earth System Observatory
 // Standards Compliance: WMO Guidelines No. 1184 | ISO 7243 Thermal Stress
 // Telemetry Sources: NASA ECOSTRESS (ISS) | Landsat-9 TIRS-2 | Open-Meteo HR
 // =========================================================================
@@ -7,12 +7,15 @@
 let currentLang = localStorage.getItem('ecoshield_lang') || 'en';
 const OPENAQ_KEY = "9HVgYUIvSXTxMDFrdbhWA2OBt54AVQaSymRBGjDe";
 
-// Global Projection Anchor (Planetary Centroid)
+// Global World Center Coordinates
 const WORLD_CENTER_LAT = 20.0;
 const WORLD_CENTER_LON = 10.0;
 
 let isVoiceSpeaking = false; 
 let citizenReports = []; 
+let isSonificationActive = false;
+let audioCtx = null;
+let orbitLayerGroup = null;
 
 const i18n = {
   en: {
@@ -38,6 +41,7 @@ const i18n = {
     layerStations: "WMO Global Observatory Nodes",
     layerShelters: "Ecological Sanctuaries & Oases",
     layerSafeRoute: "Microclimate Shaded Corridor",
+    layerOrbit: "ISS/ECOSTRESS Swath",
     legendTitle: "Surface Temperature (LST) Scale",
     legendCool: "<-10°C (Cryospheric)",
     legendNominal: "28°C (Temperate)",
@@ -93,8 +97,9 @@ const i18n = {
     meterSafe: "Nominal",
     meterCaution: "Elevated Caution",
     meterDanger: "Extreme Hazard",
-    bulletinBtn: "EXECUTIVE BRIEF",
-    sosBtn: "EMERGENCY DISPATCH"
+    bulletinBtn: "BRIEF",
+    sosBtn: "EMERGENCY DISPATCH",
+    btnSonify: "AUDIO SONIFY"
   },
   bn: {
     btnLang: "English (EN)",
@@ -119,6 +124,7 @@ const i18n = {
     layerStations: "WMO আন্তর্জাতিক অবজারভেটরি নোড",
     layerShelters: "পরিবেশগত শীতল আশ্রয় ও ওএসিস",
     layerSafeRoute: "মাইক্রোক্লাইমেট ছায়াযুক্ত রুট",
+    layerOrbit: "ISS/ইকোস্ট্রেস অরবিট",
     legendTitle: "সারফেস টেম্পারেচার (LST) স্কেল",
     legendCool: "<-১০°C (চরম শৈত্যপ্রবাহ)",
     legendNominal: "২৮°C (সহনশীল মাত্রা)",
@@ -174,14 +180,13 @@ const i18n = {
     meterSafe: "সহনশীল",
     meterCaution: "সতর্কতা",
     meterDanger: "মারাত্মক সংকট",
-    bulletinBtn: "এক্সিকিউটিভ ব্রিফ",
-    sosBtn: "জরুরি ডিসপ্যাচ"
+    bulletinBtn: "ব্রিফ",
+    sosBtn: "জরুরি ডিসপ্যাচ",
+    btnSonify: "অডিও সোনিফাই"
   }
 };
 
-// WORLD METEOROLOGICAL ORGANIZATION (WMO) CALIBRATED OBSERVATORY NODES
 const monitoringNodes = [
-  // Planetary Extreme Hyper-Thermal Corridors
   {
     id: "WMO-DV-01",
     nameEn: "Death Valley Basin, California (USA)",
@@ -192,6 +197,8 @@ const monitoringNodes = [
     ndvi: 0.02,
     albedo: 0.25,
     densityWeight: 1.50,
+    populationDensity: "Sparse (Desert Basin)",
+    sedacMultiplier: "1.05x",
     type: "danger",
     workerActionEn: "WMO Tier-1 critical thermal hazard. Immediate metabolic thermal failure risk. Mandate cessation of all daylight operations.",
     workerActionBn: "WMO টায়ার-১ চরম থার্মাল ঝুঁকি। মেটাবলিক তাপ ভারসাম্যের গুরুতর বিপর্যয় ঘটতে পারে। দিনের সব আউটডোর কার্যক্রম সম্পূর্ণ বন্ধ রাখুন।",
@@ -208,6 +215,8 @@ const monitoringNodes = [
     ndvi: 0.03,
     albedo: 0.20,
     densityWeight: 1.45,
+    populationDensity: "High Density (Metropolis)",
+    sedacMultiplier: "1.48x",
     type: "danger",
     workerActionEn: "Acute urban canyon thermal trap. Enforcement of ILO heat stress rest-to-work ratios (15 min labor / 45 min shaded rest).",
     workerActionBn: "তীব্র আরবান হিট ট্র্যাপ। আইএলও (ILO) নীতিমালার আলোকে প্রতি ১৫ মিনিট কাজের পর বাধ্যতামূলক ৪৫ মিনিট শীতল স্থানে বিশ্রাম নিশ্চিত করুন।",
@@ -224,6 +233,8 @@ const monitoringNodes = [
     ndvi: 0.05,
     albedo: 0.18,
     densityWeight: 1.40,
+    populationDensity: "Dense Agricultural Hub",
+    sedacMultiplier: "1.52x",
     type: "danger",
     workerActionEn: "Lethal wet-bulb threshold (TW > 31°C) proximity. Field workers require mandatory electrolytic replenishment and cooling vests.",
     workerActionBn: "ওয়েট-বাল্ব তাপমাত্রা বিপজ্জনক মাত্রায় (TW > ৩১°C)। শ্রমিকদের জন্য ইলেক্ট্রোলাইট রিহাইড্রেশন ও কুলিং ভেস্ট সরবরাহ বাধ্যতামূলক।",
@@ -240,6 +251,8 @@ const monitoringNodes = [
     ndvi: 0.05,
     albedo: 0.12,
     densityWeight: 1.45,
+    populationDensity: "High Rural Aggregation",
+    sedacMultiplier: "1.40x",
     type: "danger",
     workerActionEn: "National epicentre for agricultural heat shock. Limit field harvesting to morning windows prior to 10:30 AM.",
     workerActionBn: "দেশের সর্বোচ্চ তাপদাহপ্রবণ কৃষি অঞ্চল। সকাল ১০:৩০ এর পর জমিতে ফসল কাটা ও ভারী কায়িক শ্রম সীমিত রাখুন।",
@@ -256,6 +269,8 @@ const monitoringNodes = [
     ndvi: 0.04,
     albedo: 0.11,
     densityWeight: 1.35,
+    populationDensity: "Ultra-High Urban Megacity",
+    sedacMultiplier: "1.65x",
     type: "danger",
     workerActionEn: "Severe Urban Heat Island (UHI) amplification coupled with vehicular exhaust. Frontline transit workers require shaded resting hubs.",
     workerActionBn: "যানবাহনের ধোঁয়া ও কংক্রিটের কারণে তীব্র আরবান হিট আইল্যান্ড। পরিবহন শ্রমিক ও রিকশাচালকদের জন্য ছায়াযুক্ত বিশ্রাম শেড প্রয়োজন।",
@@ -272,14 +287,14 @@ const monitoringNodes = [
     ndvi: 0.06,
     albedo: 0.15,
     densityWeight: 1.38,
+    populationDensity: "Mega Urban Density",
+    sedacMultiplier: "1.60x",
     type: "danger",
     workerActionEn: "Compound thermal and particulate stress. Recommend air quality respirators along with continuous thermal monitoring.",
     workerActionBn: "উচ্চ তাপমাত্রা এবং বায়ুদূষণের যৌথ সংকট। বাইরে কাজ করার সময় মাস্ক পরিধান এবং নিয়মিত পানি পান বাধ্যতামূলক।",
     plannerActionEn: "Expand linear urban bioswales and enforce non-absorptive porous pavement across transport hubs.",
     plannerActionBn: "রাস্তার পাশে লিনিয়ার গ্রিন বেল্ট তৈরি এবং তাপ নিরোধক ছিদ্রযুক্ত পেভমেন্ট স্থাপন।"
   },
-
-  // Cryospheric & Polar Reference Nodes
   {
     id: "WMO-VOS-01",
     nameEn: "Vostok Subglacial Station (Antarctica)",
@@ -290,46 +305,14 @@ const monitoringNodes = [
     ndvi: -0.90,
     albedo: 0.85,
     densityWeight: -2.0,
+    populationDensity: "Extreme Scientific Outpost",
+    sedacMultiplier: "0.95x",
     type: "cool",
     workerActionEn: "Planetary minimum thermal baseline. Extreme peripheral frostbite hazard within 90 seconds without specialized polar PPE.",
     workerActionBn: "পৃথিবীর শীতলতম মেরু বেস। বিশেষায়িত পোলার পিপিই ছাড়া ৯০ সেকেন্ডের মধ্যে তীব্র ফ্রস্টবাইটের ঝুঁকি রয়েছে।",
     plannerActionEn: "Maintain redundant geothermal/nuclear-electric life support insulation and thermal environmental barriers.",
     plannerActionBn: "দ্বৈত ব্যাকআপযুক্ত তাপ নিয়ন্ত্রণ বাসস্থান ও লাইফ-সাপোর্ট সিস্টেম অক্ষুণ্ণ রাখা।"
   },
-  {
-    id: "WMO-OYM-02",
-    nameEn: "Oymyakon Boreal Basin (Siberia, Russia)",
-    nameBn: "ওইমিয়াকন বোরিয়াল অববাহিকা (সাইবেরিয়া, রাশিয়া)",
-    lat: 63.4641,
-    lon: 142.7737,
-    ndbi: -0.50,
-    ndvi: 0.15,
-    albedo: 0.70,
-    densityWeight: -1.6,
-    type: "cool",
-    workerActionEn: "Inhabited cryospheric threshold. Multi-layered vapor-barrier clothing and heated sheltered checkpoints required.",
-    workerActionBn: "চরম হিমায়িত জনবসতি। তীব্র ঠান্ডায় শরীর শুষ্ক রাখতে মাল্টি-লেয়ার পোশাক পরিধান এবং হিটেড চেকপয়েন্ট ব্যবহার করুন।",
-    plannerActionEn: "Ensure structural resilience of permafrost pilings against seasonal thaw-freeze cycles.",
-    plannerActionBn: "পারমাফ্রস্টের ওপর নির্মিত স্থাপনার স্থায়িত্ব বজায় রাখতে সয়েল-ফ্রিজিং সিস্টেম তদারকি।"
-  },
-  {
-    id: "WMO-GRL-03",
-    nameEn: "Nuuk Coastal Fjord (Greenland)",
-    nameBn: "নুক উপকূলীয় ফিয়র্ড (গ্রিনল্যান্ড)",
-    lat: 64.1814,
-    lon: -51.6941,
-    ndbi: -0.40,
-    ndvi: 0.20,
-    albedo: 0.65,
-    densityWeight: -1.4,
-    type: "cool",
-    workerActionEn: "Sub-arctic maritime wind-chill dynamics. Frontline maritime crews must monitor hyper-rapid hypothermia onset.",
-    workerActionBn: "সাব-আর্কটিক বাতাসের তীব্র শীতল অনুভূতি। উপকূলীয় কর্মীদের দ্রুত হাইপোথার্মিয়া থেকে বাঁচতে উইন্ডপ্রুফ সুরক্ষা প্রয়োজন।",
-    plannerActionEn: "Monitor coastal glacial melt rates and reinforce sea defenses against cryo-thermal surges.",
-    plannerActionBn: "হিমবাহের গলন পর্যবেক্ষণ এবং উপকূলীয় অবকাঠামোর নিরাপত্তা নিশ্চিতকরণ।"
-  },
-
-  // Global Ecological Cooling Havens (Transpiration Regulators)
   {
     id: "WMO-AMZ-01",
     nameEn: "Amazon Equatorial Biosphere (Brazil)",
@@ -340,6 +323,8 @@ const monitoringNodes = [
     ndvi: 0.92,
     albedo: 0.14,
     densityWeight: -1.5,
+    populationDensity: "Indigenous Eco-Sanctuary",
+    sedacMultiplier: "1.10x",
     type: "cool",
     workerActionEn: "Planetary cooling lung. Dense vegetative canopy mitigates surface irradiance by up to 85%. Nominal thermal safety.",
     workerActionBn: "পৃথিবীর প্রাকৃতিক কুলিং ফুসফুস। ঘন বনাঞ্চলের কারণে সৌর বিকিরণ ৮৫% পর্যন্ত বাধা পায়, যা পরিবেশ শীতল রাখে।",
@@ -356,6 +341,8 @@ const monitoringNodes = [
     ndvi: 0.86,
     albedo: 0.22,
     densityWeight: -1.35,
+    populationDensity: "Protected Natural Buffer",
+    sedacMultiplier: "1.12x",
     type: "cool",
     workerActionEn: "Natural ecological thermal sanctuary. Moderate convective airflows keep conditions within standard physiological limits.",
     workerActionBn: "প্রাকৃতিক চা-বাগান ও পাহাড়ের কারণে তাপমাত্রা সহনশীল ও মানবদেহের জন্য সম্পূর্ণ নিরাপদ সীমার মধ্যে রয়েছে।",
@@ -419,7 +406,7 @@ function evaluateMicroclimate(node, baseT, radiation, wind) {
 }
 
 // ==========================================
-// 3. GIS MAP ENGINE (GLOBAL ARCGIS IMAGERY)
+// 3. GIS MAP ENGINE & ORBIT SWATH
 // ==========================================
 function initializeGISMap() {
   gisMap = L.map('gis-map', {
@@ -445,6 +432,7 @@ function initializeGISMap() {
   stationLayerGroup = L.layerGroup().addTo(gisMap);
   shelterLayerGroup = L.layerGroup().addTo(gisMap);
   citizenLayerGroup = L.layerGroup().addTo(gisMap);
+  orbitLayerGroup = L.layerGroup().addTo(gisMap);
 }
 
 function renderGISLayers() {
@@ -546,6 +534,46 @@ function toggleLayer(layerType) {
   }
 }
 
+// SATELLITE SWATH TRACKER
+function toggleSatelliteSwath() {
+  const btn = document.getElementById('toggleOrbitBtn');
+  if (orbitLayerGroup.getLayers().length > 0) {
+    orbitLayerGroup.clearLayers();
+    btn.classList.remove('bg-indigo-500', 'text-white');
+    btn.classList.add('bg-indigo-500/15', 'text-indigo-300');
+    return;
+  }
+
+  // Draw 51.6° Inclined ISS Ground Orbit Track
+  const orbitCoords = [
+    [-51.6, -160.0],
+    [-30.0, -110.0],
+    [0.0, -60.0],
+    [30.0, -10.0],
+    [51.6, 40.0],
+    [23.7, 90.3], // Directly passing over Bangladesh
+    [-10.0, 130.0],
+    [-51.6, 175.0]
+  ];
+
+  const orbitPath = L.polyline(orbitCoords, {
+    color: '#818cf8',
+    weight: 3.5,
+    opacity: 0.9,
+    dashArray: '10, 12'
+  }).addTo(orbitLayerGroup);
+
+  orbitPath.bindPopup(`
+    <div class="font-mono text-xs p-1">
+      <strong class="text-indigo-400">🛰️ ISS / ECOSTRESS Ground Track</strong><br/>
+      <span>Inclination: 51.6° | Resolving 70m LSTE overpass band.</span>
+    </div>
+  `).openPopup();
+
+  btn.classList.add('bg-indigo-500', 'text-white');
+  btn.classList.remove('bg-indigo-500/15', 'text-indigo-300');
+}
+
 function toggleShadedRoute() {
   const btn = document.getElementById('toggleSafeRouteBtn');
   if (safeRouteLayer && gisMap.hasLayer(safeRouteLayer)) {
@@ -570,7 +598,7 @@ function toggleShadedRoute() {
   }).addTo(gisMap);
 
   const routeTitle = currentLang === 'bn' ? "🌿 থার্মাল-সেফ রুটিং করিডোর" : "🌿 Thermal-Safe Shaded Corridor";
-  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট। তাপমাত্রা প্রায় ৩.৫°C পর্যন্ত কম অনুভূত হয়।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
+  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
 
   safeRouteLayer.bindPopup(`
     <div class="font-mono text-xs p-1">
@@ -585,7 +613,7 @@ function toggleShadedRoute() {
 }
 
 // ==========================================
-// 4. CHART.JS DIURNAL TELEMETRY PROJECTION
+// 4. CHART.JS PROJECTION
 // ==========================================
 function initializeTemporalChart(hours, temps, solarFlux) {
   const ctx = document.getElementById('temporalChart').getContext('2d');
@@ -734,7 +762,7 @@ async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon 
 }
 
 // ==========================================
-// 6. TARGET SELECTION & DYNAMIC TELEMETRY
+// 6. TARGET SELECTION, SONIFICATION & SEDAC
 // ==========================================
 async function selectMonitoringNode(node, shouldFlyTo = true) {
   currentlySelectedNode = node;
@@ -746,6 +774,9 @@ async function selectMonitoringNode(node, shouldFlyTo = true) {
 
   document.getElementById('valNDVI').innerText = `${node.ndvi > 0 ? '+' : ''}${node.ndvi.toFixed(2)}`;
   document.getElementById('barNDVI').style.width = `${Math.min(Math.max(node.ndvi * 100, 5), 100)}%`;
+
+  document.getElementById('sedacDensityScore').innerText = node.populationDensity || "Urban Grid";
+  document.getElementById('sedacWeightVal').innerText = node.sedacMultiplier || "1.25x";
 
   try {
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${node.lat}&longitude=${node.lon}&current=temperature_2m,relative_humidity_2m,direct_normal_irradiance,wind_speed_10m`);
@@ -792,9 +823,128 @@ async function selectMonitoringNode(node, shouldFlyTo = true) {
   runPolicySimulation();
   calculateHealthRisk();
 
+  // Play sonification if enabled
+  if (isSonificationActive) {
+    playThermalSonification(node.currentLST);
+  }
+
   if (shouldFlyTo && gisMap) {
     gisMap.flyTo([node.lat, node.lon], 5, { animate: true, duration: 1.5 });
   }
+}
+
+// WEB AUDIO DATA SONIFICATION ENGINE
+function toggleSonification() {
+  isSonificationActive = !isSonificationActive;
+  const btn = document.getElementById('btnSonifyToggle');
+  if (isSonificationActive) {
+    btn.classList.add('bg-purple-600', 'text-white');
+    btn.classList.remove('bg-space-850', 'text-purple-300');
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (currentlySelectedNode) playThermalSonification(currentlySelectedNode.currentLST);
+  } else {
+    btn.classList.remove('bg-purple-600', 'text-white');
+    btn.classList.add('bg-space-850', 'text-purple-300');
+  }
+}
+
+function playThermalSonification(temp) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  // Pitch mapped dynamically: -20°C -> 180Hz (Deep bass), +50°C -> 950Hz (Urgent high tone)
+  const freq = Math.max(150, Math.min(1000, 220 + (temp + 20) * 11));
+  
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  osc.type = temp > 40 ? 'sawtooth' : 'sine';
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+  gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 1.2);
+}
+
+// 1-CLICK SOCIAL MEDIA HAZARD CARD (HTML5 CANVAS)
+function generateVisualHazardCard() {
+  const node = currentlySelectedNode || monitoringNodes[0];
+  const canvas = document.getElementById('hazardCardCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
+  gradient.addColorStop(0, '#030712');
+  gradient.addColorStop(1, '#0f172a');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1080, 1080);
+
+  // Border Accent
+  ctx.strokeStyle = '#00D1FF';
+  ctx.lineWidth = 14;
+  ctx.strokeRect(30, 30, 1020, 1020);
+
+  // Title & Header
+  ctx.fillStyle = '#00D1FF';
+  ctx.font = 'bold 36px "JetBrains Mono", monospace';
+  ctx.fillText("ECOSHIELD.AI | PLANETARY THERMAL ADVISORY", 80, 120);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 54px "Inter", sans-serif';
+  ctx.fillText(node.nameEn, 80, 210);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '30px "JetBrains Mono", monospace';
+  ctx.fillText(`GEO-NODE: ${node.id} | ${node.lat.toFixed(4)}°N, ${node.lon.toFixed(4)}°E`, 80, 270);
+
+  // Big Temperature Circle
+  ctx.beginPath();
+  ctx.arc(260, 500, 160, 0, 2 * Math.PI);
+  ctx.fillStyle = node.currentLST >= 40 ? 'rgba(252, 61, 33, 0.2)' : 'rgba(16, 185, 129, 0.2)';
+  ctx.fill();
+  ctx.strokeStyle = node.currentLST >= 40 ? '#FC3D21' : '#10B981';
+  ctx.lineWidth = 8;
+  ctx.stroke();
+
+  ctx.fillStyle = node.currentLST >= 40 ? '#FC3D21' : '#10B981';
+  ctx.font = 'bold 96px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${node.currentLST}°C`, 260, 530);
+
+  // Metrics on right
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = 'bold 34px "Inter", sans-serif';
+  ctx.fillText(`Microclimate Anomaly: +${node.currentAnomaly}°C`, 480, 440);
+  ctx.fillText(`Solar Irradiance Flux: ${activeTelemetry.solarRadiation} W/m²`, 480, 510);
+  ctx.fillText(`Relative Humidity: ${activeTelemetry.humidity}%`, 480, 580);
+
+  // Directives Box
+  ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+  ctx.fillRect(80, 720, 920, 220);
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(80, 720, 920, 220);
+
+  ctx.fillStyle = '#F59E0B';
+  ctx.font = 'bold 30px "JetBrains Mono", monospace';
+  ctx.fillText("OPERATIONAL HEALTH DIRECTIVE:", 110, 780);
+
+  ctx.fillStyle = '#cbd5e1';
+  ctx.font = '26px "Inter", sans-serif';
+  ctx.fillText(node.workerActionEn.substring(0, 75) + "...", 110, 840);
+  ctx.fillText("Verified by NASA ECOSTRESS & Landsat-9 Data Feed", 110, 890);
+
+  // Trigger Download
+  const link = document.createElement('a');
+  link.download = `EcoShield_HazardCard_${node.id}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 }
 
 function runPolicySimulation() {
@@ -841,7 +991,6 @@ function calculateHealthRisk() {
   }
 }
 
-// FORMAL EXECUTIVE BRIEFING EXPORT (FOR GOVERNMENTS & OFFICES)
 function exportAdvisoryCard() {
   const node = currentlySelectedNode || monitoringNodes[0];
   const bulletinText = `
@@ -855,11 +1004,11 @@ Geographic Coordinates: Latitude ${node.lat.toFixed(4)}°, Longitude ${node.lon.
 
 KEY THERMAL TELEMETRY:
 - Satellite Derived Land Surface Temperature (LST): ${node.currentLST}°C
-- Microclimate Thermal Anomaly (ΔT vs Regional Baseline): ${node.currentAnomaly > 0 ? '+' : ''}${node.currentAnomaly}°C
+- Microclimate Thermal Anomaly: ${node.currentAnomaly > 0 ? '+' : ''}${node.currentAnomaly}°C
 - Ambient Air Temperature (T2M): ${activeTelemetry.baseTemp}°C
 - Relative Atmospheric Humidity: ${activeTelemetry.humidity}%
 - Direct Normal Solar Irradiance: ${activeTelemetry.solarRadiation} W/m²
-- Urban Morphology (NDBI / Impervious): ${node.ndbi} | Canopy Fraction (NDVI): ${node.ndvi}
+- Population Vulnerability Multiplier: ${node.sedacMultiplier || '1.25x'} (${node.populationDensity})
 
 OCCUPATIONAL & FIELD HEALTH DIRECTIVE:
 ${node.workerActionEn}
@@ -870,11 +1019,6 @@ ${node.plannerActionEn}
 DATA LINEAGE:
 Spaceborne Sensor: NASA ECOSTRESS (ISS Radiometer Collection 2)
 Spectral Verification: USGS / NASA Landsat-9 (OLI-2 & TIRS-2 Bands 4, 5, 6, 10)
-Numerical Weather Prediction: Open-Meteo HR Planetary Convective Array
-Reference In-Situ Ground Validation: OpenAQ Planetary Sensor Index
-
-CONFIDENTIALITY / DISTRIBUTION:
-Authorized for municipal decision-makers, industrial safety officers, and field responders.
 ================================================================================
   `;
 
@@ -1077,9 +1221,7 @@ function closeLocationModal() {
   document.getElementById('liveLocationModal').classList.add('hidden');
 }
 
-// ==========================================
-// 7. COMMON ALERTING PROTOCOL (CAP) DISPATCH
-// ==========================================
+// CAP ALERTS
 function getAlertMessage(target) {
   if (target === 'Chuadanga') {
     return currentLang === 'bn' 
@@ -1180,50 +1322,28 @@ async function dispatchTelegramAlert() {
   statusText.innerText = "SUCCESS: TELEGRAM BOT NOTIFIED (FREE)";
 }
 
-// ==========================================
-// 8. CITIZEN SCIENCE PERSISTENT STORAGE
-// ==========================================
-function openCitizenModal() {
-  document.getElementById('citizenModal').classList.remove('hidden');
-}
-function closeCitizenModal() {
-  document.getElementById('citizenModal').classList.add('hidden');
-}
+// CITIZEN SCIENCE
+function openCitizenModal() { document.getElementById('citizenModal').classList.remove('hidden'); }
+function closeCitizenModal() { document.getElementById('citizenModal').classList.add('hidden'); }
 
 function saveReportsToStorage() {
-  const serializable = citizenReports.map(r => ({
-    id: r.id,
-    loc: r.loc,
-    temp: r.temp,
-    feel: r.feel,
-    lat: r.lat,
-    lon: r.lon
-  }));
+  const serializable = citizenReports.map(r => ({ id: r.id, loc: r.loc, temp: r.temp, feel: r.feel, lat: r.lat, lon: r.lon }));
   localStorage.setItem('ecoshield_citizen_reports', JSON.stringify(serializable));
 }
 
 function loadStoredCitizenReports() {
   const stored = localStorage.getItem('ecoshield_citizen_reports');
   if (!stored) return;
-
   try {
     const parsed = JSON.parse(stored);
-    parsed.forEach(data => {
-      createCitizenMapMarker(data);
-    });
-  } catch (err) {
-    console.error("Storage load error:", err);
-  }
+    parsed.forEach(data => createCitizenMapMarker(data));
+  } catch (err) { console.error("Storage load error:", err); }
 }
 
 function createCitizenMapMarker(reportData) {
   const citizenIcon = L.divIcon({
     className: 'custom-citizen-marker',
-    html: `
-      <div style="background: #6366f1; color: white; border-radius: 9999px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid white; box-shadow: 0 0 12px rgba(99, 102, 241, 0.9);">
-        👤
-      </div>
-    `,
+    html: `<div style="background: #6366f1; color: white; border-radius: 9999px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid white; box-shadow: 0 0 12px rgba(99, 102, 241, 0.9);">👤</div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14]
   });
@@ -1231,7 +1351,6 @@ function createCitizenMapMarker(reportData) {
   const marker = L.marker([reportData.lat, reportData.lon], { icon: citizenIcon }).addTo(citizenLayerGroup);
   reportData.marker = marker;
   citizenReports.push(reportData);
-
   renderCitizenPopup(reportData);
 }
 
@@ -1247,15 +1366,12 @@ function handleCitizenReportSubmit(e) {
   const reportId = Date.now();
 
   const reportData = { id: reportId, loc, temp, feel, lat: reportLat, lon: reportLon };
-  
   createCitizenMapMarker(reportData);
   saveReportsToStorage();
 
   gisMap.flyTo([reportLat, reportLon], 10, { animate: true, duration: 1.2 });
   closeCitizenModal();
-  alert(currentLang === 'bn' 
-    ? `ধন্যবাদ! আপনার গ্রাউন্ড টেলিমেট্রি "${loc}" (${temp}°C) সফলভাবে সংরক্ষিত হয়েছে।`
-    : `In-situ ground observation "${loc}" (${temp}°C) persisted to telemetry store.`);
+  alert(currentLang === 'bn' ? `ধন্যবাদ! আপনার গ্রাউন্ড টেলিমেট্রি "${loc}" (${temp}°C) সফলভাবে সংরক্ষিত হয়েছে।` : `In-situ ground observation "${loc}" (${temp}°C) persisted to telemetry store.`);
 }
 
 function renderCitizenPopup(report) {
@@ -1286,14 +1402,12 @@ function editCitizenReport(id) {
 
   report.temp = parseFloat(newTemp) || report.temp;
   report.feel = newFeel;
-
   renderCitizenPopup(report);
   saveReportsToStorage();
 }
 
 function deleteCitizenReport(id) {
   if (!confirm("Delete observation record?")) return;
-
   const index = citizenReports.findIndex(r => r.id === id);
   if (index !== -1) {
     citizenLayerGroup.removeLayer(citizenReports[index].marker);
@@ -1302,22 +1416,11 @@ function deleteCitizenReport(id) {
   }
 }
 
-// ==========================================
-// 9. MODAL CONTROLS & COMPREHENSIVE I18N
-// ==========================================
-function openMethodologyModal() {
-  document.getElementById('methodologyModal').classList.remove('hidden');
-}
-function closeMethodologyModal() {
-  document.getElementById('methodologyModal').classList.add('hidden');
-}
-
-function openSmsModal() {
-  document.getElementById('smsModal').classList.remove('hidden');
-}
-function closeSmsModal() {
-  document.getElementById('smsModal').classList.add('hidden');
-}
+// MODAL & I18N
+function openMethodologyModal() { document.getElementById('methodologyModal').classList.remove('hidden'); }
+function closeMethodologyModal() { document.getElementById('methodologyModal').classList.add('hidden'); }
+function openSmsModal() { document.getElementById('smsModal').classList.remove('hidden'); }
+function closeSmsModal() { document.getElementById('smsModal').classList.add('hidden'); }
 
 function toggleAppLanguage() {
   currentLang = (currentLang === 'en') ? 'bn' : 'en';
@@ -1338,6 +1441,7 @@ function applyLanguageUI() {
   document.getElementById('uiBtnDetectGps').innerText = t.btnDetectGps;
   document.getElementById('uiBtnPullTelemetry').innerText = t.btnPullTelemetry;
   document.getElementById('uiBtnVoice').innerText = isVoiceSpeaking ? t.btnVoiceStop : t.btnVoice;
+  document.getElementById('uiBtnSonify').innerText = t.btnSonify;
 
   document.getElementById('kpiLabelAmbient').innerText = t.kpiAmbient;
   document.getElementById('kpiLabelHotspot').innerText = t.kpiHotspot;
@@ -1349,6 +1453,8 @@ function applyLanguageUI() {
   document.getElementById('layerBtnHeat').innerText = t.layerHeat;
   document.getElementById('layerBtnStations').innerText = t.layerStations;
   document.getElementById('layerBtnShelters').innerText = t.layerShelters;
+  document.getElementById('layerBtnSafeRoute').innerText = t.layerSafeRoute;
+  document.getElementById('layerBtnOrbit').innerText = t.layerOrbit;
   document.getElementById('legendTitle').innerText = t.legendTitle;
   document.getElementById('legendCool').innerText = t.legendCool;
   document.getElementById('legendNominal').innerText = t.legendNominal;
@@ -1397,26 +1503,16 @@ function applyLanguageUI() {
   document.getElementById('modalSmsPhoneLabel').innerText = t.modalSmsPhoneLabel;
   document.getElementById('modalSmsNodeLabel').innerText = t.modalSmsNodeLabel;
 
-  if (gisMap) {
-    renderGISLayers();
-  }
-  if (currentlySelectedNode) {
-    selectMonitoringNode(currentlySelectedNode, false);
-  }
+  if (gisMap) renderGISLayers();
+  if (currentlySelectedNode) selectMonitoringNode(currentlySelectedNode, false);
 }
 
-// ==========================================
-// 10. INITIALIZATION ENGINE
-// ==========================================
+// INITIALIZATION
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initializeGISMap();
 
-  setTimeout(() => {
-    if (gisMap) {
-      gisMap.invalidateSize();
-    }
-  }, 250);
+  setTimeout(() => { if (gisMap) gisMap.invalidateSize(); }, 250);
 
   loadStoredCitizenReports(); 
   executeTelemetryPipeline();

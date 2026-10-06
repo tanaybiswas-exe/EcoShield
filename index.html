@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoShield.AI | Planetary Microclimate & Urban Heat Island Observatory</title>
 
-  <!-- Google Fonts: Space Grotesk & JetBrains Mono for Aerospace/Enterprise Feel -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -60,43 +60,22 @@
   </script>
 
   <style>
-    /* Custom sleek scrollbar */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #020617;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
-    }
-    #gis-map {
-      height: 100%;
-      width: 100%;
-      background: #020617;
-    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    #gis-map { height: 100%; width: 100%; background: #020617; }
     .gis-tooltip {
       background: rgba(7, 13, 30, 0.95) !important;
       border: 1px solid rgba(0, 209, 255, 0.3) !important;
       border-radius: 6px !important;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7) !important;
       color: #e2e8f0 !important;
-    }
-    .leaflet-tooltip-top:before {
-      border-top-color: rgba(0, 209, 255, 0.4) !important;
     }
     @keyframes pulseGlow {
       0%, 100% { opacity: 0.3; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.08); }
     }
-    .radar-pulse-anim {
-      animation: pulseGlow 2s infinite ease-in-out;
-    }
+    .radar-pulse-anim { animation: pulseGlow 2s infinite ease-in-out; }
   </style>
 </head>
 
@@ -105,7 +84,6 @@
   <!-- TOP EXECUTIVE HUD APPARATUS BAR -->
   <header class="h-16 border-b border-space-border/80 bg-space-900/90 backdrop-blur-xl px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0 shadow-2xl shadow-black/60">
     
-    <!-- Left: Brand Authority -->
     <div class="flex items-center gap-3.5">
       <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-nasa-blue to-blue-900 flex items-center justify-center border border-nasa-cyan/40 shadow-lg shadow-nasa-blue/30 relative group">
         <span class="font-display font-extrabold text-[11px] tracking-wider text-white">NASA</span>
@@ -125,82 +103,80 @@
       </div>
     </div>
 
-    <!-- Right: Strategic Control Apparatus -->
+    <!-- Right Controls -->
     <div class="flex items-center gap-2 font-mono">
-      
-      <!-- Spatial Scope Status -->
       <div class="hidden xl:flex items-center gap-2 bg-space-950/80 px-3 py-1.5 rounded-lg border border-space-border/80 text-[11px] shadow-inner">
         <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="text-slate-400" id="uiTargetLabel">Spatial Domain:</span>
         <span class="text-slate-200 font-semibold truncate max-w-xs" id="uiTargetValue">Global Multi-Sensor Telemetry Grid</span>
       </div>
 
-      <!-- Action Cluster -->
       <div class="flex items-center gap-1.5">
-        
-        <!-- Emergency SOS Protocol -->
-        <button onclick="triggerEmergencySOS()" class="relative group overflow-hidden flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-mono px-3 py-1.5 rounded-lg text-[11px] transition-all duration-200 shadow-lg shadow-rose-950/60 border border-rose-400 font-bold">
-          <span class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></span>
+        <!-- NEW: SONIFICATION (HEAT AUDIO) TOGGLE -->
+        <button onclick="toggleSonification()" id="btnSonifyToggle" class="flex items-center gap-1 bg-space-850 hover:bg-space-800 text-purple-300 border border-purple-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
+          <i data-lucide="waves" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span id="uiBtnSonify">AUDIO SONIFY</span>
+        </button>
+
+        <!-- EMERGENCY SOS -->
+        <button onclick="triggerEmergencySOS()" class="relative group overflow-hidden flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-mono px-3 py-1.5 rounded-lg text-[11px] transition shadow-lg shadow-rose-950/60 border border-rose-400 font-bold">
           <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-100"></i>
           <span id="uiSosBtnText">EMERGENCY DISPATCH</span>
         </button>
 
-        <!-- Voice Telemetry Assistant -->
+        <!-- VOICE ALERT -->
         <button onclick="playVoiceWarning()" class="flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-amber-300 border border-amber-500/30 hover:border-amber-500/60 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
           <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
           <span id="uiBtnVoice">AUDIO ADVISORY</span>
         </button>
 
-        <!-- Bilingual Switcher (EN / BN) -->
+        <!-- BILINGUAL -->
         <button onclick="toggleAppLanguage()" id="langToggleBtn" class="flex items-center gap-1 bg-space-850 hover:bg-space-800 text-nasa-cyan border border-nasa-cyan/30 hover:border-nasa-cyan/60 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
           <i data-lucide="globe" class="w-3.5 h-3.5"></i>
           <span id="langBtnText">বাংলা (BN)</span>
         </button>
 
-        <!-- Scientific Methodology Audit -->
+        <!-- METHODOLOGY -->
         <button onclick="openMethodologyModal()" class="hidden md:flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-slate-300 border border-space-border hover:border-slate-500 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition">
           <i data-lucide="file-text" class="w-3.5 h-3.5 text-nasa-cyan"></i>
           <span id="uiBtnDataAudit">METHODOLOGY AUDIT</span>
         </button>
 
-        <!-- Citizen Ground Truth -->
+        <!-- CITIZEN GROUND TRUTH -->
         <button onclick="openCitizenModal()" class="flex items-center gap-1.5 bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
           <i data-lucide="satellite" class="w-3.5 h-3.5 text-indigo-400"></i>
           <span id="uiBtnCitizenReport">GROUND TELEMETRY</span>
         </button>
 
-        <!-- Free Early Warning Broadcast -->
+        <!-- CAP DISPATCH -->
         <button onclick="openSmsModal()" class="flex items-center gap-1.5 bg-amber-950/50 hover:bg-amber-900/50 text-amber-300 border border-amber-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
           <i data-lucide="send" class="w-3.5 h-3.5"></i>
           <span id="uiBtnSmsAlert">CAP DISPATCH</span>
         </button>
 
-        <!-- In-Situ GPS Verification -->
-        <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1.5 rounded-lg border border-emerald-400/40 text-[11px] transition shadow-lg shadow-emerald-950/60 font-semibold">
+        <!-- GPS -->
+        <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1.5 rounded-lg border border-emerald-400/40 text-[11px] transition shadow-lg font-semibold">
           <i data-lucide="navigation-2" class="w-3.5 h-3.5"></i>
           <span id="uiBtnDetectGps">IN-SITU GPS</span>
         </button>
 
-        <!-- Refresh Pipeline -->
-        <button onclick="executeTelemetryPipeline()" class="p-1.5 bg-space-850 hover:bg-space-800 text-nasa-cyan rounded-lg border border-nasa-cyan/30 hover:border-nasa-cyan/70 transition shadow-md" title="Pull Live Telemetry">
+        <!-- REFRESH -->
+        <button onclick="executeTelemetryPipeline()" class="p-1.5 bg-space-850 hover:bg-space-800 text-nasa-cyan rounded-lg border border-nasa-cyan/30 transition shadow-md" title="Pull Live Telemetry">
           <i data-lucide="refresh-cw" class="w-4 h-4" id="refreshIcon"></i>
         </button>
       </div>
-
     </div>
   </header>
 
-  <!-- WORKSPACE GRID (MISSION CONTROL INTERFACE) -->
+  <!-- WORKSPACE GRID -->
   <div class="flex-1 flex flex-col xl:flex-row overflow-hidden">
     
-    <!-- LEFT OBSERVATORY VIEWPORT (70% DESKTOP) -->
+    <!-- LEFT OBSERVATORY (70%) -->
     <div class="flex-1 flex flex-col border-b xl:border-b-0 xl:border-r border-space-border/80 bg-space-950 relative">
       
-      <!-- REAL-TIME TELEMETRY KPI TILES -->
+      <!-- KPI TILES -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-space-border/80 border-b border-space-border/80 shadow-md">
-        
-        <!-- Tile 1: Ambient Air -->
-        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span id="kpiLabelAmbient">AMBIENT AIR (T2M)</span>
             <i data-lucide="thermometer" class="w-4 h-4 text-sky-400"></i>
@@ -209,13 +185,10 @@
             <span id="kpiAmbientTemp" class="text-3xl font-extrabold font-mono text-white tracking-tight">--</span>
             <span class="text-xs text-sky-400 font-mono font-semibold">°C</span>
           </div>
-          <div class="mt-1 text-[10px] text-slate-400 font-mono flex items-center gap-1.5">
-            <span class="h-1.5 w-1.5 rounded-full bg-sky-400"></span> Open-Meteo High-Res
-          </div>
+          <div class="mt-1 text-[10px] text-slate-400 font-mono">Open-Meteo HR</div>
         </div>
 
-        <!-- Tile 2: Peak Thermal Anomaly -->
-        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span id="kpiLabelHotspot">PEAK PLANETARY HOTSPOT</span>
             <i data-lucide="flame" class="w-4 h-4 text-rose-500"></i>
@@ -224,13 +197,10 @@
             <span id="kpiPeakUHI" class="text-3xl font-extrabold font-mono text-rose-500 tracking-tight">--</span>
             <span class="text-xs text-rose-400 font-mono font-semibold">°C</span>
           </div>
-          <div id="kpiHotspotLoc" class="mt-1 text-[10px] text-rose-400 font-mono font-semibold truncate">
-            Resolving Global Hotspots...
-          </div>
+          <div id="kpiHotspotLoc" class="mt-1 text-[10px] text-rose-400 font-mono font-semibold truncate">Resolving Global Hotspots...</div>
         </div>
 
-        <!-- Tile 3: Heat Stress Index -->
-        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span id="kpiLabelFeelsLike">HEAT INDEX (NOAA/ISO)</span>
             <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i>
@@ -239,13 +209,10 @@
             <span id="kpiHeatIndex" class="text-3xl font-extrabold font-mono text-amber-400 tracking-tight">--</span>
             <span class="text-xs text-amber-400 font-mono font-semibold">°C</span>
           </div>
-          <div id="kpiRiskCategory" class="mt-1 text-[10px] text-amber-300 font-mono font-semibold">
-            Calibrating Index...
-          </div>
+          <div id="kpiRiskCategory" class="mt-1 text-[10px] text-amber-300 font-mono font-semibold">Calibrating...</div>
         </div>
 
-        <!-- Tile 4: Solar Irradiance Flux -->
-        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
+        <div class="bg-space-900/90 backdrop-blur p-3.5 flex flex-col justify-between">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span id="kpiLabelSolar">DIRECT IRRADIANCE FLUX</span>
             <i data-lucide="sun" class="w-4 h-4 text-yellow-400"></i>
@@ -254,13 +221,10 @@
             <span id="kpiSolarRad" class="text-3xl font-extrabold font-mono text-yellow-400 tracking-tight">--</span>
             <span class="text-xs text-yellow-400/80 font-mono font-semibold">W/m²</span>
           </div>
-          <div class="mt-1 text-[10px] text-slate-400 font-mono" id="kpiSubSolar">
-            Radiative Heat Flux
-          </div>
+          <div class="mt-1 text-[10px] text-slate-400 font-mono" id="kpiSubSolar">Radiative Heat Flux</div>
         </div>
 
-        <!-- Tile 5: Air Particulate Quality -->
-        <div class="bg-space-900/90 backdrop-blur p-3.5 col-span-2 sm:col-span-1 flex flex-col justify-between group hover:bg-space-850/80 transition-colors">
+        <div class="bg-space-900/90 backdrop-blur p-3.5 col-span-2 sm:col-span-1 flex flex-col justify-between">
           <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <span id="kpiLabelAqi">PARTICULATE DENSITY (PM2.5)</span>
             <i data-lucide="wind" class="w-4 h-4 text-nasa-cyan"></i>
@@ -269,43 +233,43 @@
             <span id="kpiAQI" class="text-3xl font-extrabold font-mono text-nasa-cyan tracking-tight">--</span>
             <span class="text-xs text-nasa-cyan/80 font-mono font-semibold">µg/m³</span>
           </div>
-          <div id="kpiAQIStation" class="mt-1 text-[10px] text-slate-400 font-mono truncate">
-            WMO Global Reference
-          </div>
+          <div id="kpiAQIStation" class="mt-1 text-[10px] text-slate-400 font-mono truncate">WMO Global Reference</div>
         </div>
-
       </div>
 
-      <!-- MAP VIEWPORT & FLOATING TACTICAL LAYER CONTROLS -->
+      <!-- MAP VIEWPORT & LAYER CONTROLS -->
       <div class="relative flex-1 flex flex-col min-h-[460px]">
-        
-        <!-- Floating Layer Controllers -->
         <div class="absolute top-4 left-4 z-[1000] flex flex-wrap gap-2 bg-space-900/90 backdrop-blur-md p-2 rounded-xl border border-space-border/90 shadow-2xl">
-          <button id="toggleThermalHeatmap" onclick="toggleLayer('heat')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/40 hover:bg-rose-500/25 transition flex items-center gap-2">
+          <button id="toggleThermalHeatmap" onclick="toggleLayer('heat')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/40 flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
             <span id="layerBtnHeat">NASA ECOSTRESS Thermal Gradient</span>
           </button>
           
-          <button id="toggleStations" onclick="toggleLayer('stations')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/25 transition flex items-center gap-2">
+          <button id="toggleStations" onclick="toggleLayer('stations')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-nasa-cyan"></span>
             <span id="layerBtnStations">WMO Global Observatory Nodes</span>
           </button>
           
-          <button id="toggleShelters" onclick="toggleLayer('shelters')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/25 transition flex items-center gap-2">
+          <button id="toggleShelters" onclick="toggleLayer('shelters')" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
             <span id="layerBtnShelters">Ecological Sanctuaries & Oases</span>
           </button>
           
-          <button id="toggleSafeRouteBtn" onclick="toggleShadedRoute()" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-teal-500/15 text-teal-300 border border-teal-500/40 hover:bg-teal-500/25 transition flex items-center gap-1.5">
+          <button id="toggleSafeRouteBtn" onclick="toggleShadedRoute()" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-teal-500/15 text-teal-300 border border-teal-500/40 flex items-center gap-1.5">
             <i data-lucide="footprints" class="w-3.5 h-3.5 text-teal-400"></i>
             <span id="layerBtnSafeRoute">Microclimate Shaded Corridor</span>
           </button>
+
+          <!-- NEW: SATELLITE ORBIT SWATH TOGGLE -->
+          <button id="toggleOrbitBtn" onclick="toggleSatelliteSwath()" class="px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/40 flex items-center gap-1.5">
+            <i data-lucide="orbit" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span id="layerBtnOrbit">ISS/ECOSTRESS Swath</span>
+          </button>
         </div>
 
-        <!-- Leaflet Map Container -->
         <div id="gis-map"></div>
 
-        <!-- Floating Dynamic Thermal Legend -->
+        <!-- THERMAL LEGEND -->
         <div class="absolute bottom-4 right-4 z-[1000] bg-space-900/95 backdrop-blur-md p-3 rounded-xl border border-space-border/90 text-[10px] font-mono text-slate-300 shadow-2xl flex flex-col gap-1.5 w-72">
           <div class="flex justify-between items-center font-bold text-white uppercase text-[9px] tracking-wider border-b border-space-border pb-1.5">
             <span id="legendTitle" class="text-nasa-cyan">Surface Temperature (LST) Scale</span>
@@ -320,8 +284,8 @@
         </div>
       </div>
 
-      <!-- DIURNAL TEMPERATURE & SOLAR RADIATION PROJECTION (CHART.JS) -->
-      <div class="h-56 bg-space-900 border-t border-space-border/80 p-3.5 flex flex-col shadow-inner">
+      <!-- CHART.JS -->
+      <div class="h-56 bg-space-900 border-t border-space-border/80 p-3.5 flex flex-col">
         <div class="flex items-center justify-between pb-2 border-b border-space-border/50">
           <div class="flex items-center gap-2">
             <i data-lucide="line-chart" class="w-4 h-4 text-nasa-cyan"></i>
@@ -330,7 +294,7 @@
             </span>
           </div>
           <span class="text-[10px] font-mono text-slate-400 hidden sm:inline">
-            Numerical Downscaling: GFS / Copernicus HR Boundary Models
+            Downscaling: GFS / Copernicus HR Boundary Models
           </span>
         </div>
         <div class="flex-1 w-full min-h-0 relative pt-1">
@@ -340,7 +304,7 @@
 
     </div>
 
-    <!-- RIGHT MISSION INTELLIGENCE & RESILIENCE ENGINE (30% DESKTOP) -->
+    <!-- RIGHT MISSION INTELLIGENCE (30%) -->
     <div class="w-full xl:w-[440px] bg-space-900/95 flex flex-col overflow-y-auto divide-y divide-space-border/80 border-l border-space-border/80">
       
       <!-- Target Spatial Node Header -->
@@ -356,18 +320,45 @@
         </div>
 
         <div class="flex items-center justify-between mt-2">
-          <h3 id="targetNodeName" class="text-xl font-display font-bold text-white tracking-tight">
-            Death Valley Basin, California (USA)
-          </h3>
-          <!-- Executive Document Export Button -->
-          <button onclick="exportAdvisoryCard()" class="px-2.5 py-1 rounded-lg bg-space-800 hover:bg-space-border border border-nasa-cyan/40 text-nasa-cyan text-[11px] font-mono font-bold flex items-center gap-1.5 transition shadow" title="Download Executive Briefing">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span id="uiBulletinBtn">EXECUTIVE BRIEF</span>
-          </button>
+          <h3 id="targetNodeName" class="text-xl font-display font-bold text-white tracking-tight">Death Valley Basin, California (USA)</h3>
+          
+          <div class="flex items-center gap-1.5">
+            <!-- NEW: 1-CLICK SHAREABLE INFOGRAPHIC CARD GENERATOR -->
+            <button onclick="generateVisualHazardCard()" class="px-2 py-1 rounded-lg bg-pink-950/60 hover:bg-pink-900/60 border border-pink-500/40 text-pink-300 text-[10px] font-mono font-bold flex items-center gap-1 transition shadow" title="Download Shareable Social Card">
+              <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+              <span>CARD</span>
+            </button>
+            
+            <button onclick="exportAdvisoryCard()" class="px-2 py-1 rounded-lg bg-space-800 hover:bg-space-border border border-nasa-cyan/40 text-nasa-cyan text-[10px] font-mono font-bold flex items-center gap-1 transition shadow" title="Download Executive Briefing">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span id="uiBulletinBtn">BRIEF</span>
+            </button>
+          </div>
         </div>
         <p id="targetNodeCoords" class="text-[11px] font-mono text-slate-400 mt-1">
           Lat: 36.5323° | Lon: -116.9325° | ID: WMO-DV-01
         </p>
+      </div>
+
+      <!-- NEW: LIVE SATELLITE ORBIT & OVERPASS COUNTDOWN WIDGET -->
+      <div class="p-4 bg-indigo-950/30 space-y-2">
+        <div class="flex items-center justify-between text-xs font-mono font-bold uppercase text-indigo-300 tracking-wider">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="orbit" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>NASA ECOSTRESS (ISS) Live Overpass</span>
+          </span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 animate-pulse">ORBITAL TRACK</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div class="p-2 bg-space-950 rounded border border-space-border">
+            <span class="text-[10px] text-slate-400 block">Next Regional Flyover:</span>
+            <span id="issCountdown" class="text-sm font-bold text-nasa-cyan">03h 42m 18s</span>
+          </div>
+          <div class="p-2 bg-space-950 rounded border border-space-border">
+            <span class="text-[10px] text-slate-400 block">Radiometer Altitude:</span>
+            <span class="text-sm font-bold text-emerald-400">418 km (ISS)</span>
+          </div>
+        </div>
       </div>
 
       <!-- Thermo-Physiological Stress Level Meter -->
@@ -380,9 +371,9 @@
           </button>
         </div>
         <div class="h-3 w-full bg-space-950 rounded-full overflow-hidden flex border border-space-border/80 p-0.5">
-          <div class="h-full bg-emerald-500 rounded-l-full w-1/3 transition-all duration-500" title="Nominal (<30°C)"></div>
-          <div class="h-full bg-amber-400 w-1/3 transition-all duration-500" title="Caution (30-38°C)"></div>
-          <div class="h-full bg-rose-600 rounded-r-full w-1/3 transition-all duration-500" title="Hazard (>38°C)"></div>
+          <div class="h-full bg-emerald-500 rounded-l-full w-1/3" title="Nominal (<30°C)"></div>
+          <div class="h-full bg-amber-400 w-1/3" title="Caution (30-38°C)"></div>
+          <div class="h-full bg-rose-600 rounded-r-full w-1/3" title="Hazard (>38°C)"></div>
         </div>
         <div class="flex justify-between text-[9px] font-mono text-slate-400 mt-1.5">
           <span id="uiMeterSafe" class="text-emerald-400 font-semibold">Nominal</span>
@@ -398,9 +389,7 @@
             <i data-lucide="heart-pulse" class="w-4 h-4 text-rose-500"></i>
             <span id="uiHealthHeading">Occupational Heat Strain & Risk Index</span>
           </span>
-          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">
-            ISO 7243
-          </span>
+          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">ISO 7243</span>
         </div>
         <p id="uiHealthDesc" class="text-[11px] text-slate-400 font-sans leading-relaxed">
           Calibrated to ISO 7243 / ILO standards for occupational thermo-physiological stress assessment:
@@ -437,6 +426,27 @@
         </div>
       </div>
 
+      <!-- NEW: NASA SEDAC HUMAN VULNERABILITY MULTIPLIER -->
+      <div class="p-4 bg-space-950/40 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono font-bold uppercase text-nasa-cyan tracking-wider flex items-center gap-1.5">
+            <i data-lucide="users" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+            <span>SEDAC Population Exposure Multiplier</span>
+          </span>
+          <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-nasa-cyan border border-nasa-cyan/40">DEMOGRAPHIC AI</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div class="p-2 bg-space-900 rounded border border-space-border">
+            <span class="text-[10px] text-slate-400 block">Density Exposure:</span>
+            <span id="sedacDensityScore" class="text-sm font-bold text-amber-300">High (Urban Mesh)</span>
+          </div>
+          <div class="p-2 bg-space-900 rounded border border-space-border">
+            <span class="text-[10px] text-slate-400 block">Vulnerability Weight:</span>
+            <span id="sedacWeightVal" class="text-sm font-bold text-rose-400">1.42x Severity</span>
+          </div>
+        </div>
+      </div>
+
       <!-- NIGHTTIME THERMAL RETENTION INDEX (NTRI) -->
       <div class="p-4 space-y-2.5 bg-space-950/30">
         <div class="flex items-center justify-between">
@@ -444,9 +454,7 @@
             <i data-lucide="moon" class="w-4 h-4 text-indigo-400"></i>
             <span id="uiNightTitle">Nighttime Thermal Retention Index (NTRI)</span>
           </span>
-          <span id="nightIndexBadge" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-semibold">
-            High Inertia
-          </span>
+          <span id="nightIndexBadge" class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-semibold">High Inertia</span>
         </div>
         <p id="uiNightDesc" class="text-[11px] text-slate-400 leading-relaxed font-sans">
           Measures diurnal thermal inertia of high-density built fabric radiating nocturnal heat:
@@ -463,12 +471,9 @@
         </div>
       </div>
 
-      <!-- LANDSAT-9 SPECTRAL DECOMPOSITION (NDBI vs NDVI) -->
+      <!-- SPECTRAL INDICES -->
       <div class="p-4 space-y-3">
-        <span id="uiSpectralHeading" class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider block">
-          Landsat-9 Spectral Decomposition
-        </span>
-        
+        <span id="uiSpectralHeading" class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider block">Landsat-9 Spectral Decomposition</span>
         <div class="space-y-1">
           <div class="flex justify-between text-xs font-mono">
             <span class="text-slate-400" id="uiNdbiLabel">NDBI (Built-Up & Impervious Density):</span>
@@ -507,16 +512,14 @@
         </div>
       </div>
 
-      <!-- URBAN CLIMATE RESILIENCE SIMULATOR (POLICY ENGINE) -->
+      <!-- URBAN CLIMATE RESILIENCE SIMULATOR -->
       <div class="p-4 space-y-3 bg-space-850/40">
         <div class="flex items-center justify-between">
           <span class="text-xs font-mono font-bold uppercase text-amber-300 tracking-wider flex items-center gap-1.5">
             <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i>
             <span id="uiSimHeading">Urban Climate Resilience Simulator (Policy Engine)</span>
           </span>
-          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-            What-If Module
-          </span>
+          <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">What-If Module</span>
         </div>
         <p id="uiSimDesc" class="text-[11px] text-slate-400 font-sans leading-relaxed">
           Simulate municipal urban cooling interventions (Cool Roof SRI & Canopy Expansion):
@@ -560,9 +563,7 @@
         <div class="p-3.5 rounded-xl bg-space-950 border border-rose-500/40 space-y-1.5 shadow">
           <div class="flex items-center gap-2">
             <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-500"></i>
-            <span id="uiWorkerWarningHeading" class="text-xs font-bold text-rose-400 font-mono uppercase">
-              Occupational Health & Labor Safety Directive
-            </span>
+            <span id="uiWorkerWarningHeading" class="text-xs font-bold text-rose-400 font-mono uppercase">Occupational Health & Labor Safety Directive</span>
           </div>
           <p id="workerAdvisoryText" class="text-xs text-slate-300 leading-relaxed font-sans">
             WMO Tier-1 critical thermal hazard. Immediate metabolic thermal failure risk. Mandate cessation of all daylight operations.
@@ -572,9 +573,7 @@
         <div class="p-3.5 rounded-xl bg-space-950 border border-cyan-500/40 space-y-1.5 shadow">
           <div class="flex items-center gap-2">
             <i data-lucide="building-2" class="w-4 h-4 text-nasa-cyan"></i>
-            <span id="uiPlannerHeading" class="text-xs font-bold text-nasa-cyan font-mono uppercase">
-              Municipal Spatial Planning Directive
-            </span>
+            <span id="uiPlannerHeading" class="text-xs font-bold text-nasa-cyan font-mono uppercase">Municipal Spatial Planning Directive</span>
           </div>
           <p id="plannerAdvisoryText" class="text-xs text-slate-300 leading-relaxed font-sans">
             Establish automated solar-powered cooling chambers and impose strict transit interdictions during zenith hours.
@@ -582,7 +581,7 @@
         </div>
       </div>
 
-      <!-- IN-SITU GROUND TRUTH SENSOR TELEMETRY FEED -->
+      <!-- IN-SITU GROUND TRUTH -->
       <div class="p-4 bg-space-950/60">
         <div class="flex items-center justify-between pb-2">
           <span class="text-xs font-mono font-bold uppercase text-slate-300 tracking-wider flex items-center gap-1.5">
@@ -604,28 +603,23 @@
       </div>
 
     </div>
-
   </div>
 
-  <!-- FLOATING LIVE GPS CARD MODAL -->
+  <!-- MODALS (GPS, SOS, AUDIT, CAP, CITIZEN) -->
   <div id="liveLocationModal" class="hidden fixed bottom-6 left-6 z-[2000] w-96 max-w-[90vw] bg-space-900/95 backdrop-blur-xl border border-nasa-cyan/40 rounded-2xl shadow-2xl p-4 font-mono">
     <div class="flex items-center justify-between pb-2.5 border-b border-space-border">
       <div class="flex items-center gap-2">
         <span class="h-2.5 w-2.5 rounded-full bg-nasa-cyan radar-pulse-anim"></span>
         <span id="uiGpsModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">In-Situ Geolocation Telemetry</span>
       </div>
-      <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white transition">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
+      <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
-
     <div class="mt-3.5 space-y-3 text-xs">
       <div>
         <span id="uiGpsZoneLabel" class="text-[10px] text-slate-400">Resolved Spatial Zone:</span>
         <div id="liveLocName" class="text-sm font-bold text-nasa-cyan">In-Situ Verified Position</div>
         <div id="liveLocCoords" class="text-[10px] text-slate-400">Lat: 0.0000° | Lon: 0.0000°</div>
       </div>
-
       <div class="p-3 bg-space-950 rounded-xl border border-space-border flex items-center justify-between">
         <div>
           <span id="uiGpsLocalTempLabel" class="text-[10px] text-slate-400 block font-sans">In-Situ Temperature</span>
@@ -636,15 +630,13 @@
           <span id="liveLocBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Nominal</span>
         </div>
       </div>
-
       <div class="p-3 bg-space-950/80 rounded-xl border border-space-border text-[11px] font-sans">
         <span id="uiGpsStatusAdvise" class="text-amber-400 font-bold block mb-1">Operational Directive & Action:</span>
-        <p id="liveLocAdvice" class="text-slate-300 leading-relaxed">Convective air currents and canopy buffer keep in-situ temperature within safe boundaries.</p>
+        <p id="liveLocAdvice" class="text-slate-300 leading-relaxed">Convective air currents keep in-situ temperature within safe boundaries.</p>
       </div>
     </div>
   </div>
 
-  <!-- EMERGENCY SOS & DESIGNATED SANCTUARY MODAL -->
   <div id="sosModal" class="hidden fixed inset-0 z-[3500] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border-2 border-rose-500 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs relative">
       <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
@@ -659,26 +651,23 @@
         </div>
         <button onclick="closeSosModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
       <div class="mt-4 space-y-3.5 font-sans">
         <div class="p-3 bg-rose-950/50 rounded-xl border border-rose-500/40 text-rose-200 text-xs leading-relaxed">
-          🚨 <strong>URGENT MEDICAL PROTOCOL:</strong> In case of heat exhaustion, dizziness, or hyperthermia, cease work immediately, seek shaded cooling oasis, and initiate rapid electrolytic rehydration.
+          🚨 <strong>URGENT MEDICAL PROTOCOL:</strong> Seek shaded cooling oasis immediately and replenish electrolytes.
         </div>
-
         <div class="p-3.5 bg-space-950 rounded-xl border border-space-border space-y-2 font-mono text-xs">
           <span class="text-[10px] text-slate-400 block uppercase">Nearest Designated Sanctuary & Triage Hub:</span>
           <div id="sosNearestShelterName" class="text-white font-bold text-sm">Ramna Ecological Cooling Oasis & Lake Haven</div>
           <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-space-border">
             <span class="text-slate-400">Estimated Proximity:</span>
-            <span id="sosNearestDist" class="text-emerald-400 font-bold">~1.2 km (Designated Haven)</span>
+            <span id="sosNearestDist" class="text-emerald-400 font-bold">~1.2 km</span>
           </div>
         </div>
-
         <div class="grid grid-cols-2 gap-2.5 pt-2 font-mono">
-          <a href="tel:999" class="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-center font-bold flex items-center justify-center gap-2 shadow-lg transition">
+          <a href="tel:999" class="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-center font-bold flex items-center justify-center gap-2 shadow-lg">
             <i data-lucide="phone-call" class="w-4 h-4"></i> CALL EMERGENCY 999
           </a>
-          <button onclick="navigateNearestShelter()" class="p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition">
+          <button onclick="navigateNearestShelter()" class="p-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
             <i data-lucide="map-pin" class="w-4 h-4"></i> NAVIGATE HAVEN
           </button>
         </div>
@@ -686,7 +675,6 @@
     </div>
   </div>
 
-  <!-- SCIENTIFIC DATA AUDIT MODAL -->
   <div id="methodologyModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border border-nasa-cyan/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl overflow-y-auto max-h-[85vh] font-mono text-xs">
       <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
@@ -696,47 +684,29 @@
         </div>
         <button onclick="closeMethodologyModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
       <div class="mt-4 space-y-4 text-slate-300 font-sans leading-relaxed">
         <div>
           <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">1. NASA ECOSTRESS (ISS) Thermal Radiance Engine</h3>
-          <p class="text-[12px] text-slate-400 mt-1">
-            ECOsystem Spaceborne Thermal Radiometer Experiment on Space Station delivers 70m Land Surface Temperature and Emissivity (LSTE) Collection 2 data. Utilizes the TIR 5-band split-window algorithm to resolve intra-urban boundary layer temperature variations across high-density megacity grids.
-          </p>
+          <p class="text-[12px] text-slate-400 mt-1">Delivers 70m Land Surface Temperature and Emissivity (LSTE) Collection 2 data via TIR split-window algorithms.</p>
         </div>
-
         <div>
           <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">2. Landsat 9 (OLI-2 / TIRS-2) Downscaling</h3>
-          <p class="text-[12px] text-slate-400 mt-1">
-            Spectral indices derived from Band 4 (Red), Band 5 (Near Infrared - NIR), and Band 6 (Short-Wave Infrared 1 - SWIR1):
-          </p>
-          <div class="bg-space-950 p-3 rounded-xl border border-space-border mt-1.5 font-mono text-[11px] text-emerald-300">
-            • NDVI = (Band 5 - Band 4) / (Band 5 + Band 4) [Fractional Vegetation Cover]<br>
-            • NDBI = (Band 6 - Band 5) / (Band 6 + Band 5) [Impervious Surface Density]
-          </div>
+          <p class="text-[12px] text-slate-400 mt-1">Spectral decomposition computes NDBI (built-up) and NDVI (vegetation biomass).</p>
         </div>
-
         <div>
-          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">3. ISO 7243 & NOAA Steadman Heat Index Implementation</h3>
-          <p class="text-[12px] text-slate-400 mt-1">
-            Calculated via Rothfusz polynomial regression with dry-bulb ambient temperature and relative humidity, mapped to ISO 7243 occupational strain categories.
-          </p>
+          <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">3. ISO 7243 & NOAA Steadman Heat Index</h3>
+          <p class="text-[12px] text-slate-400 mt-1">Polynomial regression with dry-bulb ambient temperature and relative humidity.</p>
         </div>
-
         <div>
           <h3 class="font-mono font-bold text-nasa-cyan uppercase text-xs">4. OpenAQ Ground Validation API</h3>
-          <p class="text-[12px] text-slate-400 mt-1">
-            In-situ continuous particulate calibration pulled via OpenAQ v3 API from reference grade planetary monitoring stations.
-          </p>
+          <p class="text-[12px] text-slate-400 mt-1">Continuous particulate calibration pulled via OpenAQ v3 API from reference grade sensors.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- COMMON ALERTING PROTOCOL (CAP) DISPATCH MODAL -->
   <div id="smsModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border border-amber-500/40 rounded-2xl max-w-xl w-full p-6 shadow-2xl font-mono text-xs">
-      
       <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
         <div class="flex items-center gap-2.5">
           <i data-lucide="send" class="w-4 h-4 text-amber-400"></i>
@@ -744,44 +714,35 @@
         </div>
         <button onclick="closeSmsModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
-      <p id="modalSmsSub" class="text-slate-400 font-sans mt-2.5 text-[12px]">
-        Zero-cost multi-channel alert dispatch engine designed for municipal crisis management and humanitarian field workers:
-      </p>
-
+      <p id="modalSmsSub" class="text-slate-400 font-sans mt-2.5 text-[12px]">Zero-cost multi-channel alert dispatch engine designed for municipal crisis management:</p>
       <div class="mt-4 space-y-3.5">
         <div>
-          <label id="modalSmsNodeLabel" class="block text-[11px] text-slate-300 mb-1">Target Telemetry Hotspot & Alert Threshold:</label>
+          <label id="modalSmsNodeLabel" class="block text-[11px] text-slate-300 mb-1">Target Hotspot & Threshold:</label>
           <select id="smsNodeSelect" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-amber-400 focus:outline-none">
             <option value="Chuadanga">Chuadanga Belt - 43.5°C (Extreme Hazard)</option>
             <option value="Rajshahi">Rajshahi Barind Tract - 42.8°C (Elevated Risk)</option>
             <option value="Chawkbazar">Old Dhaka Mega-Grid - 43.8°C (Critical Strain)</option>
           </select>
         </div>
-
         <div>
-          <label id="modalSmsPhoneLabel" class="block text-[11px] text-slate-300 mb-1">Recipient Terminal Identifier (Mobile / SMS):</label>
+          <label id="modalSmsPhoneLabel" class="block text-[11px] text-slate-300 mb-1">Recipient Identifier (Mobile / SMS):</label>
           <input type="text" id="demoPhone" required value="01914531819" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-amber-400 focus:outline-none">
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
           <button type="button" onclick="dispatchDirectNativeSMS()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-[10px] transition flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
             <span>1. NATIVE SMS APP</span>
           </button>
-
           <button type="button" onclick="dispatchTwilioSMS()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-[10px] transition flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="cloud-lightning" class="w-3.5 h-3.5"></i>
             <span>2. TWILIO CLOUD</span>
           </button>
-
           <button type="button" onclick="dispatchTelegramAlert()" class="w-full bg-nasa-cyan/20 hover:bg-nasa-cyan/30 text-nasa-cyan border border-nasa-cyan/40 font-bold py-2.5 rounded-xl text-[10px] transition flex items-center justify-center gap-1.5 shadow-md">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
             <span>3. TELEGRAM BOT</span>
           </button>
         </div>
       </div>
-
       <div id="smsPreviewBox" class="hidden mt-4 p-3.5 bg-space-950 rounded-xl border border-emerald-500/40 font-mono text-[11px] space-y-1.5 text-slate-200">
         <div class="flex items-center justify-between text-emerald-400 font-bold text-[10px]">
           <span id="dispatchStatusText">DISPATCH SUCCESSFUL</span>
@@ -789,11 +750,9 @@
         </div>
         <div class="p-2.5 bg-space-900 rounded-lg border border-space-border font-sans text-xs text-white leading-relaxed mt-1" id="smsTextBody"></div>
       </div>
-
     </div>
   </div>
 
-  <!-- CITIZEN GROUND TRUTH TELEMETRY MODAL -->
   <div id="citizenModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-space-900 border border-indigo-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl font-mono text-xs">
       <div class="flex items-center justify-between pb-3.5 border-b border-space-border">
@@ -803,17 +762,12 @@
         </div>
         <button onclick="closeCitizenModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
-
-      <p class="text-slate-400 font-sans mt-2.5 text-[12px]">
-        Contribute real-time in-situ temperature observations to calibrate satellite microclimate models:
-      </p>
-
+      <p class="text-slate-400 font-sans mt-2.5 text-[12px]">Contribute real-time in-situ temperature observations:</p>
       <form onsubmit="handleCitizenReportSubmit(event)" class="mt-4 space-y-3.5">
         <div>
           <label class="block text-[11px] text-slate-300 mb-1">Spatial Location / Landmark:</label>
           <input type="text" id="citizenReportLoc" required value="Savar Bus Terminal, Dhaka" class="w-full bg-space-950 border border-space-border rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-400 focus:outline-none">
         </div>
-
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-[11px] text-slate-300 mb-1">Observed Temp (°C):</label>
@@ -828,7 +782,6 @@
             </select>
           </div>
         </div>
-
         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg">
           <i data-lucide="send" class="w-3.5 h-3.5"></i>
           <span>SUBMIT IN-SITU OBSERVATION</span>
@@ -836,6 +789,9 @@
       </form>
     </div>
   </div>
+
+  <!-- HIDDEN CANVAS FOR INSTANT SHAREABLE INFOGRAPHIC GENERATION -->
+  <canvas id="hazardCardCanvas" width="1080" height="1080" class="hidden"></canvas>
 
   <script src="js/app.js"></script>
 </body>
