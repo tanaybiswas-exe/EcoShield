@@ -273,7 +273,7 @@ function handleHistoricalTrendChange(year) {
   selectedTrendYear = parseInt(year);
   const label = document.getElementById('trendYearLabel');
   if (label) {
-    label.innerText = `${selectedTrendYear} (${selectedTrendYear === 2026 ? 'Present' : 'Archive'})`;
+    label.innerText = `${selectedTrendYear} (${selectedTrendYear === 2026 ? 'Present' : 'Historical Archive'})`;
   }
   const yearOffset = ((selectedTrendYear - 2026) / 26) * 1.8;
   renderGISLayers(yearOffset);
@@ -283,7 +283,7 @@ function handleHistoricalTrendChange(year) {
 }
 
 // ==========================================
-// GIS MAP ENGINE (VERCEL PRODUCTION READY)
+// GIS MAP ENGINE (REAL NASA GIBS SATELLITE TILES)
 // ==========================================
 function initializeGISMap() {
   const mapContainer = document.getElementById('gis-map');
@@ -293,15 +293,23 @@ function initializeGISMap() {
     zoomControl: false,
     attributionControl: false,
     minZoom: 2,
-    maxZoom: 18,
+    maxZoom: 9,
     worldCopyJump: true
-  }).setView([WORLD_CENTER_LAT, WORLD_CENTER_LON], 2.5);
+  }).setView([WORLD_CENTER_LAT, WORLD_CENTER_LON], 3);
 
   L.control.zoom({ position: 'topright' }).addTo(gisMap);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
-    maxZoom: 19
+  // 1. Real NASA GIBS Satellite Imagery Layer (MODIS Terra True Color)
+  L.tileLayer('https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2024-05-01/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg', {
+    subdomains: 'abc',
+    maxZoom: 9,
+    attribution: 'NASA Global Imagery Browse Services (GIBS)'
+  }).addTo(gisMap);
+
+  // 2. NASA GIBS Geographic Reference & Coastline Overlay
+  L.tileLayer('https://gibs-{s}.earthdata.nasa.gov/wmts/epsg3857/best/Reference_Labels_15m/default/2024-05-01/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png', {
+    subdomains: 'abc',
+    maxZoom: 9
   }).addTo(gisMap);
 
   stationLayerGroup = L.layerGroup().addTo(gisMap);
