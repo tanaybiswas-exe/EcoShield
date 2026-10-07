@@ -406,7 +406,7 @@ function evaluateMicroclimate(node, baseT, radiation, wind) {
 }
 
 // ==========================================
-// 3. GIS MAP ENGINE & ORBIT SWATH (ARCGIS SATELLITE TILES)
+// 3. GIS MAP ENGINE (ARCGIS SATELLITE TILES)
 // ==========================================
 function initializeGISMap() {
   const mapContainer = document.getElementById('gis-map');
@@ -551,14 +551,13 @@ function toggleSatelliteSwath() {
     return;
   }
 
-  // Draw 51.6° Inclined ISS Ground Orbit Track
   const orbitCoords = [
     [-51.6, -160.0],
     [-30.0, -110.0],
     [0.0, -60.0],
     [30.0, -10.0],
     [51.6, 40.0],
-    [23.7, 90.3], // Directly passing over Bangladesh
+    [23.7, 90.3],
     [-10.0, 130.0],
     [-51.6, 175.0]
   ];
@@ -858,7 +857,6 @@ function playThermalSonification(temp) {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 
-  // Pitch mapped dynamically: -20°C -> 180Hz (Deep bass), +50°C -> 950Hz (Urgent high tone)
   const freq = Math.max(150, Math.min(1000, 220 + (temp + 20) * 11));
   
   const osc = audioCtx.createOscillator();
@@ -1488,7 +1486,130 @@ function applyLanguageUI() {
 }
 
 // ==========================================
-// 10. INITIALIZATION ENGINE
+// 10. NASA SPOTLIGHT CONTROLLER (LIVE APOD + SENSORS)
+// ==========================================
+let cachedApodData = null;
+
+const spotlightMissionData = {
+  ecostress: {
+    title: "NASA ECOSTRESS (ISS Thermal Radiometer Experiment)",
+    date: "ISS Radiometer C2",
+    tag: "THERMAL TIR-5",
+    img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop",
+    desc: "ECOSTRESS measures the temperature of plants to understand their water consumption and thermal stress dynamics. Mounted aboard the Japanese Experiment Module on the International Space Station, its high-spatial resolution (70m x 70m) captures diurnal temperature variations across city blocks, identifying lethal urban heat island anomalies."
+  },
+  landsat: {
+    title: "USGS / NASA Landsat-9 Multi-Spectral Observatory",
+    date: "OLI-2 & TIRS-2 Bands",
+    tag: "30M SPECTRAL",
+    img: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=1200&auto=format&fit=crop",
+    desc: "Landsat-9 continues a 50-year record of spaceborne Earth observation. Utilizing OLI-2 (Bands 4 & 5) and TIRS-2 (Thermal Bands 10 & 11), EcoShield decomposes Normalized Difference Built-Up Index (NDBI) and vegetation fraction (NDVI) to mathematically calculate surface kinetic thermal anomalies."
+  }
+};
+
+async function fetchNasaApod(forceRefresh = false) {
+  if (cachedApodData && !forceRefresh) {
+    renderApodContent(cachedApodData);
+    return;
+  }
+
+  const expEl = document.getElementById('apodExplanation');
+  if (expEl) expEl.innerText = "Connecting to NASA Open API Gateway...";
+
+  try {
+    const res = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+    if (!res.ok) throw new Error("NASA API rate limit or network unreachable");
+
+    const data = await res.json();
+    cachedApodData = data;
+    renderApodContent(data);
+  } catch (err) {
+    console.warn("APOD Live Fallback applied:", err);
+    const fallback = {
+      title: "ISS Terrestrial Night Horizon Observation",
+      date: new Date().toLocaleDateString(),
+      url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+      hdurl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
+      media_type: "image",
+      explanation: "ECOSTRESS mounted aboard the International Space Station measures thermal infrared emissions from the terrestrial biosphere, tracking microclimate trends and evapotranspiration changes across global megacities."
+    };
+    renderApodContent(fallback);
+  }
+}
+
+function renderApodContent(data) {
+  const titleEl = document.getElementById('apodTitle');
+  const expEl = document.getElementById('apodExplanation');
+  const imgEl = document.getElementById('apodImage');
+  const dateEl = document.getElementById('apodDateBadge');
+  const linkEl = document.getElementById('apodHdLink');
+  const tagEl = document.getElementById('apodMediaTag');
+
+  if (titleEl) titleEl.innerText = data.title || "NASA Earth System Observation";
+  if (expEl) expEl.innerText = data.explanation || "";
+  if (dateEl) dateEl.innerText = data.date || "Today's Telemetry";
+  if (tagEl) tagEl.innerText = (data.media_type || "IMAGE").toUpperCase();
+
+  const targetUrl = data.url || data.hdurl || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop";
+  if (imgEl) imgEl.src = targetUrl;
+  if (linkEl) linkEl.href = data.hdurl || targetUrl;
+}
+
+function switchSpotlightTab(tab) {
+  const btnApod = document.getElementById('spotTabApod');
+  const btnEco = document.getElementById('spotTabEcostress');
+  const btnLand = document.getElementById('spotTabLandsat');
+
+  if (btnApod && btnEco && btnLand) {
+    [btnApod, btnEco, btnLand].forEach(b => {
+      b.className = "px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition";
+    });
+
+    if (tab === 'apod') {
+      btnApod.className = "px-2.5 py-1 rounded bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 font-bold transition";
+      if (cachedApodData) renderApodContent(cachedApodData);
+      else fetchNasaApod();
+    } else if (tab === 'ecostress') {
+      btnEco.className = "px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold transition";
+      renderManualMissionContent(spotlightMissionData.ecostress);
+    } else if (tab === 'landsat') {
+      btnLand.className = "px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold transition";
+      renderManualMissionContent(spotlightMissionData.landsat);
+    }
+  }
+}
+
+function renderManualMissionContent(info) {
+  const titleEl = document.getElementById('apodTitle');
+  const expEl = document.getElementById('apodExplanation');
+  const dateEl = document.getElementById('apodDateBadge');
+  const tagEl = document.getElementById('apodMediaTag');
+  const imgEl = document.getElementById('apodImage');
+  const linkEl = document.getElementById('apodHdLink');
+
+  if (titleEl) titleEl.innerText = info.title;
+  if (expEl) expEl.innerText = info.desc;
+  if (dateEl) dateEl.innerText = info.date;
+  if (tagEl) tagEl.innerText = info.tag;
+  if (imgEl) imgEl.src = info.img;
+  if (linkEl) linkEl.href = info.img;
+}
+
+function openNasaApodModal() {
+  const modal = document.getElementById('nasaApodModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    fetchNasaApod();
+  }
+}
+
+function closeNasaApodModal() {
+  const modal = document.getElementById('nasaApodModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+// ==========================================
+// 11. INITIALIZATION ENGINE
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
