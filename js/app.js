@@ -551,6 +551,7 @@ function toggleSatelliteSwath() {
     return;
   }
 
+  // Draw 51.6° Inclined ISS Ground Orbit Track
   const orbitCoords = [
     [-51.6, -160.0],
     [-30.0, -110.0],
@@ -604,7 +605,7 @@ function toggleShadedRoute() {
   }).addTo(gisMap);
 
   const routeTitle = currentLang === 'bn' ? "🌿 থার্মাল-সেফ রুটিং করিডোর" : "🌿 Thermal-Safe Shaded Corridor";
-  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
+  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
 
   safeRouteLayer.bindPopup(`
     <div class="font-mono text-xs p-1">
@@ -716,7 +717,7 @@ async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon 
         riskCat.innerText = currentLang === 'bn' ? "উচ্চ সতর্কতা (শারীরিক ক্লান্তি)" : "Extreme Caution (Fatigue Alert)";
         riskCat.className = "mt-1 text-[10px] text-amber-300 font-mono";
       } else if (noaaHI < 0) {
-        riskCat.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ (ক্রায়োজেনিক)" : "Cryospheric Polar Alert";
+        riskCat.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ (ক্রায়োজেনিক)" : "Cryospheric Polar Alert";
         riskCat.className = "mt-1 text-[10px] text-sky-400 font-mono font-bold";
       } else {
         riskCat.innerText = currentLang === 'bn' ? "সহনশীল ও স্বাভাবিক মাত্রা" : "Nominal Physiological Range";
@@ -814,13 +815,13 @@ async function selectMonitoringNode(node, shouldFlyTo = true) {
     badge.innerText = currentLang === 'bn' ? "মারাত্মক থার্মাল হটস্পট" : "CRITICAL THERMAL HOTSPOT";
     badge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-600/30 text-rose-400 border border-rose-500/40";
   } else if (node.currentLST <= 0) {
-    badge.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ / বরফ বলয়" : "DEEP CRYO / POLAR FREEZE";
+    badge.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ / বরফ বলয়" : "DEEP CRYO / POLAR FREEZE";
     badge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-sky-600/30 text-sky-400 border border-sky-500/40";
   } else if (node.currentLST >= 35) {
     badge.innerText = currentLang === 'bn' ? "উচ্চ তাপমাত্রা ও ঝুঁকি" : "ELEVATED UHI STRAIN";
     badge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/30 text-amber-300 border border-amber-500/40";
   } else {
-    badge.innerText = currentLang === 'bn' ? "শীতল বায়োমাস আশ্রয়স্থল" : "COOL BIOMASS SANCTUARY";
+    badge.innerText = currentLang === 'bn' ? "শীতল বায়োমাস আশ্রয়স্থল" : "COOL BIOMASS SANCTUARY";
     badge.className = "text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/30 text-emerald-400 border border-emerald-500/40";
   }
 
@@ -858,7 +859,6 @@ function playThermalSonification(temp) {
   if (audioCtx.state === 'suspended') audioCtx.resume();
 
   const freq = Math.max(150, Math.min(1000, 220 + (temp + 20) * 11));
-  
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
 
@@ -1166,8 +1166,10 @@ function requestUserGPS() {
   );
 }
 
+// COMPACT SLEEK MICRO-HUD CARD CONTROLLER (PREVENTS SCREEN OVERFLOW)
 async function displayUserLocationCard(lat, lon, label) {
   const modal = document.getElementById('liveLocationModal');
+  if (!modal) return;
   modal.classList.remove('hidden');
 
   document.getElementById('liveLocName').innerText = label;
@@ -1176,7 +1178,7 @@ async function displayUserLocationCard(lat, lon, label) {
   try {
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,direct_normal_irradiance,surface_temperature`);
     const data = await res.json();
-    const currentT = data.current.temperature_2m;
+    const currentT = data.current ? data.current.temperature_2m : activeTelemetry.baseTemp;
     
     document.getElementById('liveLocTemp').innerText = `${currentT.toFixed(1)}°C`;
     
@@ -1184,37 +1186,38 @@ async function displayUserLocationCard(lat, lon, label) {
     const advice = document.getElementById('liveLocAdvice');
 
     if (currentT >= 39) {
-      badge.innerText = currentLang === 'bn' ? "চরম সংকট" : "Extreme Hazard";
-      badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
-      advice.innerText = currentLang === 'bn' ? "আপনার এলাকায় মারাত্মক তাপদাহ বিরাজ করছে। সরাসরি রোদ পরিহার করুন।" : "Severe hyper-thermal conditions. Avoid direct solar radiation and maintain frequent electrolyte intake.";
+      badge.innerText = currentLang === 'bn' ? "চরম সংকট" : "Hazard";
+      badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30";
+      advice.innerText = currentLang === 'bn' ? "মারাত্মক তাপদাহ বিরাজ করছে। সরাসরি রোদ পরিহার করুন।" : "Severe hyper-thermal conditions. Avoid direct solar exposure.";
     } else if (currentT >= 35) {
-      badge.innerText = currentLang === 'bn' ? "উচ্চ তাপমাত্রা" : "Elevated Strain";
-      badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30";
-      advice.innerText = currentLang === 'bn' ? "রোদে বের হলে ছাতা ও পানির বোতল সঙ্গে রাখুন।" : "Elevated thermal stress. Carry protective shade and maintain continuous hydration.";
+      badge.innerText = currentLang === 'bn' ? "সতর্কতা" : "Elevated";
+      badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30";
+      advice.innerText = currentLang === 'bn' ? "উচ্চ তাপমাত্রা। ছায়ায় থাকুন ও পানি পান করুন।" : "Elevated thermal stress. Maintain hydration and seek shade.";
     } else {
-      badge.innerText = currentLang === 'bn' ? "সহনশীল / স্বাভাবিক" : "Nominal / Tolerable";
-      badge.className = "text-xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      advice.innerText = currentLang === 'bn' ? "খোলা বাতাস ও স্বাভাবিক পরিবেশ থাকায় তাপমাত্রা সহনশীল সীমার মধ্যে রয়েছে।" : "Convective air currents and canopy buffer keep in-situ temperature within safe boundaries.";
+      badge.innerText = currentLang === 'bn' ? "সহনশীল" : "Nominal";
+      badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      advice.innerText = currentLang === 'bn' ? "স্বাভাবিক পরিবেশ ও বাতাস থাকায় তাপমাত্রা নিরাপদ সীমার মধ্যে রয়েছে।" : "Convective air currents keep in-situ temperature within safe boundaries.";
     }
 
-    if (liveGPSMarker) gisMap.removeLayer(liveGPSMarker);
+    if (liveGPSMarker && gisMap) gisMap.removeLayer(liveGPSMarker);
 
     const gpsPulseIcon = L.divIcon({
       className: 'user-pulse-marker',
       html: `
         <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-          <span style="position: absolute; width: 36px; height: 36px; border-radius: 9999px; background: #00D1FF; opacity: 0.35; animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
-          <div style="width: 20px; height: 20px; border-radius: 9999px; background: #00D1FF; border: 3px solid #ffffff; box-shadow: 0 0 16px #00D1FF;"></div>
+          <span style="position: absolute; width: 30px; height: 30px; border-radius: 9999px; background: #00D1FF; opacity: 0.35; animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+          <div style="width: 16px; height: 16px; border-radius: 9999px; background: #00D1FF; border: 2.5px solid #ffffff; box-shadow: 0 0 12px #00D1FF;"></div>
         </div>
       `,
-      iconSize: [36, 36],
-      iconAnchor: [18, 18]
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
     });
 
-    liveGPSMarker = L.marker([lat, lon], { icon: gpsPulseIcon }).addTo(gisMap);
-    liveGPSMarker.bindTooltip(`<b>${label}</b>`, { permanent: true, direction: "top", className: "gis-tooltip" });
-
-    gisMap.flyTo([lat, lon], 14, { animate: true, duration: 1.4 });
+    if (gisMap) {
+      liveGPSMarker = L.marker([lat, lon], { icon: gpsPulseIcon }).addTo(gisMap);
+      liveGPSMarker.bindTooltip(`<b>${label}</b>`, { permanent: true, direction: "top", className: "gis-tooltip" });
+      gisMap.flyTo([lat, lon], 14, { animate: true, duration: 1.4 });
+    }
 
   } catch (err) {
     console.error("User loc API error:", err);
@@ -1222,7 +1225,8 @@ async function displayUserLocationCard(lat, lon, label) {
 }
 
 function closeLocationModal() {
-  document.getElementById('liveLocationModal').classList.add('hidden');
+  const modal = document.getElementById('liveLocationModal');
+  if (modal) modal.classList.add('hidden');
 }
 
 // ==========================================
@@ -1486,130 +1490,7 @@ function applyLanguageUI() {
 }
 
 // ==========================================
-// 10. NASA SPOTLIGHT CONTROLLER (LIVE APOD + SENSORS)
-// ==========================================
-let cachedApodData = null;
-
-const spotlightMissionData = {
-  ecostress: {
-    title: "NASA ECOSTRESS (ISS Thermal Radiometer Experiment)",
-    date: "ISS Radiometer C2",
-    tag: "THERMAL TIR-5",
-    img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop",
-    desc: "ECOSTRESS measures the temperature of plants to understand their water consumption and thermal stress dynamics. Mounted aboard the Japanese Experiment Module on the International Space Station, its high-spatial resolution (70m x 70m) captures diurnal temperature variations across city blocks, identifying lethal urban heat island anomalies."
-  },
-  landsat: {
-    title: "USGS / NASA Landsat-9 Multi-Spectral Observatory",
-    date: "OLI-2 & TIRS-2 Bands",
-    tag: "30M SPECTRAL",
-    img: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=1200&auto=format&fit=crop",
-    desc: "Landsat-9 continues a 50-year record of spaceborne Earth observation. Utilizing OLI-2 (Bands 4 & 5) and TIRS-2 (Thermal Bands 10 & 11), EcoShield decomposes Normalized Difference Built-Up Index (NDBI) and vegetation fraction (NDVI) to mathematically calculate surface kinetic thermal anomalies."
-  }
-};
-
-async function fetchNasaApod(forceRefresh = false) {
-  if (cachedApodData && !forceRefresh) {
-    renderApodContent(cachedApodData);
-    return;
-  }
-
-  const expEl = document.getElementById('apodExplanation');
-  if (expEl) expEl.innerText = "Connecting to NASA Open API Gateway...";
-
-  try {
-    const res = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
-    if (!res.ok) throw new Error("NASA API rate limit or network unreachable");
-
-    const data = await res.json();
-    cachedApodData = data;
-    renderApodContent(data);
-  } catch (err) {
-    console.warn("APOD Live Fallback applied:", err);
-    const fallback = {
-      title: "ISS Terrestrial Night Horizon Observation",
-      date: new Date().toLocaleDateString(),
-      url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
-      hdurl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
-      media_type: "image",
-      explanation: "ECOSTRESS mounted aboard the International Space Station measures thermal infrared emissions from the terrestrial biosphere, tracking microclimate trends and evapotranspiration changes across global megacities."
-    };
-    renderApodContent(fallback);
-  }
-}
-
-function renderApodContent(data) {
-  const titleEl = document.getElementById('apodTitle');
-  const expEl = document.getElementById('apodExplanation');
-  const imgEl = document.getElementById('apodImage');
-  const dateEl = document.getElementById('apodDateBadge');
-  const linkEl = document.getElementById('apodHdLink');
-  const tagEl = document.getElementById('apodMediaTag');
-
-  if (titleEl) titleEl.innerText = data.title || "NASA Earth System Observation";
-  if (expEl) expEl.innerText = data.explanation || "";
-  if (dateEl) dateEl.innerText = data.date || "Today's Telemetry";
-  if (tagEl) tagEl.innerText = (data.media_type || "IMAGE").toUpperCase();
-
-  const targetUrl = data.url || data.hdurl || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop";
-  if (imgEl) imgEl.src = targetUrl;
-  if (linkEl) linkEl.href = data.hdurl || targetUrl;
-}
-
-function switchSpotlightTab(tab) {
-  const btnApod = document.getElementById('spotTabApod');
-  const btnEco = document.getElementById('spotTabEcostress');
-  const btnLand = document.getElementById('spotTabLandsat');
-
-  if (btnApod && btnEco && btnLand) {
-    [btnApod, btnEco, btnLand].forEach(b => {
-      b.className = "px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition";
-    });
-
-    if (tab === 'apod') {
-      btnApod.className = "px-2.5 py-1 rounded bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 font-bold transition";
-      if (cachedApodData) renderApodContent(cachedApodData);
-      else fetchNasaApod();
-    } else if (tab === 'ecostress') {
-      btnEco.className = "px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold transition";
-      renderManualMissionContent(spotlightMissionData.ecostress);
-    } else if (tab === 'landsat') {
-      btnLand.className = "px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold transition";
-      renderManualMissionContent(spotlightMissionData.landsat);
-    }
-  }
-}
-
-function renderManualMissionContent(info) {
-  const titleEl = document.getElementById('apodTitle');
-  const expEl = document.getElementById('apodExplanation');
-  const dateEl = document.getElementById('apodDateBadge');
-  const tagEl = document.getElementById('apodMediaTag');
-  const imgEl = document.getElementById('apodImage');
-  const linkEl = document.getElementById('apodHdLink');
-
-  if (titleEl) titleEl.innerText = info.title;
-  if (expEl) expEl.innerText = info.desc;
-  if (dateEl) dateEl.innerText = info.date;
-  if (tagEl) tagEl.innerText = info.tag;
-  if (imgEl) imgEl.src = info.img;
-  if (linkEl) linkEl.href = info.img;
-}
-
-function openNasaApodModal() {
-  const modal = document.getElementById('nasaApodModal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    fetchNasaApod();
-  }
-}
-
-function closeNasaApodModal() {
-  const modal = document.getElementById('nasaApodModal');
-  if (modal) modal.classList.add('hidden');
-}
-
-// ==========================================
-// 11. INITIALIZATION ENGINE
+// 10. INITIALIZATION ENGINE
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
