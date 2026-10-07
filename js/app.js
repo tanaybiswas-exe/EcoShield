@@ -23,7 +23,6 @@ const i18n = {
     btnLang: "বাংলা (BN)",
     btnVoice: "AUDIO ADVISORY",
     btnVoiceStop: "TERMINATE AUDIO",
-    btnVoiceListen: "AUDIO ADVISORY",
     headerBadge: "Planetary Earth System Observatory",
     targetLabel: "Spatial Domain:",
     targetValue: "Global Multi-Sensor Telemetry Grid (NASA/WMO)",
@@ -31,7 +30,6 @@ const i18n = {
     btnSmsAlert: "CAP Alert Dispatch",
     btnCitizenReport: "Ground Telemetry",
     btnDetectGps: "IN-SITU GPS",
-    btnPullTelemetry: "SYNC TELEMETRY",
     kpiAmbient: "AMBIENT AIR",
     kpiHotspot: "PEAK HOTSPOT",
     kpiFeelsLike: "HEAT INDEX",
@@ -52,25 +50,15 @@ const i18n = {
     spectralHeading: "Landsat-9 Spectral Decomposition",
     simHeading: "What-If Resilience Engine",
     healthHeading: "Heat Strain Index",
-    healthDesc: "Calibrated to ISO 7243 / ILO standards for occupational thermo-physiological stress assessment:",
     healthOccLabel: "Occupation Profile:",
     healthExposureLabel: "Sun Exposure:",
-    healthOccLabor: "Heavy Outdoor (WMO Cat 4)",
-    healthOccPed: "Pedestrian (WMO Cat 2)",
-    healthOccIndoor: "Indoor / AC (WMO Cat 0)",
-    healthExpHigh: ">3 Hours",
-    healthExpMid: "1 - 3 Hours",
-    healthExpLow: "<1 Hour",
     healthRiskLabel: "Probability:",
     healthStatusLabel: "Triage:",
     nightTitle: "Nighttime Heat Trapping",
-    nightDesc: "Measures diurnal thermal inertia of high-density built fabric radiating nocturnal heat:",
     nightRetainLabel: "Heat Retained:",
     nightCoolLabel: "Cooling Efficacy:",
     ndbiLabel: "NDBI (Impervious / Concrete):",
-    ndbiDesc: "Normalized concrete, asphalt, and barren dry substrate density.",
     ndviLabel: "NDVI (Vegetation Canopy):",
-    ndviDesc: "Vegetative evapotranspiration and photosynthetic density index.",
     mathBaseLabel: "Ambient Regional Baseline:",
     mathAnomalyLabel: "Microclimate Anomaly (ΔT):",
     mathCalculatedLabel: "Effective Surface Kinetic LST:",
@@ -79,25 +67,13 @@ const i18n = {
     simRoofLabel: "Cool Roof Reflectance (+SRI):",
     simDropLabel: "Projected Drop:",
     simProjLabel: "Post-Policy LST:",
-    fieldHeading: "Institutional Operational Directives",
-    workerWarningHeading: "Labor Safety Directive",
-    plannerHeading: "Municipal Directive",
-    groundHeading: "In-Situ Sensor Ground-Truth Feed",
+    uiWorkerWarningHeading: "Labor Safety Directive",
+    uiPlannerHeading: "Municipal Directive",
     stationLoc: "WMO Reference Node:",
     gpsModalTitle: "In-Situ Telemetry",
     gpsZoneLabel: "Spatial Zone:",
     gpsLocalTempLabel: "Temperature:",
     gpsStressLabel: "Strain:",
-    gpsStatusAdvise: "Operational Directive & Action:",
-    modalMethodTitle: "Scientific Methodology & Lineage",
-    modalSmsTitle: "CAP Alert Dispatch Engine",
-    modalSmsSub: "Zero-cost multi-channel alert dispatch engine designed for municipal crisis management and humanitarian field workers:",
-    modalSmsPhoneLabel: "Recipient Terminal Identifier (Mobile / SMS):",
-    modalSmsNodeLabel: "Target Telemetry Hotspot & Alert Threshold:",
-    meterLabel: "Thermo-Physiological Stress Level Meter:",
-    meterSafe: "Nominal",
-    meterCaution: "Elevated Caution",
-    meterDanger: "Extreme Hazard",
     bulletinBtn: "BRIEF",
     sosBtn: "EMERGENCY DISPATCH",
     btnSonify: "Audio Sonification"
@@ -106,7 +82,6 @@ const i18n = {
     btnLang: "English (EN)",
     btnVoice: "ভয়েস নির্দেশনা",
     btnVoiceStop: "ভয়েস বন্ধ করুন",
-    btnVoiceListen: "ভয়েস নির্দেশনা",
     headerBadge: "গ্লোবাল আর্থ সিস্টেম অবজারভেটরি",
     targetLabel: "ভৌগোলিক পরিধি:",
     targetValue: "প্ল্যানেটারি মাল্টি-সেন্সর টেলিমেট্রি গ্রিড (NASA/WMO)",
@@ -114,7 +89,6 @@ const i18n = {
     btnSmsAlert: "সিএপি ব্রডকাস্ট",
     btnCitizenReport: "গ্রাউন্ড টেলিমেট্রি",
     btnDetectGps: "লাইভ জিপিএস",
-    btnPullTelemetry: "ডেটা রিফ্রেশ",
     kpiAmbient: "বাতাসের তাপমাত্রা",
     kpiHotspot: "সর্বোচ্চ হটস্পট",
     kpiFeelsLike: "হিট ইনডেক্স",
@@ -135,25 +109,15 @@ const i18n = {
     spectralHeading: "ল্যান্ডস্যাট-৯ স্পেকট্রাল বিশ্লেষণ",
     simHeading: "হোয়াট-ইফ রেজিলিয়েন্স ইঞ্জিন",
     healthHeading: "হিট স্ট্রেন ইনডেক্স",
-    healthDesc: "ISO 7243 এবং আন্তর্জাতিক শ্রম সংস্থার (ILO) মানদণ্ডে থার্মাল স্ট্রেস নিরূপণ:",
     healthOccLabel: "পেশাগত প্রোফাইল:",
     healthExposureLabel: "রোদে থাকার সময়:",
-    healthOccLabor: "ভারী কায়িক শ্রম (WMO Cat 4)",
-    healthOccPed: "সাধারণ পথচারী (WMO Cat 2)",
-    healthOccIndoor: "অফিসকর্মী / এসি (WMO Cat 0)",
-    healthExpHigh: ">৩ ঘণ্টা",
-    healthExpMid: "১ - ৩ ঘণ্টা",
-    healthExpLow: "<১ ঘণ্টা",
     healthRiskLabel: "ঝুঁকি মাত্রা:",
     healthStatusLabel: "মেডিকেল ট্রায়াজ:",
     nightTitle: "সান্ধ্যকালীন তাপ শোষণ (NTRI)",
-    nightDesc: "কংক্রিট ও শুষ্ক ভূমির সারফেস দিনের উত্তাপ ধরে রেখে রাতে ছড়িয়ে দেয়, যার ফলে তাপমাত্রা হ্রাস পায় না:",
     nightRetainLabel: "তাপ ধরে রাখা:",
     nightCoolLabel: "শীতলীকরণ দক্ষতা:",
     ndbiLabel: "NDBI (কংক্রিট/শুষ্ক মাটি):",
-    ndbiDesc: "কংক্রিট, অ্যাসফাল্ট ও অনাবৃত শুষ্ক মাটির ঘনত্ব সূচক।",
     ndviLabel: "NDVI (গাছপালা/ক্যানোপি):",
-    ndviDesc: "গাছপালা ও বাষ্পীভবনের মাধ্যমে প্রাকৃতিকভাবে তাপ হ্রাসের সূচক।",
     mathBaseLabel: "আঞ্চলিক বায়ু তাপমাত্রা:",
     mathAnomalyLabel: "থার্মাল অ্যানোমালি (ΔT):",
     mathCalculatedLabel: "বাস্তব সারফেস LST:",
@@ -162,25 +126,13 @@ const i18n = {
     simRoofLabel: "কুল রুফ কোটিং (+SRI):",
     simDropLabel: "প্রত্যাশিত হ্রাস:",
     simProjLabel: "সম্ভাব্য LST:",
-    fieldHeading: "প্রাতিষ্ঠানিক ও নীতি নির্ধারণী নির্দেশনা",
-    workerWarningHeading: "শ্রমিক সুরক্ষা নির্দেশনা",
-    plannerHeading: "পৌর ও নগর উন্নয়ন নির্দেশনা",
-    groundHeading: "ইন-সিটু গ্রাউন্ড সেন্সর টেলিমেট্রি ফিড",
+    uiWorkerWarningHeading: "শ্রমিক সুরক্ষা নির্দেশনা",
+    uiPlannerHeading: "পৌর ও নগর উন্নয়ন নির্দেশনা",
     stationLoc: "রেফারেন্স স্টেশন:",
     gpsModalTitle: "ইন-সিটু টেলিমেট্রি",
     gpsZoneLabel: "ভৌগোলিক জোন:",
     gpsLocalTempLabel: "অন-সাইট তাপমাত্রা:",
     gpsStressLabel: "শারীরিক স্ট্রেন:",
-    gpsStatusAdvise: "অপারেশনাল প্রটোকল ও পদক্ষেপ:",
-    modalMethodTitle: "নাসা বৈজ্ঞানিক মেথডোলজি ও ডেটা লাইনিয়েজ",
-    modalSmsTitle: "কমন অ্যালার্টিং প্রটোকল (CAP) ডিসপ্যাচ",
-    modalSmsSub: "পৌর দুর্যোগ ব্যবস্থাপনা ও মাঠকর্মীদের জন্য সম্পূর্ণ বিনামূল্যে পরিচালিত জরুরি সতর্কতা ইঞ্জিন:",
-    modalSmsPhoneLabel: "প্রাপক টার্মিনাল আইডেন্টিফায়ার (মোবাইল নম্বর):",
-    modalSmsNodeLabel: "টার্গেট হটস্পট ও থ্রেশহোল্ড সীমা:",
-    meterLabel: "থার্মাল স্ট্রেস লেভেল মিটার:",
-    meterSafe: "সহনশীল",
-    meterCaution: "সতর্কতা",
-    meterDanger: "মারাত্মক সংকট",
     bulletinBtn: "ব্রিফ",
     sosBtn: "জরুরি ডিসপ্যাচ",
     btnSonify: "অডিও সোনিফাই"
@@ -321,7 +273,7 @@ function handleHistoricalTrendChange(year) {
   selectedTrendYear = parseInt(year);
   const label = document.getElementById('trendYearLabel');
   if (label) {
-    label.innerText = `${selectedTrendYear} (${selectedTrendYear === 2026 ? 'Present' : 'Historical Archive'})`;
+    label.innerText = `${selectedTrendYear} (${selectedTrendYear === 2026 ? 'Present' : 'Archive'})`;
   }
   const yearOffset = ((selectedTrendYear - 2026) / 26) * 1.8;
   renderGISLayers(yearOffset);
@@ -331,9 +283,12 @@ function handleHistoricalTrendChange(year) {
 }
 
 // ==========================================
-// GIS MAP INITIALIZATION
+// GIS MAP ENGINE (VERCEL PRODUCTION READY)
 // ==========================================
 function initializeGISMap() {
+  const mapContainer = document.getElementById('gis-map');
+  if (!mapContainer) return;
+
   gisMap = L.map('gis-map', {
     zoomControl: false,
     attributionControl: false,
@@ -344,18 +299,19 @@ function initializeGISMap() {
 
   L.control.zoom({ position: 'topright' }).addTo(gisMap);
 
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18, maxNativeZoom: 17
-  }).addTo(gisMap);
-
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 18, maxNativeZoom: 17
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19
   }).addTo(gisMap);
 
   stationLayerGroup = L.layerGroup().addTo(gisMap);
   shelterLayerGroup = L.layerGroup().addTo(gisMap);
   citizenLayerGroup = L.layerGroup().addTo(gisMap);
   orbitLayerGroup = L.layerGroup().addTo(gisMap);
+
+  setTimeout(() => {
+    if (gisMap) gisMap.invalidateSize();
+  }, 250);
 }
 
 function renderGISLayers(trendOffset = 0) {
@@ -601,6 +557,32 @@ function runPolicySimulation() {
   }
 }
 
+// AI 5-Year Action Plan Generator
+function generatePolicyRoadmap() {
+  const node = currentlySelectedNode || monitoringNodes[0];
+  const container = document.getElementById('roadmapContent');
+  if (!container) return;
+
+  const isCritical = node.currentLST >= 40;
+  container.innerHTML = `
+    <div class="p-2 bg-space-950 rounded border border-space-border space-y-1.5">
+      <p class="font-bold text-amber-300">Phase 1: Immediate Triage (0 - 6 Months)</p>
+      <p class="text-slate-300">• Deploy ${isCritical ? 'high-throughput misting stations' : 'shaded hydration gazebos'} along key commercial arterials.</p>
+      <p class="text-slate-300">• Mandate midday rest breaks (12 PM - 3 PM) for outdoor workforce under ISO 7243 standards.</p>
+    </div>
+    <div class="p-2 bg-space-950 rounded border border-space-border space-y-1.5">
+      <p class="font-bold text-nasa-cyan">Phase 2: Built Environment Retrofit (Year 1 - 2)</p>
+      <p class="text-slate-300">• Subsidize high-albedo (SRI > 80) cool-roof paint for corrugated tin structures (-17.6°C surface drop).</p>
+      <p class="text-slate-300">• Implement porous permeable paving on transport terminals to mitigate night-heat trapping (NTRI).</p>
+    </div>
+    <div class="p-2 bg-space-950 rounded border border-space-border space-y-1.5">
+      <p class="font-bold text-emerald-300">Phase 3: Urban Canopy & Bioswales (Year 3 - 5)</p>
+      <p class="text-slate-300">• Expand vegetative cover (+25% NDVI) to form continuous shaded walking corridors connecting transit hubs.</p>
+      <p class="text-slate-300">• Target estimated municipal energy reduction of 1.7 MW/km² during seasonal summer peaks.</p>
+    </div>
+  `;
+}
+
 function calculateHealthRisk() {
   if (!currentlySelectedNode) return;
   const userMultiplier = parseFloat(document.getElementById('healthUserType').value) || 1.2;
@@ -816,9 +798,12 @@ function applyLanguageUI() {
 
 // INITIALIZATION
 window.addEventListener('DOMContentLoaded', () => {
-  lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
   initializeGISMap();
+  
   setTimeout(() => { if (gisMap) gisMap.invalidateSize(); }, 250);
+  setTimeout(() => { if (gisMap) gisMap.invalidateSize(); }, 1000);
+
   executeTelemetryPipeline();
   requestUserGPS();
   applyLanguageUI();
