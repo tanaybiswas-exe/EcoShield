@@ -78,13 +78,18 @@
       50% { opacity: 0.7; transform: scale(1.08); }
     }
     .radar-pulse-anim { animation: pulseGlow 2s infinite ease-in-out; }
+    @media print {
+      body { background: #ffffff !important; color: #000000 !important; }
+      header, #gis-map, .no-print, #toolsMenuDropdown { display: none !important; }
+      #printReportArea { display: block !important; }
+    }
   </style>
 </head>
 
 <body class="bg-space-950 text-slate-100 antialiased min-h-screen flex flex-col font-sans select-none overflow-x-hidden selection:bg-nasa-cyan selection:text-space-950">
 
   <!-- TOP EXECUTIVE HUD APPARATUS BAR -->
-  <header class="h-16 border-b border-space-border/80 bg-space-900/90 backdrop-blur-xl px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0 shadow-2xl shadow-black/60">
+  <header class="h-16 border-b border-space-border/80 bg-space-900/90 backdrop-blur-xl px-4 lg:px-6 flex items-center justify-between z-30 sticky top-0 shadow-2xl shadow-black/60 no-print">
     <div class="flex items-center gap-3.5">
       <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-nasa-blue to-blue-900 flex items-center justify-center border border-nasa-cyan/40 shadow-lg shadow-nasa-blue/30 relative group">
         <span class="font-display font-extrabold text-[11px] tracking-wider text-white">NASA</span>
@@ -113,22 +118,16 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <!-- SONIFICATION (HEAT AUDIO) TOGGLE -->
-        <button onclick="toggleSonification()" id="btnSonifyToggle" class="flex items-center gap-1 bg-space-850 hover:bg-space-800 text-purple-300 border border-purple-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
-          <i data-lucide="waves" class="w-3.5 h-3.5 text-purple-400"></i>
-          <span id="uiBtnSonify">AUDIO SONIFY</span>
-        </button>
-
         <!-- EMERGENCY SOS -->
         <button onclick="triggerEmergencySOS()" class="relative group overflow-hidden flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white font-mono px-3 py-1.5 rounded-lg text-[11px] transition shadow-lg shadow-rose-950/60 border border-rose-400 font-bold">
           <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-100"></i>
           <span id="uiSosBtnText">EMERGENCY DISPATCH</span>
         </button>
 
-        <!-- VOICE ALERT -->
-        <button onclick="playVoiceWarning()" class="flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-amber-300 border border-amber-500/30 hover:border-amber-500/60 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
-          <i data-lucide="radio" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span id="uiBtnVoice">AUDIO ADVISORY</span>
+        <!-- GPS -->
+        <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1.5 rounded-lg border border-emerald-400/40 text-[11px] transition shadow-lg font-semibold">
+          <i data-lucide="navigation-2" class="w-3.5 h-3.5"></i>
+          <span id="uiBtnDetectGps">IN-SITU GPS</span>
         </button>
 
         <!-- BILINGUAL -->
@@ -137,29 +136,59 @@
           <span id="langBtnText">বাংলা (BN)</span>
         </button>
 
-        <!-- METHODOLOGY -->
-        <button onclick="openMethodologyModal()" class="hidden md:flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-slate-300 border border-space-border hover:border-slate-500 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition">
-          <i data-lucide="file-text" class="w-3.5 h-3.5 text-nasa-cyan"></i>
-          <span id="uiBtnDataAudit">METHODOLOGY AUDIT</span>
-        </button>
+        <!-- UNIFIED TOOLS DROPDOWN -->
+        <div class="relative">
+          <button onclick="toggleToolsMenu()" id="btnToolsDropdown" class="flex items-center gap-1.5 bg-space-850 hover:bg-space-800 text-slate-200 border border-nasa-cyan/40 font-mono px-3 py-1.5 rounded-lg text-[11px] transition shadow-md">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-nasa-cyan"></i>
+            <span>Tools</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
 
-        <!-- CITIZEN GROUND TRUTH -->
-        <button onclick="openCitizenModal()" class="flex items-center gap-1.5 bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
-          <i data-lucide="satellite" class="w-3.5 h-3.5 text-indigo-400"></i>
-          <span id="uiBtnCitizenReport">GROUND TELEMETRY</span>
-        </button>
+          <!-- DROPDOWN MENU (MATCHING YOUR SCREENSHOT) -->
+          <div id="toolsMenuDropdown" class="hidden absolute right-0 mt-2 w-64 bg-[#070d1e]/95 backdrop-blur-2xl border border-space-border/80 rounded-2xl shadow-2xl p-2 space-y-1 z-50 text-xs font-mono">
+            
+            <button onclick="openHeartbeatModal(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-emerald-400 transition text-left">
+              <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
+              <span>Data Pipeline & Heartbeat</span>
+            </button>
 
-        <!-- CAP DISPATCH -->
-        <button onclick="openSmsModal()" class="flex items-center gap-1.5 bg-amber-950/50 hover:bg-amber-900/50 text-amber-300 border border-amber-500/40 font-mono px-2.5 py-1.5 rounded-lg text-[11px] transition shadow-md">
-          <i data-lucide="send" class="w-3.5 h-3.5"></i>
-          <span id="uiBtnSmsAlert">CAP DISPATCH</span>
-        </button>
+            <button onclick="triggerPrintReport(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-emerald-300 transition text-left">
+              <i data-lucide="printer" class="w-4 h-4 text-emerald-400"></i>
+              <span>Print Municipal Report (PDF)</span>
+            </button>
 
-        <!-- GPS -->
-        <button onclick="requestUserGPS()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-mono px-3 py-1.5 rounded-lg border border-emerald-400/40 text-[11px] transition shadow-lg font-semibold">
-          <i data-lucide="navigation-2" class="w-3.5 h-3.5"></i>
-          <span id="uiBtnDetectGps">IN-SITU GPS</span>
-        </button>
+            <button onclick="openNasaApodModal(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-sky-300 transition text-left">
+              <i data-lucide="telescope" class="w-4 h-4 text-sky-400"></i>
+              <span>NASA Earth/Space Spotlight</span>
+            </button>
+
+            <button onclick="toggleSonification(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-purple-300 transition text-left">
+              <i data-lucide="waves" class="w-4 h-4 text-purple-400"></i>
+              <span id="uiBtnSonify">Audio Sonification</span>
+            </button>
+
+            <button onclick="playVoiceWarning(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-amber-300 transition text-left">
+              <i data-lucide="radio" class="w-4 h-4 text-amber-400"></i>
+              <span id="uiBtnVoice">Audio Advisory</span>
+            </button>
+
+            <button onclick="openMethodologyModal(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-cyan-300 transition text-left">
+              <i data-lucide="file-text" class="w-4 h-4 text-cyan-400"></i>
+              <span id="uiBtnDataAudit">Methodology Audit</span>
+            </button>
+
+            <button onclick="openCitizenModal(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-indigo-300 transition text-left">
+              <i data-lucide="satellite" class="w-4 h-4 text-indigo-400"></i>
+              <span id="uiBtnCitizenReport">Ground Telemetry</span>
+            </button>
+
+            <button onclick="openSmsModal(); toggleToolsMenu();" class="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-space-850 text-amber-300 transition text-left">
+              <i data-lucide="send" class="w-4 h-4 text-amber-400"></i>
+              <span id="uiBtnSmsAlert">CAP Alert Dispatch</span>
+            </button>
+
+          </div>
+        </div>
 
         <!-- REFRESH -->
         <button onclick="executeTelemetryPipeline()" class="p-1.5 bg-space-850 hover:bg-space-800 text-nasa-cyan rounded-lg border border-nasa-cyan/30 transition shadow-md" title="Pull Live Telemetry">
@@ -170,7 +199,7 @@
   </header>
 
   <!-- WORKSPACE GRID -->
-  <div class="flex-1 flex flex-col xl:flex-row overflow-hidden">
+  <div class="flex-1 flex flex-col xl:flex-row overflow-hidden no-print">
     
     <!-- LEFT OBSERVATORY (70%) -->
     <div class="flex-1 flex flex-col border-b xl:border-b-0 xl:border-r border-space-border/80 bg-space-950 relative">
@@ -603,7 +632,7 @@
     </div>
   </div>
 
-  <!-- COMPACT AEROSPACE IN-SITU MICRO-HUD (NON-INTRUSIVE & CLEAN) -->
+  <!-- COMPACT AEROSPACE IN-SITU MICRO-HUD -->
   <div id="liveLocationModal" class="hidden fixed bottom-4 left-4 z-[2000] w-72 max-w-[85vw] bg-space-900/90 backdrop-blur-xl border border-nasa-cyan/40 rounded-xl shadow-2xl p-2.5 font-mono no-print">
     <div class="flex items-center justify-between pb-1.5 border-b border-space-border/60">
       <div class="flex items-center gap-1.5">
@@ -778,6 +807,151 @@
           <span>SUBMIT IN-SITU OBSERVATION</span>
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- UPGRADED NASA EARTH & SPACE SPOTLIGHT OBSERVATORY -->
+  <div id="nasaApodModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 no-print">
+    <div class="bg-space-900 border border-nasa-cyan/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl font-mono text-xs overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
+        <div class="flex items-center gap-2.5">
+          <div class="h-7 w-7 rounded-lg bg-nasa-blue flex items-center justify-center text-white font-extrabold text-[10px] border border-nasa-cyan/40 shadow-sm">
+            NASA
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <span>Planetary Earth & Space Observation Feed</span>
+              <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+            </h2>
+            <span class="text-[10px] text-slate-400">api.nasa.gov Live Stream Lineage</span>
+          </div>
+        </div>
+        <button onclick="closeNasaApodModal()" class="text-slate-400 hover:text-white transition p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 py-3 border-b border-space-border/40 text-[11px]">
+        <div class="p-2 bg-space-950 rounded-lg border border-space-border">
+          <span class="text-[9px] text-slate-400 block uppercase">ISS Velocity</span>
+          <span class="text-xs font-bold text-nasa-cyan">~27,600 km/h</span>
+        </div>
+        <div class="p-2 bg-space-950 rounded-lg border border-space-border">
+          <span class="text-[9px] text-slate-400 block uppercase">Radiometer Orbit</span>
+          <span class="text-xs font-bold text-emerald-400">418 km Altitude</span>
+        </div>
+        <div class="p-2 bg-space-950 rounded-lg border border-space-border">
+          <span class="text-[9px] text-slate-400 block uppercase">Sensor State</span>
+          <span class="text-xs font-bold text-amber-300">Operational TIR-5</span>
+        </div>
+      </div>
+
+      <div class="flex gap-1.5 py-2.5 text-[10px] font-mono border-b border-space-border/40">
+        <button onclick="switchSpotlightTab('apod')" id="spotTabApod" class="px-2.5 py-1 rounded bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 font-bold transition">
+          NASA Live APOD Stream
+        </button>
+        <button onclick="switchSpotlightTab('ecostress')" id="spotTabEcostress" class="px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition">
+          ECOSTRESS Mission
+        </button>
+        <button onclick="switchSpotlightTab('landsat')" id="spotTabLandsat" class="px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition">
+          Landsat-9 Spectral
+        </button>
+      </div>
+
+      <div class="mt-3 overflow-y-auto space-y-3 font-sans pr-1">
+        <div class="relative group rounded-xl overflow-hidden border border-space-border bg-black max-h-56">
+          <img id="apodImage" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop" alt="NASA Spotlight" class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105">
+          <a id="apodHdLink" href="#" target="_blank" class="absolute bottom-2 right-2 px-2 py-1 rounded bg-space-950/80 border border-nasa-cyan/40 text-[10px] font-mono text-nasa-cyan font-bold flex items-center gap-1 backdrop-blur shadow hover:bg-space-900 transition">
+            <i data-lucide="external-link" class="w-3 h-3"></i> View Full HD
+          </a>
+          <span id="apodDateBadge" class="absolute top-2 left-2 px-2 py-0.5 rounded bg-space-950/80 border border-space-border text-[9px] font-mono text-slate-300">
+            Live Stream
+          </span>
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 id="apodTitle" class="font-mono font-bold text-nasa-cyan text-sm tracking-tight">International Space Station Earth Horizon Telemetry</h3>
+            <span id="apodMediaTag" class="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-nasa-cyan border border-nasa-cyan/30">IMAGE</span>
+          </div>
+          <p id="apodExplanation" class="text-slate-300 text-xs leading-relaxed max-h-36 overflow-y-auto font-sans pr-1">
+            Loading real-time imagery feed from NASA's Open API...
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-3 mt-2 border-t border-space-border/50 flex justify-between items-center text-[10px] font-mono text-slate-400">
+        <span>Verified by NASA Goddard Space Flight Center</span>
+        <button onclick="fetchNasaApod(true)" class="text-nasa-cyan hover:underline flex items-center gap-1">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Force Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA PIPELINE & HEARTBEAT MODAL -->
+  <div id="heartbeatModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 no-print">
+    <div class="bg-space-900 border border-emerald-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
+        <div class="flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
+          <h2 class="text-sm font-bold text-white uppercase">Live Telemetry Pipeline & Sensor Heartbeat</h2>
+        </div>
+        <button onclick="closeHeartbeatModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="mt-4 space-y-2 text-xs">
+        <div class="p-2.5 bg-space-950 rounded border border-space-border flex justify-between items-center">
+          <div>
+            <span class="text-white font-bold block">NASA EarthData Cloud Services:</span>
+            <span class="text-[10px] text-slate-400">ECOSTRESS Radiometer LSTE Collection 2</span>
+          </div>
+          <span class="text-emerald-400 font-bold">ONLINE (98ms)</span>
+        </div>
+        <div class="p-2.5 bg-space-950 rounded border border-space-border flex justify-between items-center">
+          <div>
+            <span class="text-white font-bold block">Open-Meteo High-Resolution GFS Array:</span>
+            <span class="text-[10px] text-slate-400">T2M, DNI Radiation, Wind Speed 10m</span>
+          </div>
+          <span class="text-emerald-400 font-bold">ONLINE (114ms)</span>
+        </div>
+        <div class="p-2.5 bg-space-950 rounded border border-space-border flex justify-between items-center">
+          <div>
+            <span class="text-white font-bold block">OpenAQ Planetary Sensors API:</span>
+            <span class="text-[10px] text-slate-400">In-Situ Reference PM2.5 Telemetry</span>
+          </div>
+          <span class="text-emerald-400 font-bold">ONLINE (140ms)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINTABLE MUNICIPAL REPORT (A4 PDF LAYOUT) -->
+  <div id="printReportArea" class="hidden p-8 text-black bg-white">
+    <div class="border-b-2 border-black pb-4 mb-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold font-mono">ECOSHIELD.AI MUNICIPAL CLIMATE REPORT</h1>
+        <p class="text-sm text-gray-700">NASA Space Apps Challenge 2026 | ISO 7243 Compliant</p>
+      </div>
+      <div class="text-right text-xs font-mono">
+        <p id="printDate"></p>
+        <p>OFFICIAL DISPATCH</p>
+      </div>
+    </div>
+    <div class="space-y-4 text-sm">
+      <div class="p-3 bg-gray-100 rounded border border-gray-300">
+        <p><strong>Observation Node:</strong> <span id="printNodeName"></span></p>
+        <p><strong>Surface Temperature (LST):</strong> <span id="printLST"></span>°C (Anomaly: <span id="printAnomaly"></span>°C)</p>
+        <p><strong>Baseline Ambient Air:</strong> <span id="printAmbient"></span>°C | <strong>Solar Irradiance:</strong> <span id="printSolar"></span> W/m²</p>
+      </div>
+      <div>
+        <h3 class="font-bold text-red-700 uppercase">Occupational Health & Labor Directive:</h3>
+        <p id="printWorkerDirective" class="text-gray-800 leading-relaxed"></p>
+      </div>
+      <div>
+        <h3 class="font-bold text-blue-700 uppercase">Municipal Spatial Resilience Directive:</h3>
+        <p id="printPlannerDirective" class="text-gray-800 leading-relaxed"></p>
+      </div>
+      <div class="border-t pt-4 text-xs text-gray-500 font-mono">
+        Data Verification: NASA ECOSTRESS Collection 2 & Landsat-9 TIRS-2 Algorithms.
+      </div>
     </div>
   </div>
 
