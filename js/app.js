@@ -20,15 +20,15 @@ let orbitLayerGroup = null;
 const i18n = {
   en: {
     btnLang: "বাংলা (BN)",
-    btnVoice: "AUDIO ADVISORY",
-    btnVoiceStop: "TERMINATE AUDIO",
-    btnVoiceListen: "AUDIO ADVISORY",
+    btnVoice: "Audio Advisory",
+    btnVoiceStop: "Terminate Audio",
+    btnVoiceListen: "Audio Advisory",
     headerBadge: "Planetary Earth System Observatory",
     targetLabel: "Spatial Domain:",
     targetValue: "Global Multi-Sensor Telemetry Grid (NASA/WMO)",
-    btnDataAudit: "METHODOLOGY AUDIT",
-    btnSmsAlert: "CAP DISPATCH",
-    btnCitizenReport: "GROUND TELEMETRY",
+    btnDataAudit: "Methodology Audit",
+    btnSmsAlert: "CAP Alert Dispatch",
+    btnCitizenReport: "Ground Telemetry",
     btnDetectGps: "IN-SITU GPS",
     btnPullTelemetry: "SYNC TELEMETRY",
     kpiAmbient: "AMBIENT AIR (T2M)",
@@ -99,7 +99,7 @@ const i18n = {
     meterDanger: "Extreme Hazard",
     bulletinBtn: "BRIEF",
     sosBtn: "EMERGENCY DISPATCH",
-    btnSonify: "AUDIO SONIFY"
+    btnSonify: "Audio Sonification"
   },
   bn: {
     btnLang: "English (EN)",
@@ -551,7 +551,6 @@ function toggleSatelliteSwath() {
     return;
   }
 
-  // Draw 51.6° Inclined ISS Ground Orbit Track
   const orbitCoords = [
     [-51.6, -160.0],
     [-30.0, -110.0],
@@ -843,14 +842,16 @@ async function selectMonitoringNode(node, shouldFlyTo = true) {
 function toggleSonification() {
   isSonificationActive = !isSonificationActive;
   const btn = document.getElementById('btnSonifyToggle');
-  if (isSonificationActive) {
-    btn.classList.add('bg-purple-600', 'text-white');
-    btn.classList.remove('bg-space-850', 'text-purple-300');
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (currentlySelectedNode) playThermalSonification(currentlySelectedNode.currentLST);
-  } else {
-    btn.classList.remove('bg-purple-600', 'text-white');
-    btn.classList.add('bg-space-850', 'text-purple-300');
+  if (btn) {
+    if (isSonificationActive) {
+      btn.classList.add('bg-purple-600', 'text-white');
+      btn.classList.remove('bg-space-850', 'text-purple-300');
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (currentlySelectedNode) playThermalSonification(currentlySelectedNode.currentLST);
+    } else {
+      btn.classList.remove('bg-purple-600', 'text-white');
+      btn.classList.add('bg-space-850', 'text-purple-300');
+    }
   }
 }
 
@@ -1065,7 +1066,7 @@ function playVoiceWarning() {
   if (isVoiceSpeaking) {
     window.speechSynthesis.cancel();
     isVoiceSpeaking = false;
-    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
+    if (voiceBtnText) voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
     return;
   }
 
@@ -1085,17 +1086,17 @@ function playVoiceWarning() {
 
   utterance.onstart = () => {
     isVoiceSpeaking = true;
-    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoiceStop : i18n.en.btnVoiceStop;
+    if (voiceBtnText) voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoiceStop : i18n.en.btnVoiceStop;
   };
 
   utterance.onend = () => {
     isVoiceSpeaking = false;
-    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
+    if (voiceBtnText) voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
   };
 
   utterance.onerror = () => {
     isVoiceSpeaking = false;
-    voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
+    if (voiceBtnText) voiceBtnText.innerText = currentLang === 'bn' ? i18n.bn.btnVoice : i18n.en.btnVoice;
   };
 
   window.speechSynthesis.speak(utterance);
@@ -1166,7 +1167,7 @@ function requestUserGPS() {
   );
 }
 
-// COMPACT SLEEK MICRO-HUD CARD CONTROLLER (PREVENTS SCREEN OVERFLOW)
+// COMPACT SLEEK MICRO-HUD CARD CONTROLLER
 async function displayUserLocationCard(lat, lon, label) {
   const modal = document.getElementById('liveLocationModal');
   if (!modal) return;
@@ -1404,6 +1405,28 @@ function closeMethodologyModal() { document.getElementById('methodologyModal').c
 function openSmsModal() { document.getElementById('smsModal').classList.remove('hidden'); }
 function closeSmsModal() { document.getElementById('smsModal').classList.add('hidden'); }
 
+function openHeartbeatModal() {
+  const modal = document.getElementById('heartbeatModal');
+  if (modal) modal.classList.remove('hidden');
+}
+function closeHeartbeatModal() {
+  const modal = document.getElementById('heartbeatModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function toggleToolsMenu() {
+  const menu = document.getElementById('toolsMenuDropdown');
+  if (menu) menu.classList.toggle('hidden');
+}
+
+window.addEventListener('click', function(e) {
+  const btn = document.getElementById('btnToolsDropdown');
+  const menu = document.getElementById('toolsMenuDropdown');
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
+
 function toggleAppLanguage() {
   currentLang = (currentLang === 'en') ? 'bn' : 'en';
   localStorage.setItem('ecoshield_lang', currentLang);
@@ -1490,7 +1513,144 @@ function applyLanguageUI() {
 }
 
 // ==========================================
-// 10. INITIALIZATION ENGINE
+// 10. NASA SPOTLIGHT CONTROLLER (LIVE APOD + SENSORS)
+// ==========================================
+let cachedApodData = null;
+
+const spotlightMissionData = {
+  ecostress: {
+    title: "NASA ECOSTRESS (ISS Thermal Radiometer Experiment)",
+    date: "ISS Radiometer C2",
+    tag: "THERMAL TIR-5",
+    img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1200&auto=format&fit=crop",
+    desc: "ECOSTRESS measures the temperature of plants to understand their water consumption and thermal stress dynamics. Mounted aboard the Japanese Experiment Module on the International Space Station, its high-spatial resolution (70m x 70m) captures diurnal temperature variations across city blocks, identifying lethal urban heat island anomalies."
+  },
+  landsat: {
+    title: "USGS / NASA Landsat-9 Multi-Spectral Observatory",
+    date: "OLI-2 & TIRS-2 Bands",
+    tag: "30M SPECTRAL",
+    img: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=1200&auto=format&fit=crop",
+    desc: "Landsat-9 continues a 50-year record of spaceborne Earth observation. Utilizing OLI-2 (Bands 4 & 5) and TIRS-2 (Thermal Bands 10 & 11), EcoShield decomposes Normalized Difference Built-Up Index (NDBI) and vegetation fraction (NDVI) to mathematically calculate surface kinetic thermal anomalies."
+  }
+};
+
+async function fetchNasaApod(forceRefresh = false) {
+  if (cachedApodData && !forceRefresh) {
+    renderApodContent(cachedApodData);
+    return;
+  }
+
+  const expEl = document.getElementById('apodExplanation');
+  if (expEl) expEl.innerText = "Connecting to NASA Open API Gateway...";
+
+  try {
+    const res = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+    if (!res.ok) throw new Error("NASA API rate limit or network unreachable");
+
+    const data = await res.json();
+    cachedApodData = data;
+    renderApodContent(data);
+  } catch (err) {
+    console.warn("APOD Live Fallback applied:", err);
+    const fallback = {
+      title: "ISS Terrestrial Night Horizon Observation",
+      date: new Date().toLocaleDateString(),
+      url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
+      hdurl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
+      media_type: "image",
+      explanation: "ECOSTRESS mounted aboard the International Space Station measures thermal infrared emissions from the terrestrial biosphere, tracking microclimate trends and evapotranspiration changes across global megacities."
+    };
+    renderApodContent(fallback);
+  }
+}
+
+function renderApodContent(data) {
+  const titleEl = document.getElementById('apodTitle');
+  const expEl = document.getElementById('apodExplanation');
+  const imgEl = document.getElementById('apodImage');
+  const dateEl = document.getElementById('apodDateBadge');
+  const linkEl = document.getElementById('apodHdLink');
+  const tagEl = document.getElementById('apodMediaTag');
+
+  if (titleEl) titleEl.innerText = data.title || "NASA Earth System Observation";
+  if (expEl) expEl.innerText = data.explanation || "";
+  if (dateEl) dateEl.innerText = data.date || "Today's Telemetry";
+  if (tagEl) tagEl.innerText = (data.media_type || "IMAGE").toUpperCase();
+
+  const targetUrl = data.url || data.hdurl || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop";
+  if (imgEl) imgEl.src = targetUrl;
+  if (linkEl) linkEl.href = data.hdurl || targetUrl;
+}
+
+function switchSpotlightTab(tab) {
+  const btnApod = document.getElementById('spotTabApod');
+  const btnEco = document.getElementById('spotTabEcostress');
+  const btnLand = document.getElementById('spotTabLandsat');
+
+  if (btnApod && btnEco && btnLand) {
+    [btnApod, btnEco, btnLand].forEach(b => {
+      b.className = "px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition";
+    });
+
+    if (tab === 'apod') {
+      btnApod.className = "px-2.5 py-1 rounded bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 font-bold transition";
+      if (cachedApodData) renderApodContent(cachedApodData);
+      else fetchNasaApod();
+    } else if (tab === 'ecostress') {
+      btnEco.className = "px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold transition";
+      renderManualMissionContent(spotlightMissionData.ecostress);
+    } else if (tab === 'landsat') {
+      btnLand.className = "px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold transition";
+      renderManualMissionContent(spotlightMissionData.landsat);
+    }
+  }
+}
+
+function renderManualMissionContent(info) {
+  const titleEl = document.getElementById('apodTitle');
+  const expEl = document.getElementById('apodExplanation');
+  const dateEl = document.getElementById('apodDateBadge');
+  const tagEl = document.getElementById('apodMediaTag');
+  const imgEl = document.getElementById('apodImage');
+  const linkEl = document.getElementById('apodHdLink');
+
+  if (titleEl) titleEl.innerText = info.title;
+  if (expEl) expEl.innerText = info.desc;
+  if (dateEl) dateEl.innerText = info.date;
+  if (tagEl) tagEl.innerText = info.tag;
+  if (imgEl) imgEl.src = info.img;
+  if (linkEl) linkEl.href = info.img;
+}
+
+function openNasaApodModal() {
+  const modal = document.getElementById('nasaApodModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    fetchNasaApod();
+  }
+}
+
+function closeNasaApodModal() {
+  const modal = document.getElementById('nasaApodModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function triggerPrintReport() {
+  const node = currentlySelectedNode || monitoringNodes[0];
+  document.getElementById('printDate').innerText = new Date().toLocaleString();
+  document.getElementById('printNodeName').innerText = `${node.nameEn} (${node.id})`;
+  document.getElementById('printLST').innerText = node.currentLST;
+  document.getElementById('printAnomaly').innerText = node.currentAnomaly;
+  document.getElementById('printAmbient').innerText = activeTelemetry.baseTemp;
+  document.getElementById('printSolar').innerText = activeTelemetry.solarRadiation;
+  document.getElementById('printWorkerDirective').innerText = node.workerActionEn;
+  document.getElementById('printPlannerDirective').innerText = node.plannerActionEn;
+
+  window.print();
+}
+
+// ==========================================
+// 11. INITIALIZATION ENGINE
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
