@@ -1,60 +1,175 @@
-/* Custom GIS Scrollbars & Overlays */
+/* =========================================================================
+   EcoShield.AI | Aerospace Visual Architecture & Observatory Polish
+   Theme: High-Tech Deep-Space Glassmorphism (Mission Control Grade)
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --space-dark: #020617;
+  --panel-bg: rgba(7, 13, 30, 0.85);
+  --panel-border: rgba(30, 48, 88, 0.65);
+  --cyan-glow: rgba(0, 209, 255, 0.4);
+  --cyan-neon: #00D1FF;
+}
+
+/* 1. Global Reset & Ambient Glow */
+body {
+  background-color: var(--space-dark);
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(11, 61, 145, 0.15) 0%, transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(0, 209, 255, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. Glassmorphic Surface Cards */
+header, 
+.bg-space-900, 
+.bg-space-850 {
+  background-color: var(--panel-bg) !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-color: var(--panel-border) !important;
+}
+
+/* 3. Subtle Cybernetic Borders & Hover Elevation */
+.border-space-border,
+.border-space-border\/80,
+.border-space-border\/60 {
+  border-color: var(--panel-border) !important;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+/* Interactive Card Elevation */
+.grid > div:hover,
+#tabContentTelemetry > div:hover,
+#tabContentHealth > div:hover,
+#tabContentSimulator > div:hover {
+  border-color: rgba(0, 209, 255, 0.35) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 209, 255, 0.12);
+}
+
+/* 4. Professional Neon Accent Badges */
+.text-nasa-cyan {
+  color: var(--cyan-neon) !important;
+  text-shadow: 0 0 10px rgba(0, 209, 255, 0.45);
+}
+
+/* 5. Sleek Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #050a14;
+  background: #020617;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #1b2d54;
-  border-radius: 2px;
+  background: #192b57;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 209, 255, 0.15);
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #00D1FF;
+  background: #2a437a;
 }
 
+/* 6. GIS Leaflet Map Optimization */
 #gis-map {
-  height: 100%;
-  min-height: 540px;
-  width: 100%;
-  background: #050a14;
-  z-index: 1;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 460px;
+  background-color: #020617 !important;
+  outline: none;
 }
 
-.leaflet-bar a {
-  background-color: #0b1325 !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid #1b2d54 !important;
-}
-
-.leaflet-bar a:hover {
-  background-color: #111d38 !important;
-  color: #00D1FF !important;
-}
-
-.leaflet-popup-content-wrapper {
-  background: #0b1325 !important;
-  color: #f1f5f9 !important;
-  border: 1px solid #1b2d54 !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+.gis-tooltip {
+  background: rgba(4, 9, 22, 0.94) !important;
+  border: 1px solid rgba(0, 209, 255, 0.45) !important;
   border-radius: 8px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 14px rgba(0, 209, 255, 0.2) !important;
+  color: #f8fafc !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  backdrop-filter: blur(8px);
 }
 
-.leaflet-popup-tip {
-  background: #0b1325 !important;
+.gis-tooltip::before {
+  border-top-color: rgba(0, 209, 255, 0.5) !important;
 }
 
+/* Leaflet Zoom Control Styling */
+.leaflet-bar {
+  border: 1px solid rgba(30, 48, 88, 0.8) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+}
+.leaflet-bar a {
+  background-color: rgba(7, 13, 30, 0.9) !important;
+  color: #00D1FF !important;
+  border-bottom: 1px solid rgba(30, 48, 88, 0.8) !important;
+  transition: all 0.2s ease;
+}
+.leaflet-bar a:hover {
+  background-color: #101e40 !important;
+  color: #ffffff !important;
+}
+
+/* 7. Button Hover Micro-Interactions */
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:active {
+  transform: scale(0.97);
+}
+
+/* 8. Pulsing Status Indicator Radar */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 209, 255, 0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+    box-shadow: 0 0 14px rgba(0, 209, 255, 0.6);
+  }
+}
 .radar-pulse-anim {
-  box-shadow: 0 0 0 0 rgba(0, 209, 255, 0.7);
-  animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  animation: pulseGlow 2.2s infinite ease-in-out;
 }
 
-@keyframes pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgba(0, 209, 255, 0.7); }
-  70% { box-shadow: 0 0 0 14px rgba(0, 209, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 209, 255, 0); }
+/* 9. Sleek Range Sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: #0b152d;
+  border: 1px solid #192b57;
+  border-radius: 9999px;
+  height: 6px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #00D1FF;
+  cursor: pointer;
+  box-shadow: 0 0 8px #00D1FF;
+  border: 2px solid #ffffff;
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+/* 10. Floating Menus & Modal Backdrop */
+#toolsMenuDropdown {
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 209, 255, 0.15) !important;
+}
+
+#liveLocationModal {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 18px rgba(0, 209, 255, 0.22) !important;
 }
