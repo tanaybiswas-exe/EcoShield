@@ -603,36 +603,29 @@
     </div>
   </div>
 
-  <!-- MODALS -->
-  <div id="liveLocationModal" class="hidden fixed bottom-6 left-6 z-[2000] w-96 max-w-[90vw] bg-space-900/95 backdrop-blur-xl border border-nasa-cyan/40 rounded-2xl shadow-2xl p-4 font-mono">
-    <div class="flex items-center justify-between pb-2.5 border-b border-space-border">
-      <div class="flex items-center gap-2">
-        <span class="h-2.5 w-2.5 rounded-full bg-nasa-cyan radar-pulse-anim"></span>
-        <span id="uiGpsModalTitle" class="text-xs font-bold text-white uppercase tracking-wider">In-Situ Geolocation Telemetry</span>
+  <!-- COMPACT AEROSPACE IN-SITU MICRO-HUD (NON-INTRUSIVE & CLEAN) -->
+  <div id="liveLocationModal" class="hidden fixed bottom-4 left-4 z-[2000] w-72 max-w-[85vw] bg-space-900/90 backdrop-blur-xl border border-nasa-cyan/40 rounded-xl shadow-2xl p-2.5 font-mono no-print">
+    <div class="flex items-center justify-between pb-1.5 border-b border-space-border/60">
+      <div class="flex items-center gap-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-nasa-cyan radar-pulse-anim"></span>
+        <span id="uiGpsModalTitle" class="text-[10px] font-bold text-white uppercase tracking-wider">In-Situ Telemetry</span>
       </div>
-      <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+      <button onclick="closeLocationModal()" class="text-slate-400 hover:text-white transition p-0.5"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
     </div>
-    <div class="mt-3.5 space-y-3 text-xs">
-      <div>
-        <span id="uiGpsZoneLabel" class="text-[10px] text-slate-400">Resolved Spatial Zone:</span>
-        <div id="liveLocName" class="text-sm font-bold text-nasa-cyan">In-Situ Verified Position</div>
-        <div id="liveLocCoords" class="text-[10px] text-slate-400">Lat: 0.0000° | Lon: 0.0000°</div>
-      </div>
-      <div class="p-3 bg-space-950 rounded-xl border border-space-border flex items-center justify-between">
-        <div>
-          <span id="uiGpsLocalTempLabel" class="text-[10px] text-slate-400 block font-sans">In-Situ Temperature</span>
-          <span id="liveLocTemp" class="text-2xl font-bold font-mono text-white">--°C</span>
-        </div>
-        <div class="text-right">
-          <span id="uiGpsStressLabel" class="text-[10px] text-slate-400 block font-sans">Physiological Heat Strain</span>
-          <span id="liveLocBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Nominal</span>
-        </div>
-      </div>
-      <div class="p-3 bg-space-950/80 rounded-xl border border-space-border text-[11px] font-sans">
-        <span id="uiGpsStatusAdvise" class="text-amber-400 font-bold block mb-1">Operational Directive & Action:</span>
-        <p id="liveLocAdvice" class="text-slate-300 leading-relaxed">Convective air currents keep in-situ temperature within safe boundaries.</p>
-      </div>
+    <div class="mt-1.5">
+      <div id="liveLocName" class="text-xs font-bold text-nasa-cyan truncate" title="In-Situ Verified Position">In-Situ Verified Position</div>
+      <div id="liveLocCoords" class="text-[9px] text-slate-400">Lat: 0.0000° | Lon: 0.0000°</div>
     </div>
+    <div class="mt-2 p-1.5 bg-space-950/80 rounded-lg border border-space-border/70 flex items-center justify-between">
+      <div class="flex items-baseline gap-1">
+        <span id="liveLocTemp" class="text-lg font-extrabold font-mono text-white leading-none">--°C</span>
+        <span class="text-[9px] text-slate-400">in-situ</span>
+      </div>
+      <span id="liveLocBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Nominal</span>
+    </div>
+    <p id="liveLocAdvice" class="text-[9px] text-slate-400 mt-1.5 line-clamp-2 leading-tight">
+      Convective air currents keep in-situ temperature within safe boundaries.
+    </p>
   </div>
 
   <div id="sosModal" class="hidden fixed inset-0 z-[3500] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -785,90 +778,6 @@
           <span>SUBMIT IN-SITU OBSERVATION</span>
         </button>
       </form>
-    </div>
-  </div>
-
-  <!-- UPGRADED NASA EARTH & SPACE SPOTLIGHT OBSERVATORY -->
-  <div id="nasaApodModal" class="hidden fixed inset-0 z-[3000] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 no-print">
-    <div class="bg-space-900 border border-nasa-cyan/40 rounded-2xl max-w-2xl w-full p-6 shadow-2xl font-mono text-xs overflow-hidden flex flex-col max-h-[90vh]">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-3 border-b border-space-border/60">
-        <div class="flex items-center gap-2.5">
-          <div class="h-7 w-7 rounded-lg bg-nasa-blue flex items-center justify-center text-white font-extrabold text-[10px] border border-nasa-cyan/40 shadow-sm">
-            NASA
-          </div>
-          <div>
-            <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <span>Planetary Earth & Space Observation Feed</span>
-              <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-            </h2>
-            <span class="text-[10px] text-slate-400">api.nasa.gov Live Stream Lineage</span>
-          </div>
-        </div>
-        <button onclick="closeNasaApodModal()" class="text-slate-400 hover:text-white transition p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-
-      <!-- Orbital Sensor Live HUD -->
-      <div class="grid grid-cols-3 gap-2 py-3 border-b border-space-border/40 text-[11px]">
-        <div class="p-2 bg-space-950 rounded-lg border border-space-border">
-          <span class="text-[9px] text-slate-400 block uppercase">ISS Velocity</span>
-          <span class="text-xs font-bold text-nasa-cyan">~27,600 km/h</span>
-        </div>
-        <div class="p-2 bg-space-950 rounded-lg border border-space-border">
-          <span class="text-[9px] text-slate-400 block uppercase">Radiometer Orbit</span>
-          <span class="text-xs font-bold text-emerald-400">418 km Altitude</span>
-        </div>
-        <div class="p-2 bg-space-950 rounded-lg border border-space-border">
-          <span class="text-[9px] text-slate-400 block uppercase">Sensor State</span>
-          <span class="text-xs font-bold text-amber-300">Operational TIR-5</span>
-        </div>
-      </div>
-
-      <!-- Sub-Tabs: APOD vs ECOSTRESS vs LANDSAT -->
-      <div class="flex gap-1.5 py-2.5 text-[10px] font-mono border-b border-space-border/40">
-        <button onclick="switchSpotlightTab('apod')" id="spotTabApod" class="px-2.5 py-1 rounded bg-nasa-cyan/20 text-nasa-cyan border border-nasa-cyan/40 font-bold transition">
-          NASA Live APOD Stream
-        </button>
-        <button onclick="switchSpotlightTab('ecostress')" id="spotTabEcostress" class="px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition">
-          ECOSTRESS Mission
-        </button>
-        <button onclick="switchSpotlightTab('landsat')" id="spotTabLandsat" class="px-2.5 py-1 rounded bg-space-950 hover:bg-space-850 text-slate-400 border border-space-border transition">
-          Landsat-9 Spectral
-        </button>
-      </div>
-
-      <!-- Scrollable Media Content Area -->
-      <div class="mt-3 overflow-y-auto space-y-3 font-sans pr-1">
-        <div class="relative group rounded-xl overflow-hidden border border-space-border bg-black max-h-56">
-          <img id="apodImage" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop" alt="NASA Spotlight" class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105">
-          <a id="apodHdLink" href="#" target="_blank" class="absolute bottom-2 right-2 px-2 py-1 rounded bg-space-950/80 border border-nasa-cyan/40 text-[10px] font-mono text-nasa-cyan font-bold flex items-center gap-1 backdrop-blur shadow hover:bg-space-900 transition">
-            <i data-lucide="external-link" class="w-3 h-3"></i> View Full HD
-          </a>
-          <span id="apodDateBadge" class="absolute top-2 left-2 px-2 py-0.5 rounded bg-space-950/80 border border-space-border text-[9px] font-mono text-slate-300">
-            Live Stream
-          </span>
-        </div>
-
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <h3 id="apodTitle" class="font-mono font-bold text-nasa-cyan text-sm tracking-tight">International Space Station Earth Horizon Telemetry</h3>
-            <span id="apodMediaTag" class="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-nasa-cyan border border-nasa-cyan/30">IMAGE</span>
-          </div>
-          <p id="apodExplanation" class="text-slate-300 text-xs leading-relaxed max-h-36 overflow-y-auto font-sans pr-1">
-            Loading real-time imagery feed from NASA's Open API...
-          </p>
-        </div>
-      </div>
-
-      <!-- Footer Action -->
-      <div class="pt-3 mt-2 border-t border-space-border/50 flex justify-between items-center text-[10px] font-mono text-slate-400">
-        <span>Verified by NASA Goddard Space Flight Center</span>
-        <button onclick="fetchNasaApod(true)" class="text-nasa-cyan hover:underline flex items-center gap-1">
-          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Force Refresh
-        </button>
-      </div>
-
     </div>
   </div>
 
