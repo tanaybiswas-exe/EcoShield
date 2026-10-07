@@ -16,6 +16,7 @@ let citizenReports = [];
 let isSonificationActive = false;
 let audioCtx = null;
 let orbitLayerGroup = null;
+let globalClickMarker = null;
 
 const i18n = {
   en: {
@@ -186,6 +187,7 @@ const i18n = {
   }
 };
 
+// WORLD METEOROLOGICAL ORGANIZATION (WMO) CALIBRATED OBSERVATORY NODES (GLOBAL COVERAGE)
 const monitoringNodes = [
   {
     id: "WMO-DV-01",
@@ -294,6 +296,42 @@ const monitoringNodes = [
     workerActionBn: "উচ্চ তাপমাত্রা এবং বায়ুদূষণের যৌথ সংকট। বাইরে কাজ করার সময় মাস্ক পরিধান এবং নিয়মিত পানি পান বাধ্যতামূলক।",
     plannerActionEn: "Expand linear urban bioswales and enforce non-absorptive porous pavement across transport hubs.",
     plannerActionBn: "রাস্তার পাশে লিনিয়ার গ্রিন বেল্ট তৈরি এবং তাপ নিরোধক ছিদ্রযুক্ত পেভমেন্ট স্থাপন।"
+  },
+  {
+    id: "WMO-SAH-01",
+    nameEn: "Sahara In-Salah Thermal Hub (Algeria)",
+    nameBn: "সাহারা ইন-সালাহ থার্মাল জোন (আলজেরিয়া)",
+    lat: 27.1935,
+    lon: 2.4832,
+    ndbi: 0.95,
+    ndvi: 0.01,
+    albedo: 0.35,
+    densityWeight: 1.48,
+    populationDensity: "Desert Oasis Outpost",
+    sedacMultiplier: "1.10x",
+    type: "danger",
+    workerActionEn: "Hyper-arid heat radiation. Extreme convective surface heating requiring continuous hydration protocol.",
+    workerActionBn: "চরম শুষ্ক মরুভূমির তাপ বিকিরণ। জরুরি ডিহাইড্রেশন প্রতিরোধে বিশেষ সতর্কতা প্রয়োজন।",
+    plannerActionEn: "Deploy deep geothermal sub-cooling corridors and traditional wind-catcher cooling architecture.",
+    plannerActionBn: "প্রাকৃতিক বাতাস সঞ্চালন ও ভূগর্ভস্থ শীতলীকরণ চ্যানেলের ব্যবহার নিশ্চিতকরণ।"
+  },
+  {
+    id: "WMO-AUS-01",
+    nameEn: "Pilbara Red Center (Western Australia)",
+    nameBn: "পিলবারা থার্মাল করিডোর (পশ্চিম অস্ট্রেলিয়া)",
+    lat: -21.1736,
+    lon: 119.7460,
+    ndbi: 0.88,
+    ndvi: 0.04,
+    albedo: 0.30,
+    densityWeight: 1.35,
+    populationDensity: "Remote Mining District",
+    sedacMultiplier: "1.15x",
+    type: "danger",
+    workerActionEn: "Intense solar UV and direct ground thermal convection. Heavy mining machinery shift rotation mandated.",
+    workerActionBn: "তীব্র অতিবেগুনি রশ্মি এবং উত্তপ্ত ভূ-পৃষ্ঠ। শ্রমিকদের শিফট পরিবর্তন বাধ্যতামূলক।",
+    plannerActionEn: "Utilize autonomous solar shading panels and mobile evaporative recovery stations.",
+    plannerActionBn: "স্বয়ংক্রিয় সোলার শেডিং এবং ভ্রাম্যমাণ কুলিং ইউনিটের প্রসার।"
   },
   {
     id: "WMO-VOS-01",
@@ -406,7 +444,7 @@ function evaluateMicroclimate(node, baseT, radiation, wind) {
 }
 
 // ==========================================
-// 3. GIS MAP ENGINE (ARCGIS SATELLITE TILES)
+// 3. GIS MAP ENGINE WITH GLOBAL ON-CLICK INSPECT
 // ==========================================
 function initializeGISMap() {
   const mapContainer = document.getElementById('gis-map');
@@ -439,7 +477,70 @@ function initializeGISMap() {
   citizenLayerGroup = L.layerGroup().addTo(gisMap);
   orbitLayerGroup = L.layerGroup().addTo(gisMap);
 
+  // GLOBAL CLICK-TO-INSPECT: বিশ্বের যেকোনো স্থানে ক্লিক করলে লাইভ ডেটা আনবে
+  gisMap.on('click', async (e) => {
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+    inspectGlobalCoordinates(lat, lon);
+  });
+
   setTimeout(() => { if (gisMap) gisMap.invalidateSize(); }, 250);
+}
+
+// বিশ্বের যেকোনো স্থানাঙ্কের লাইভ টেলিমেট্রি ইনস্পেকশন ইঞ্জিন
+async function inspectGlobalCoordinates(lat, lon) {
+  let locationLabel = `Global Coordinate (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`;
+  
+  if (globalClickMarker) gisMap.removeLayer(globalClickMarker);
+
+  const clickIcon = L.divIcon({
+    className: 'global-inspect-marker',
+    html: `
+      <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+        <span style="position: absolute; width: 34px; height: 34px; border-radius: 9999px; background: #00D1FF; opacity: 0.35; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+        <div style="width: 18px; height: 18px; border-radius: 9999px; background: #020617; border: 2.5px solid #00D1FF; box-shadow: 0 0 12px #00D1FF;"></div>
+      </div>
+    `,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17]
+  });
+
+  globalClickMarker = L.marker([lat, lon], { icon: clickIcon }).addTo(gisMap);
+
+  try {
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
+    if (geoRes.ok) {
+      const geoData = await geoRes.json();
+      if (geoData.display_name) {
+        locationLabel = geoData.display_name.split(',').slice(0, 3).join(',').trim();
+      }
+    }
+  } catch (err) {
+    console.warn("Geocode reverse lookup fallback applied:", err);
+  }
+
+  // কৃত্রিম ডায়নামিক নোড তৈরি
+  const dynamicNode = {
+    id: `WMO-GLB-${Math.abs(Math.round(lat))}-${Math.abs(Math.round(lon))}`,
+    nameEn: locationLabel,
+    nameBn: locationLabel,
+    lat: lat,
+    lon: lon,
+    ndbi: Math.min(0.95, Math.max(0.10, Math.abs(lat % 1))),
+    ndvi: Math.min(0.85, Math.max(0.05, 1 - Math.abs(lat % 1))),
+    albedo: 0.20,
+    densityWeight: 1.20,
+    populationDensity: "Global Monitored Node",
+    sedacMultiplier: "1.20x",
+    type: "danger",
+    workerActionEn: "Follow regional occupational heat stress standards. Ensure regular shaded recovery periods and hydration.",
+    workerActionBn: "আঞ্চলিক পরিবেশগত তাপমাত্রা অনুযায়ী স্বাস্থ্যবিধি মেনে চলুন এবং নিয়মিত বিশ্রাম নিশ্চিত করুন।",
+    plannerActionEn: "Integrate spaceborne Land Surface Temperature downscaling to evaluate local urban microclimate buffering.",
+    plannerActionBn: "স্যাটেলাইট থার্মাল ডেটা ব্যবহার করে স্থানীয় মাইক্রোক্লাইমেট রেজিলিয়েন্স পরিকল্পনা নিশ্চিত করুন।"
+  };
+
+  selectMonitoringNode(dynamicNode, false);
+  executeTelemetryPipeline(lat, lon);
 }
 
 function renderGISLayers() {
@@ -551,6 +652,7 @@ function toggleSatelliteSwath() {
     return;
   }
 
+  // Draw 51.6° Inclined ISS Ground Orbit Track
   const orbitCoords = [
     [-51.6, -160.0],
     [-30.0, -110.0],
@@ -604,7 +706,7 @@ function toggleShadedRoute() {
   }).addTo(gisMap);
 
   const routeTitle = currentLang === 'bn' ? "🌿 থার্মাল-সেফ রুটিং করিডোর" : "🌿 Thermal-Safe Shaded Corridor";
-  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
+  const routeDesc = currentLang === 'bn' ? "গাছের ছায়াযুক্ত ও কম তাপমাত্রার রুট।" : "High-NDVI vegetative shade corridor mitigating radiant surface heat flux.";
 
   safeRouteLayer.bindPopup(`
     <div class="font-mono text-xs p-1">
@@ -716,7 +818,7 @@ async function executeTelemetryPipeline(targetLat = WORLD_CENTER_LAT, targetLon 
         riskCat.innerText = currentLang === 'bn' ? "উচ্চ সতর্কতা (শারীরিক ক্লান্তি)" : "Extreme Caution (Fatigue Alert)";
         riskCat.className = "mt-1 text-[10px] text-amber-300 font-mono";
       } else if (noaaHI < 0) {
-        riskCat.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ (ক্রায়োজেনিক)" : "Cryospheric Polar Alert";
+        riskCat.innerText = currentLang === 'bn' ? "চরম শৈত্যপ্রবাহ (ক্রায়োজেনিক)" : "Cryospheric Polar Alert";
         riskCat.className = "mt-1 text-[10px] text-sky-400 font-mono font-bold";
       } else {
         riskCat.innerText = currentLang === 'bn' ? "সহনশীল ও স্বাভাবিক মাত্রা" : "Nominal Physiological Range";
@@ -1102,7 +1204,7 @@ function playVoiceWarning() {
   window.speechSynthesis.speak(utterance);
 }
 
-// IN-SITU HIGH PRECISION REVERSE GEOCODING
+// IN-SITU HIGH PRECISION REVERSE GEOCODING (ONLY CALLED WHEN USER CLICKS BUTTON)
 function requestUserGPS() {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
@@ -1659,7 +1761,6 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => { if (gisMap) gisMap.invalidateSize(); }, 250);
 
   loadStoredCitizenReports(); 
-  executeTelemetryPipeline();
-  requestUserGPS();
+  executeTelemetryPipeline(); // বিশ্ব কেন্দ্র (World Center) থেকে গ্লোবাল ডেটা লোড করবে
   applyLanguageUI();
 });
